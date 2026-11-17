@@ -1,4 +1,4 @@
-package pe.edu.karely.repository;
+package pe.edu.karely.persistence;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -7,14 +7,14 @@ import javax.sql.DataSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceUtils;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /** Nunca acepta nombres de tabla/procedimiento introducidos por HTTP. */
-@Repository
-public class OracleRepository {
+@Component
+public class OracleJdbc {
   private final JdbcTemplate jdbc;
   private final DataSource dataSource;
-  public OracleRepository(JdbcTemplate jdbc, DataSource dataSource) { this.jdbc=jdbc;this.dataSource=dataSource; }
+  public OracleJdbc(JdbcTemplate jdbc, DataSource dataSource) { this.jdbc=jdbc;this.dataSource=dataSource; }
   public List<Map<String,Object>> list(String sql,Object... params) {
     return jdbc.queryForList(sql, convert(params));
   }
@@ -73,5 +73,9 @@ public class OracleRepository {
       return cs.getLong(params.length+1);
     }catch(SQLException e){throw new org.springframework.jdbc.UncategorizedSQLException("insertReturning",plsql,e);}
     finally{DataSourceUtils.releaseConnection(con,dataSource);}
+  }
+
+  public <T> List<T> query(String sql, org.springframework.jdbc.core.RowMapper<T> mapper, Object... params) {
+    return jdbc.query(sql, mapper, convert(params));
   }
 }

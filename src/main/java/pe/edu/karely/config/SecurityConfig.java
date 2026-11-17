@@ -4,7 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.core.JdbcTemplate;
+import pe.edu.karely.repository.SesionRepository;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -43,7 +43,7 @@ public class SecurityConfig {
      * por fuera de Spring Security.
      */
     @Bean
-    SecurityFilterChain chain(HttpSecurity http, JwtService jwt, JdbcTemplate jdbc) throws Exception {
+    SecurityFilterChain chain(HttpSecurity http, JwtService jwt, SesionRepository sesiones) throws Exception {
         http.csrf(csrf -> csrf.disable())
             .cors(cors -> {})
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -53,7 +53,7 @@ public class SecurityConfig {
             .exceptionHandling(errors -> errors
                 .authenticationEntryPoint((request, response, ex) -> response.sendError(401))
                 .accessDeniedHandler((request, response, ex) -> response.sendError(403)))
-            .addFilterBefore(new AuthFilter(jwt, jdbc), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(new AuthFilter(jwt, sesiones), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

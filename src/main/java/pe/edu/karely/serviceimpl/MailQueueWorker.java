@@ -1,6 +1,6 @@
 package pe.edu.karely.serviceimpl;
 
-import pe.edu.karely.repository.OracleRepository;
+import pe.edu.karely.repository.NotificacionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,9 +21,9 @@ import java.util.List;
 @ConditionalOnProperty(name="app.mail.enabled",havingValue="true")
 public class MailQueueWorker {
  private static final Logger LOG=LoggerFactory.getLogger(MailQueueWorker.class);
- private final OracleRepository repo;private final JavaMailSender mail;
+ private final NotificacionRepository repo;private final JavaMailSender mail;
  private final TransactionTemplate tx;private final long operator;private final String from;
- public MailQueueWorker(OracleRepository repo,JavaMailSender mail,PlatformTransactionManager tm,
+ public MailQueueWorker(NotificacionRepository repo,JavaMailSender mail,PlatformTransactionManager tm,
   @Value("${app.mail.operator-id:0}")long operator,@Value("${app.mail.from:}")String from){
   if(operator<1||from.isBlank())throw new IllegalArgumentException("Configurar APP_MAIL_OPERATOR_ID (administradora activa) y APP_MAIL_FROM para activar SMTP");
   this.repo=repo;this.mail=mail;this.tx=new TransactionTemplate(tm);this.operator=operator;this.from=from;
@@ -31,8 +31,7 @@ public class MailQueueWorker {
  @Scheduled(fixedDelayString="${app.mail.poll-ms:30000}")
  public void run(){
   List<Object> job;
-  try{job=tx.execute(status->repo.call("SP_TOMAR_NOTIFICACION",operator,
-    operator,OracleRepository.outNumber(),OracleRepository.outText(),OracleRepository.outText(),OracleRepository.outText(),OracleRepository.outNumber()));}
+  try{job=tx.execute(status->repo.reclamar(operator));}
   catch(Exception ex){LOG.error("No se pudo reclamar una notificación",ex);return;}
   if(job==null||job.isEmpty()||job.getFirst()==null)return;
   long id=((Number)job.get(0)).longValue();
@@ -46,7 +45,7 @@ public class MailQueueWorker {
     mail.send(msg);success="S";
   }catch(Exception ex){error=ex.getClass().getSimpleName();LOG.warn("Falló el envío del evento {}",codigo);}
   final String succeeded=success,detail=error;
-  try{tx.execute(status->{repo.call("SP_REGISTRAR_RESULTADO_ENVIO",operator,operator,id,intento,succeeded,detail);return null;});}
+  try{tx.execute(status->{repo.registrarResultado(operator,id,intento,succeeded,detail);return null;});}
   catch(Exception ex){LOG.error("No se pudo registrar resultado del envío {}",codigo,ex);}
  }
 }
