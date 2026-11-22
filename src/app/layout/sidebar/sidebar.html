@@ -2,7 +2,7 @@
   <div class="zona-logo">
     <img src="/img/LOGO GRANDE.png" alt="Karely's" class="logo-empresa" />
   </div>
-  <div class="titulo-panel">{{esDoctor ? 'PANEL MÉDICO' : 'PANEL DE ADMINISTRACIÓN'}}</div>
+  <div class="titulo-panel">{{ tituloPanel }}</div>
   <nav class="menu-lateral">
     @for(item of menu;track item.path){<a
       [routerLink]="item.path"

@@ -1257,3 +1257,12 @@ button {
         grid-template-columns: 1fr;
     }
 }
+.k-module .k-panel p { line-height:1.6; }
+.k-module .k-actions, .k-module .k-row-actions, .k-module .k-header-actions { column-gap:14px; row-gap:12px; }
+.k-module .k-panel > .k-button + .k-button { margin-inline-start:12px; }
+.k-module .k-field > small, .k-module .k-field > .k-info { margin-top:8px; }
+.k-module dd { margin:6px 0 18px; overflow-wrap:anywhere; }
+.k-module dt { font-weight:700; }
+@media (max-width:600px) {
+    .k-module .k-actions > .k-button { max-width:100%; white-space:normal; }
+}

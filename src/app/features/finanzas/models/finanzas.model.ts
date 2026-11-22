@@ -32,6 +32,6 @@ export interface FinanzasRequest {
   fechaFin: string;
   monto: number;
   metodoPago: string;
-  numeroOperacion: string;
-  numeroBoleta: string;
+  numeroOperacion?: string;
+  numeroBoleta?: string;
 }

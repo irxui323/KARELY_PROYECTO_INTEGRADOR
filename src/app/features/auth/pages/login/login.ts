@@ -8,6 +8,7 @@ import {
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { AuthService } from "../../../../core/auth/auth-service";
 import { errorText } from "../../../../core/utils/http-error";
+import { INICIO_POR_ROL } from "../../../../core/config/permisos";
 import { returnUrlSeguro } from "../../../../core/utils/return-url";
 
 @Component({
@@ -58,7 +59,7 @@ export class LoginComponent {
         const destinoMedico = destino && /^\/doctor(?:\/(?:horarios|consultas))?(?:[?#]|$)/.test(destino)
           ? destino : "/doctor";
         await this.router.navigateByUrl(
-          s.rol === "DOCTOR" ? destinoMedico : destino ?? "/home",
+          s.rol === "DOCTOR" ? destinoMedico : destino ?? INICIO_POR_ROL[s.rol],
         );
       } catch (e) {
         this.error = errorText(e);

@@ -1,4 +1,6 @@
 import { TestBed } from "@angular/core/testing";
+import { PERMISOS_POR_ROL } from "../../core/config/permisos";
+import { Rol, Permiso } from "../../core/auth/auth.model";
 import { AuthService } from "../../core/auth/auth-service";
 import { Sidebar } from "./sidebar";
 import { permisoGuard } from "../../core/guards/permiso-guard";
@@ -57,4 +59,19 @@ describe("Administración de todos los módulos",()=>{
     const result=TestBed.runInInjectionContext(()=>permisoGuard({data:{permiso:"HORARIOS_ESCRIBIR",redireccionAdmin:"/doctores/horarios"}} as any,{} as any));
     expect(result).toBe("/doctores/horarios");
   });
+});
+
+describe("Módulos según el trabajador",()=>{
+ for(const [rol,rutas,titulo] of [
+  ["RECEPCIONISTA",["/home","/pacientes","/doctores","/citas"],"RECEPCIÓN"],
+  ["CAJERA",["/home","/citas"],"CAJA"],
+  ["TESORERA",["/home","/doctores","/finanzas"],"TESORERÍA"],
+ ] as const) {
+  it(`limita el menú de ${rol}`,()=>{
+   TestBed.configureTestingModule({providers:[{provide:AuthService,useValue:{session:()=>({rol}),estaAutenticado:()=>true,tienePermiso:(p:Permiso)=>PERMISOS_POR_ROL[rol as Rol].includes(p)}}]});
+   const sidebar=TestBed.runInInjectionContext(()=>new Sidebar());
+   expect(sidebar.menu.map(i=>i.path)).toEqual([...rutas]);
+   expect(sidebar.tituloPanel).toBe(titulo);
+  });
+ }
 });

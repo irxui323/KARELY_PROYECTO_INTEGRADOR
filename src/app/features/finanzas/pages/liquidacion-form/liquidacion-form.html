@@ -59,15 +59,8 @@
             <option value="EFECTIVO">Efectivo</option>
           </select>
         </label>
-        <label class="k-field">
-          Número de operación
-          <input maxlength="120" formControlName="numeroOperacion" />
-        </label>
-        <label class="k-field">
-          Número de boleta
-          <input maxlength="60" formControlName="numeroBoleta" />
-        </label>
       </fieldset>
+      <p class="k-info">El número de operación interno y el número de boleta se generan automáticamente al registrar el pago. Podrás consultarlos en Liquidaciones.</p>
       <div class="k-actions">
         <button
           *siPermiso="'PAGOS_REGISTRAR'"

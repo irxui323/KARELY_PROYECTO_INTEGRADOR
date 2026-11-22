@@ -17,3 +17,6 @@ a { display:inline-block; margin-top:24px; color:#005b83; font-weight:700; line-
 :focus-visible { outline:3px solid #007ea9; outline-offset:4px; }
 .error { color:#a91e25; font-weight:600; }
 @media(max-width:480px) { .recovery-shell { padding:24px 16px; } .recovery-panel { padding:28px 22px; } h1 { font-size:26px; } }
+
+.recovery-panel > a { margin-inline-end:20px; margin-bottom:8px; }
+.recovery-panel > a:last-child { margin-inline-end:0; }

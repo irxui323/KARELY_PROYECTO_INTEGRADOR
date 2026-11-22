@@ -127,9 +127,9 @@ export class AtencionForm implements OnInit {
   }
   async ngOnInit() {
     try {
-      await this.cargar();
       const id = Number(this.route?.snapshot.queryParamMap.get("cita"));
       if (id > 0) this.medico = { idCita: id, medioEntrega: "EMAIL" };
+      await this.cargar();
     } finally {
       this.changeDetector.markForCheck();
     }
@@ -157,6 +157,7 @@ export class AtencionForm implements OnInit {
         this.doctor = this.doctores.find(
           (d) => Number(d.idUsuario) === this.auth.session()?.idUsuario,
         );
+        this.restaurarReceta();
       } catch (e) {
         this.error = errorText(e);
       } finally {
@@ -166,9 +167,14 @@ export class AtencionForm implements OnInit {
       this.changeDetector.markForCheck();
     }
   }
+  private restaurarReceta(): void {
+    this.medicoGroup.controls.idReceta.setValue(this.atencionActual?.idReceta ?? null);
+    this.medicoGroup.controls.indicaciones.setValue(this.atencionActual?.indicacionesReceta ?? "");
+  }
   limpiarDetalleConsulta(): void {
     const id = this.medico.idCita;
     this.medico = { idCita: id, medioEntrega: "EMAIL" };
+    this.restaurarReceta();
     this.error = "";
     this.exito = "";
   }

@@ -51,3 +51,5 @@ export const PERMISOS_POR_ROL: Readonly<Record<Rol, readonly Permiso[]>> = {
     "NOTIFICACIONES_LEER",
   ],
 };
+
+export const INICIO_POR_ROL: Readonly<Record<Rol, string>> = {ADMINISTRADORA:"/home",RECEPCIONISTA:"/citas",CAJERA:"/citas/confirmar",TESORERA:"/finanzas",DOCTOR:"/doctor"};

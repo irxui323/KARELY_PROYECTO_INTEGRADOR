@@ -1,4 +1,6 @@
 export interface Atencion {
+  idReceta?: number | null;
+  indicacionesReceta?: string | null;
   idAtencion: number;
   idCita: number;
   estado: string;

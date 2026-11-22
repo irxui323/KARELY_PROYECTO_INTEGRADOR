@@ -3,6 +3,7 @@ import { Injectable, inject } from "@angular/core";
 import { environment } from "../../../../environments/environment";
 import { OperationResponse } from "../../../core/models/operation-response";
 import {
+  AccesoUsuario,
   AdministracionAccion,
   AdministracionRequest,
   Auditoria,
@@ -79,6 +80,6 @@ export class AdministracionService {
     }
   }
   crearUsuario(data: AdministracionRequest) {
-    return this.http.post<OperationResponse>(this.url + "/usuarios", data);
+    return this.http.post<AccesoUsuario>(this.url + "/usuarios", {idRol:data.idRol, username:data.username, correo:data.correo});
   }
 }

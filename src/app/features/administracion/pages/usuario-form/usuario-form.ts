@@ -5,12 +5,13 @@ import {
   ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
-import { Router, RouterLink } from "@angular/router";
+import { RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { errorText } from "../../../../core/utils/http-error";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
 import {
   AdministracionRequest,
+  AccesoUsuario,
   RolCatalogo,
 } from "../../models/administracion.model";
 import { AdministracionService } from "../../services/administracion-service";
@@ -25,7 +26,6 @@ export class UsuarioForm implements OnInit {
   private readonly changeDetector = inject(ChangeDetectorRef);
   guardando = false;
 
-  private readonly router = inject(Router);
   constructor() {
     this.nuevo = {};
   }
@@ -33,6 +33,7 @@ export class UsuarioForm implements OnInit {
   error = "";
   exito = "";
   roles: RolCatalogo[] = [];
+  acceso: AccesoUsuario | null = null;
   readonly nuevoGroup = new FormGroup({
     idRol: new FormControl<number | null | undefined>(undefined, {
       nonNullable: true,
@@ -46,10 +47,7 @@ export class UsuarioForm implements OnInit {
       nonNullable: true,
       validators: [Validators.required, Validators.email],
     }),
-    password: new FormControl<string | undefined | null>(undefined, {
-      nonNullable: true,
-      validators: [Validators.required, Validators.minLength(12)],
-    }),
+
   });
   get nuevo(): AdministracionRequest {
     return this.nuevoGroup.getRawValue();
@@ -63,7 +61,7 @@ export class UsuarioForm implements OnInit {
   async cargar() {
     try {
       try {
-        this.roles = await firstValueFrom(this.administracionService.roles());
+        this.roles = (await firstValueFrom(this.administracionService.roles())).filter(r => r.nombre !== "DOCTOR" && (!r.estado || r.estado === "ACTIVO"));
       } catch (e) {
         this.error = errorText(e);
       }
@@ -79,17 +77,19 @@ export class UsuarioForm implements OnInit {
         this.nuevoGroup.markAllAsTouched();
         this.exito = "";
         this.error =
-          "Completa el rol, el usuario, un correo válido y una contraseña de al menos 12 caracteres.";
+          "Completa el rol, el usuario y un correo válido.";
         return;
       }
       this.error = "";
+      this.exito = "";
+      this.acceso = null;
       try {
-        await firstValueFrom(
+        this.acceso = await firstValueFrom(
           this.administracionService.crearUsuario(this.nuevo),
         );
-        this.exito = "Usuario creado";
+        this.exito = "Trabajador registrado. Entrega estas credenciales al trabajador antes de salir.";
         this.nuevo = {};
-        void this.router.navigateByUrl("/admin");
+
         await this.cargar();
       } catch (e) {
         this.error = errorText(e);

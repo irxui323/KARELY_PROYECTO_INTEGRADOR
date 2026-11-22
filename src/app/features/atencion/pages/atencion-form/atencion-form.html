@@ -145,20 +145,9 @@
           placeholder="Indicaciones para el paciente..."
         ></textarea>
       </label>
-      <label class="k-field"
-        >ID de receta
-        <input
-          type="number"
-          min="1"
-          [formControl]="medicoGroup.controls.idReceta"
-          [appControlDisabled]="!atencionAbierta || procesando"
-          placeholder="Se completa al crearla"
-        />
-      </label>
     </div>
     <p class="doctor-help">
-      Si retomaste una consulta en otra sesión, introduce el ID de la receta que
-      ya habías creado; el sistema no genera otra automáticamente.
+      {{ medico.idReceta ? 'La receta de esta consulta está registrada. Puedes agregar los medicamentos.' : 'La receta se vincula automáticamente a esta consulta al crearla.' }}
     </p>
     <div class="k-actions">
       <button

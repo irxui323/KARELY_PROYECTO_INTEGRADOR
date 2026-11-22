@@ -50,14 +50,7 @@ export class LiquidacionForm implements OnInit {
       nonNullable: true,
       validators: Validators.required,
     }),
-    numeroOperacion: new FormControl("", {
-      nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(120)],
-    }),
-    numeroBoleta: new FormControl("", {
-      nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(60)],
-    }),
+
   });
 
   ngOnInit() {
@@ -82,8 +75,6 @@ export class LiquidacionForm implements OnInit {
     const {
       idDoctor,
       monto,
-      numeroOperacion,
-      numeroBoleta,
       fechaInicio,
       fechaFin,
       metodoPago,
@@ -92,9 +83,7 @@ export class LiquidacionForm implements OnInit {
       this.liqGroup.invalid ||
       idDoctor === null ||
       monto === null ||
-      !Number.isFinite(monto) ||
-      !numeroOperacion.trim() ||
-      !numeroBoleta.trim()
+      !Number.isFinite(monto)
     ) {
       this.liqGroup.markAllAsTouched();
       this.error = "Completa los datos del médico, el periodo y el pago.";
@@ -115,8 +104,6 @@ export class LiquidacionForm implements OnInit {
           fechaFin,
           monto,
           metodoPago,
-          numeroOperacion: numeroOperacion.trim(),
-          numeroBoleta: numeroBoleta.trim(),
         }),
       );
       this.exito = resultado.mensaje;

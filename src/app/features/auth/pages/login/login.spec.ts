@@ -21,3 +21,21 @@ describe("Destino inicial del doctor", () => {
     });
   }
 });
+
+describe("Destino inicial de trabajadores",()=>{
+ for(const [rol,destino] of [["RECEPCIONISTA","/citas"],["CAJERA","/citas/confirmar"],["TESORERA","/finanzas"],["ADMINISTRADORA","/home"]]) {
+  it(`abre el área de ${rol}`,async()=>{
+   const navegar=vi.fn().mockResolvedValue(true);
+   TestBed.configureTestingModule({providers:[
+    {provide:AuthService,useValue:{login:async()=>({rol})}},
+    {provide:Router,useValue:{navigateByUrl:navegar}},
+    {provide:ActivatedRoute,useValue:{snapshot:{queryParamMap:{get:()=>null}}}},
+    {provide:ChangeDetectorRef,useValue:{markForCheck(){}}},
+   ]});
+   const pagina=TestBed.runInInjectionContext(()=>new LoginComponent());
+   pagina.loginForm.setValue({username:"trabajador",password:"clave"});
+   await pagina.login();
+   expect(navegar).toHaveBeenCalledWith(destino);
+  });
+ }
+});

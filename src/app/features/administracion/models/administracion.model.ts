@@ -6,6 +6,7 @@ export interface Usuario {
   estado: string;
 }
 export interface RolCatalogo {
+  estado?: string;
   idRol: number;
   nombre: string;
 }
@@ -51,3 +52,5 @@ export type AdministracionAccion =
   | "usuario-rol"
   | "usuario-estado"
   | "parametro-cambiar";
+
+export interface AccesoUsuario { idUsuario: number; username: string; correo: string; password: string; }
