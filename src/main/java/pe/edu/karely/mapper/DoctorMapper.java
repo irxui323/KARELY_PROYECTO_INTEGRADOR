@@ -1,7 +1,7 @@
 package pe.edu.karely.mapper;
 
-import pe.edu.karely.entity.Doctor;
 import pe.edu.karely.dto.doctor.DoctorResponseDTO;
+import pe.edu.karely.entity.Doctor;
 
 public final class DoctorMapper {
     private DoctorMapper() {}

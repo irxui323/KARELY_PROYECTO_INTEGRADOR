@@ -1,7 +1,5 @@
 package pe.edu.karely.exception;
 
-import java.sql.SQLException;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -10,30 +8,39 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+
 import pe.edu.karely.dto.ErrorResponseDTO;
+
+import java.sql.SQLException;
+import java.util.regex.Pattern;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-    private static final Pattern MENSAJE_ORACLE = Pattern.compile("(?m)^\\h*(ORA-20\\d{3}:[^\\r\\n]+)");
+    private static final Pattern MENSAJE_ORACLE =
+            Pattern.compile("(?m)^\\h*(ORA-20\\d{3}:[^\\r\\n]+)");
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ErrorResponseDTO> uploadTooLarge(MaxUploadSizeExceededException e) {
         return error(413, "El archivo supera el máximo permitido de 10 MB");
     }
 
-    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class,
-            ServletRequestBindingException.class, MissingServletRequestPartException.class,
-            HandlerMethodValidationException.class})
+    @ExceptionHandler({
+        HttpMessageNotReadableException.class,
+        MethodArgumentTypeMismatchException.class,
+        ServletRequestBindingException.class,
+        MissingServletRequestPartException.class,
+        HandlerMethodValidationException.class
+    })
     public ResponseEntity<ErrorResponseDTO> malformedRequest(Exception e) {
         return error(400, "Formato de solicitud inválido");
     }
@@ -41,7 +48,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> invalidBody(MethodArgumentNotValidException e) {
         var field = e.getBindingResult().getFieldError();
-        return error(400, field == null ? "Datos inválidos" : field.getField() + ": " + field.getDefaultMessage());
+        return error(
+                400,
+                field == null
+                        ? "Datos inválidos"
+                        : field.getField() + ": " + field.getDefaultMessage());
     }
 
     @ExceptionHandler({IllegalArgumentException.class, ReglaNegocioException.class})
@@ -67,18 +78,26 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorResponseDTO> status(ResponseStatusException e) {
         String reason = e.getReason();
-        return error(e.getStatusCode().value(), reason == null || reason.isBlank() ? "Solicitud rechazada" : reason);
+        return error(
+                e.getStatusCode().value(),
+                reason == null || reason.isBlank() ? "Solicitud rechazada" : reason);
     }
 
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ErrorResponseDTO> sql(DataAccessException e) {
         if (e instanceof DuplicateKeyException) {
-            return error(409, "Ya existe un registro con esos datos. Revise los registros existentes.");
+            return error(
+                    409, "Ya existe un registro con esos datos. Revise los registros existentes.");
         }
         for (Throwable cause = e; cause != null; cause = cause.getCause()) {
-            if (cause instanceof SQLException sql && sql.getErrorCode() >= 20000 && sql.getErrorCode() <= 20999) {
-                var message = MENSAJE_ORACLE.matcher(sql.getMessage() == null ? "" : sql.getMessage());
-                return error(400, message.find() ? message.group(1).strip() : "Regla de negocio no cumplida");
+            if (cause instanceof SQLException sql
+                    && sql.getErrorCode() >= 20000
+                    && sql.getErrorCode() <= 20999) {
+                var message =
+                        MENSAJE_ORACLE.matcher(sql.getMessage() == null ? "" : sql.getMessage());
+                return error(
+                        400,
+                        message.find() ? message.group(1).strip() : "Regla de negocio no cumplida");
             }
         }
         LOG.error("Fallo interno de base de datos", e);

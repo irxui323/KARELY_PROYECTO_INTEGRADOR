@@ -4,6 +4,4 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record SaldoDoctorResponseDTO(
-        Long idDoctor,
-        LocalDate fechaCorte,
-        BigDecimal saldoPendiente) {}
+        Long idDoctor, LocalDate fechaCorte, BigDecimal saldoPendiente) {}

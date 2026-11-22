@@ -1,6 +1,5 @@
 package pe.edu.karely.dto.doctor;
 
-
 public record DoctorResponseDTO(
         Long idDoctor,
         Long idUsuario,

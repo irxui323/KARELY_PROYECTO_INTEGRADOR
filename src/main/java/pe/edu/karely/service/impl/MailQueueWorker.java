@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
+
 import pe.edu.karely.dto.administracion.NotificacionEnvioDTO;
 import pe.edu.karely.repository.NotificacionRepository;
 
@@ -24,10 +25,16 @@ public class MailQueueWorker {
     private final long operator;
     private final String from;
 
-    public MailQueueWorker(NotificacionRepository repo, JavaMailSender mail, PlatformTransactionManager tm,
-            @Value("${app.mail.operator-id:0}") long operator, @Value("${app.mail.from:}") String from) {
+    public MailQueueWorker(
+            NotificacionRepository repo,
+            JavaMailSender mail,
+            PlatformTransactionManager tm,
+            @Value("${app.mail.operator-id:0}") long operator,
+            @Value("${app.mail.from:}") String from) {
         if (operator < 1 || from.isBlank()) {
-            throw new IllegalArgumentException("Configurar APP_MAIL_OPERATOR_ID (administradora activa) y APP_MAIL_FROM para activar SMTP");
+            throw new IllegalArgumentException(
+                    "Configurar APP_MAIL_OPERATOR_ID (administradora activa) y APP_MAIL_FROM para"
+                        + " activar SMTP");
         }
         this.repo = repo;
         this.mail = mail;
@@ -56,8 +63,11 @@ public class MailQueueWorker {
             message.setFrom(from);
             message.setTo(job.destinatario());
             message.setSubject("Karely's - " + job.tipo().replace('_', ' '));
-            message.setText("Su notificación del centro médico Karely's está registrada. Referencia: "
-                    + job.codigoEvento() + ". Si no solicitó esta operación, contacte a administración.\n\nNo responda a este correo.");
+            message.setText(
+                    "Su notificación del centro médico Karely's está registrada. Referencia: "
+                            + job.codigoEvento()
+                            + ". Si no solicitó esta operación, contacte a administración.\n\n"
+                            + "No responda a este correo.");
             mail.send(message);
             success = "S";
         } catch (Exception ex) {
@@ -68,8 +78,14 @@ public class MailQueueWorker {
         String succeeded = success;
         String detail = error;
         try {
-            tx.executeWithoutResult(status ->
-                    repo.registrarResultado(operator, job.idNotificacion(), job.intento(), succeeded, detail));
+            tx.executeWithoutResult(
+                    status ->
+                            repo.registrarResultado(
+                                    operator,
+                                    job.idNotificacion(),
+                                    job.intento(),
+                                    succeeded,
+                                    detail));
         } catch (Exception ex) {
             LOG.error("No se pudo registrar resultado del envío {}", job.codigoEvento(), ex);
         }

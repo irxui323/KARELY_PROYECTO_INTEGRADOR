@@ -1,23 +1,25 @@
 package pe.edu.karely.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
+import org.springframework.http.CacheControl;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import pe.edu.karely.dto.administracion.UsuarioResponseDTO;
 import pe.edu.karely.dto.auth.LoginRequestDTO;
 import pe.edu.karely.dto.auth.LoginResponseDTO;
 import pe.edu.karely.dto.auth.MensajeResponseDTO;
-import pe.edu.karely.service.service.AuthService;
-import pe.edu.karely.service.service.RecuperacionService;
 import pe.edu.karely.dto.auth.RecuperacionRequestDTO;
 import pe.edu.karely.dto.auth.RestablecerPasswordRequestDTO;
-import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.CacheControl;
+import pe.edu.karely.service.service.AuthService;
+import pe.edu.karely.service.service.RecuperacionService;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -31,15 +33,23 @@ public class AuthController {
     }
 
     @PostMapping("/recuperacion")
-    public ResponseEntity<MensajeResponseDTO> solicitarRecuperacion(@Valid @RequestBody RecuperacionRequestDTO body, HttpServletRequest request) {
+    public ResponseEntity<MensajeResponseDTO> solicitarRecuperacion(
+            @Valid @RequestBody RecuperacionRequestDTO body, HttpServletRequest request) {
         recuperacion.solicitar(body, request.getRemoteAddr());
-        return ResponseEntity.accepted().cacheControl(CacheControl.noStore()).body(new MensajeResponseDTO(
-            "Si el correo corresponde a una cuenta, recibirás instrucciones para restablecer tu contraseña"));
+        return ResponseEntity.accepted()
+                .cacheControl(CacheControl.noStore())
+                .body(
+                        new MensajeResponseDTO(
+                                "Si el correo corresponde a una cuenta, recibirás instrucciones"
+                                    + " para restablecer tu contraseña"));
     }
 
     @PostMapping("/restablecer-password")
-    public ResponseEntity<MensajeResponseDTO> restablecerPassword(@Valid @RequestBody RestablecerPasswordRequestDTO body) {
-        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(recuperacion.restablecer(body));
+    public ResponseEntity<MensajeResponseDTO> restablecerPassword(
+            @Valid @RequestBody RestablecerPasswordRequestDTO body) {
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .body(recuperacion.restablecer(body));
     }
 
     @PostMapping("/login")

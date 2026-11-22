@@ -1,7 +1,7 @@
 package pe.edu.karely.mapper;
 
-import pe.edu.karely.entity.Consultorio;
 import pe.edu.karely.dto.catalogo.ConsultorioResponseDTO;
+import pe.edu.karely.entity.Consultorio;
 
 public final class ConsultorioMapper {
     private ConsultorioMapper() {}

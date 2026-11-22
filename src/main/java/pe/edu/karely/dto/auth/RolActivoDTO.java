@@ -1,5 +1,3 @@
 package pe.edu.karely.dto.auth;
 
-
-public record RolActivoDTO(
-        String rol) {}
+public record RolActivoDTO(String rol) {}

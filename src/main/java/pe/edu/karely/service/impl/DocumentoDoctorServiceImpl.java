@@ -1,35 +1,41 @@
 package pe.edu.karely.service.impl;
-import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pe.edu.karely.repository.DoctorRepository;
-import pe.edu.karely.repository.DocumentoDoctorRepository;
-import pe.edu.karely.security.PermisosUsuario;
+import org.springframework.web.multipart.MultipartFile;
+
 import pe.edu.karely.dto.OperacionResponseDTO;
 import pe.edu.karely.dto.doctor.DocumentoDoctorResponseDTO;
+import pe.edu.karely.repository.DoctorRepository;
+import pe.edu.karely.repository.DocumentoDoctorRepository;
+import pe.edu.karely.repository.DocumentoDoctorRepository.Documento;
+import pe.edu.karely.security.PermisosUsuario;
+import pe.edu.karely.service.service.DocumentoDoctorService;
+
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import org.springframework.web.multipart.MultipartFile;
-import pe.edu.karely.repository.DocumentoDoctorRepository.Documento;
-import pe.edu.karely.service.service.DocumentoDoctorService;
+
 @Service
 public class DocumentoDoctorServiceImpl implements DocumentoDoctorService {
     private final DocumentoDoctorRepository documentos;
     private final DoctorRepository doctores;
     private final PermisosUsuario permisos;
 
-    public DocumentoDoctorServiceImpl(DocumentoDoctorRepository documentos, DoctorRepository doctores,
-                                     PermisosUsuario permisos) {
+    public DocumentoDoctorServiceImpl(
+            DocumentoDoctorRepository documentos,
+            DoctorRepository doctores,
+            PermisosUsuario permisos) {
         this.documentos = documentos;
         this.doctores = doctores;
         this.permisos = permisos;
     }
 
-
-@Override
+    @Override
     @Transactional
-    public OperacionResponseDTO subir(long idDoctor, String tipo, MultipartFile archivo, long actor) throws IOException {
+    public OperacionResponseDTO subir(long idDoctor, String tipo, MultipartFile archivo, long actor)
+            throws IOException {
         permisos.exigir(actor, "ADMINISTRADORA");
         doctores.bloquearDoctor(idDoctor);
         if (!Set.of("DNI", "TITULO", "OTRO").contains(tipo)) {
@@ -42,26 +48,26 @@ public class DocumentoDoctorServiceImpl implements DocumentoDoctorService {
         if (!Set.of("application/pdf", "image/png", "image/jpeg").contains(mime)) {
             throw new IllegalArgumentException("Archivo PDF, PNG o JPEG únicamente");
         }
-        String nombre = Objects.toString(archivo.getOriginalFilename(), "documento")
-                .replaceAll("[^A-Za-z0-9._-]", "_");
+        String nombre =
+                Objects.toString(archivo.getOriginalFilename(), "documento")
+                        .replaceAll("[^A-Za-z0-9._-]", "_");
         Long id = documentos.insertar(idDoctor, tipo, nombre, mime, archivo.getBytes());
         doctores.marcarDocumentacionIncompleta(idDoctor);
         return OperacionResponseDTO.resultado("documento-subir", id);
     }
 
-@Override
+    @Override
     @Transactional(readOnly = true)
     public List<DocumentoDoctorResponseDTO> listar(long idDoctor, long actor) {
         permisos.exigir(actor, "ADMINISTRADORA");
         return documentos.listarDocumentos(idDoctor);
     }
 
-@Override
+    @Override
     @Transactional(readOnly = true)
     public Documento descargar(long idDocumento, long actor) {
         permisos.exigir(actor, "ADMINISTRADORA");
         var filas = documentos.obtener(idDocumento);
         return filas.isEmpty() ? null : filas.getFirst();
     }
-
 }

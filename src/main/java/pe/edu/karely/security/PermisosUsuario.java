@@ -1,9 +1,11 @@
 package pe.edu.karely.security;
 
-import java.util.Arrays;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
+
 import pe.edu.karely.repository.UsuarioRepository;
+
+import java.util.Arrays;
 
 @Component
 public class PermisosUsuario {

@@ -1,6 +1,7 @@
 package pe.edu.karely.entity;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDate;
 
 @Entity
@@ -23,8 +24,13 @@ public class DisponibilidadDoctor {
     @JoinColumn(name = "ID_ESPECIALIDAD")
     private Especialidad especialidad;
 
-    public Especialidad getEspecialidad() { return especialidad; }
-    public void setEspecialidad(Especialidad especialidad) { this.especialidad=especialidad; }
+    public Especialidad getEspecialidad() {
+        return especialidad;
+    }
+
+    public void setEspecialidad(Especialidad especialidad) {
+        this.especialidad = especialidad;
+    }
 
     @Column(name = "FECHA_TURNO", nullable = false)
     private LocalDate fechaTurno;

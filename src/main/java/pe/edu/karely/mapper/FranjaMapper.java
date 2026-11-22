@@ -1,7 +1,7 @@
 package pe.edu.karely.mapper;
 
-import pe.edu.karely.entity.FranjaHoraria;
 import pe.edu.karely.dto.catalogo.FranjaResponseDTO;
+import pe.edu.karely.entity.FranjaHoraria;
 
 public final class FranjaMapper {
     private FranjaMapper() {}

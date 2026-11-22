@@ -1,21 +1,23 @@
 package pe.edu.karely.service.impl;
 
-import java.util.Locale;
-import java.util.Objects;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
 import pe.edu.karely.dto.administracion.UsuarioResponseDTO;
+import pe.edu.karely.dto.auth.CredencialesDTO;
 import pe.edu.karely.dto.auth.LoginRequestDTO;
 import pe.edu.karely.dto.auth.LoginResponseDTO;
 import pe.edu.karely.dto.auth.MensajeResponseDTO;
-import pe.edu.karely.dto.auth.CredencialesDTO;
 import pe.edu.karely.repository.SesionRepository;
 import pe.edu.karely.repository.UsuarioRepository;
 import pe.edu.karely.security.JwtService;
 import pe.edu.karely.service.service.AuthService;
+
+import java.util.Locale;
+import java.util.Objects;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -25,8 +27,12 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwt;
     private final LoginAttemptService intentos;
 
-    public AuthServiceImpl(SesionRepository sesiones, UsuarioRepository usuarios,
-                           PasswordEncoder encoder, JwtService jwt, LoginAttemptService intentos) {
+    public AuthServiceImpl(
+            SesionRepository sesiones,
+            UsuarioRepository usuarios,
+            PasswordEncoder encoder,
+            JwtService jwt,
+            LoginAttemptService intentos) {
         this.sesiones = sesiones;
         this.usuarios = usuarios;
         this.encoder = encoder;
@@ -53,7 +59,8 @@ public class AuthServiceImpl implements AuthService {
         }
 
         CredencialesDTO vigente = usuarios.bloquearCredenciales(usuario.idUsuario());
-        if (vigente == null || !"ACTIVO".equals(vigente.estado())
+        if (vigente == null
+                || !"ACTIVO".equals(vigente.estado())
                 || !Objects.equals(usuario.passwordHash(), vigente.passwordHash())
                 || !Objects.equals(usuario.rol(), vigente.rol())) {
             throw credencialesIncorrectas();
@@ -62,7 +69,8 @@ public class AuthServiceImpl implements AuthService {
         long id = usuario.idUsuario();
         usuarios.registrarAcceso(id);
         long sesion = sesiones.abrir(id);
-        return new LoginResponseDTO(jwt.issue(id, sesion, usuario.rol()), username, usuario.rol(), id);
+        return new LoginResponseDTO(
+                jwt.issue(id, sesion, usuario.rol()), username, usuario.rol(), id);
     }
 
     @Override
