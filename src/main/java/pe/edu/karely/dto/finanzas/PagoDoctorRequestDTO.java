@@ -8,8 +8,8 @@ public record PagoDoctorRequestDTO(
     @NotNull LocalDate fechaFin,
     @NotNull @DecimalMin("0.01") @Digits(integer=10,fraction=2) BigDecimal monto,
     @NotBlank @Size(max=30) String metodoPago,
-    @NotBlank @Size(max=120) String numeroOperacion,
-    @NotBlank @Size(max=60) String numeroBoleta
+    @Size(max=120) String numeroOperacion,
+    @Size(max=60) String numeroBoleta
 ) {
     public PagoDoctorRequestDTO {
         metodoPago = metodoPago == null ? null : metodoPago.trim();

@@ -9,6 +9,7 @@ import pe.edu.karely.dto.administracion.AsignarRolRequestDTO;
 import pe.edu.karely.dto.administracion.EstadoUsuarioRequestDTO;
 import pe.edu.karely.dto.administracion.RolResponseDTO;
 import pe.edu.karely.dto.administracion.UsuarioRequestDTO;
+import pe.edu.karely.dto.administracion.AccesoUsuarioResponseDTO;
 import pe.edu.karely.dto.administracion.UsuarioResponseDTO;
 import pe.edu.karely.service.service.UsuarioService;
 @Service
@@ -54,15 +55,25 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 @Override
     @Transactional
-    public OperacionResponseDTO registrarUsuario(UsuarioRequestDTO i, long actor) {
+    public AccesoUsuarioResponseDTO registrarUsuario(UsuarioRequestDTO i, long actor) {
         permisos.exigir(actor, "ADMINISTRADORA");
+        var rol = repository.listarRoles().stream()
+                .filter(r -> r.idRol().equals(i.idRol()) && "ACTIVO".equals(r.estado()))
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("Selecciona un rol activo"));
+        if ("DOCTOR".equals(rol.nombre()))
+            throw new IllegalArgumentException("Crea el acceso médico desde Doctores después de validar su documentación");
         String password = i.password();
+        if (password == null) {
+            byte[] bytes = new byte[18];
+            new java.security.SecureRandom().nextBytes(bytes);
+            password = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        }
         if (password.length() < 12) {
             throw new IllegalArgumentException("Contraseña mínima: 12 caracteres");
         }
         Long id = repository.crearUsuario(actor, i.idRol(), i.username(),
                 i.correo(), encoder.encode(password));
-        return OperacionResponseDTO.resultado("usuario-crear", id);
+        return new AccesoUsuarioResponseDTO(id, i.username(), i.correo(), password);
     }
 
 }

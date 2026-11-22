@@ -8,4 +8,6 @@ public record AtencionResponseDTO(
         Long idDoctor,
         LocalDateTime fechaInicio,
         LocalDateTime fechaCierre,
-        String estado) {}
+        String estado,
+        Long idReceta,
+        String indicacionesReceta) {}

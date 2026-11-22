@@ -21,7 +21,7 @@ class AdministradoraAccesoTest {
         var service=new LiquidacionServiceImpl(repo,permisos("ADMINISTRADORA"));
         var fecha=LocalDate.now();
         service.pagarDoctor(new PagoDoctorRequestDTO(1L,fecha,fecha,new BigDecimal("30"),"EFECTIVO","OP-2","BOL-2"),7);
-        verify(repo).pagarDoctor(7,7,1L,fecha,fecha,new BigDecimal("30"),"EFECTIVO","OP-2","BOL-2");
+        verify(repo).pagarDoctor(eq(7L),eq(7L),eq(1L),eq(fecha),eq(fecha),eq(new BigDecimal("30")),eq("EFECTIVO"),startsWith("OP-"),startsWith("BOL-"));
     }
     @Test void administradoraRegistraAsistenciaEIniciaAtencionSinSerDoctor() {
         var citas=mock(CitaRepository.class);

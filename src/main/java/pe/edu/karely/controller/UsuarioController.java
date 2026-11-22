@@ -9,6 +9,7 @@ import pe.edu.karely.dto.administracion.AsignarRolRequestDTO;
 import pe.edu.karely.dto.administracion.EstadoUsuarioRequestDTO;
 import pe.edu.karely.dto.administracion.RolResponseDTO;
 import pe.edu.karely.dto.administracion.UsuarioRequestDTO;
+import pe.edu.karely.dto.administracion.AccesoUsuarioResponseDTO;
 import pe.edu.karely.dto.administracion.UsuarioResponseDTO;
 @RestController
 @RequestMapping("/api/v1/usuarios")
@@ -20,7 +21,7 @@ public List<UsuarioResponseDTO> listar(Authentication auth){return service.lista
 @GetMapping("/roles")
 public List<RolResponseDTO> roles(Authentication auth){return service.listarRoles((Long)auth.getPrincipal());}
 @PostMapping
-public OperacionResponseDTO crear(@Valid @RequestBody UsuarioRequestDTO body , Authentication auth){return service.registrarUsuario(body,(Long)auth.getPrincipal());}
+public org.springframework.http.ResponseEntity<AccesoUsuarioResponseDTO> crear(@Valid @RequestBody UsuarioRequestDTO body , Authentication auth){return org.springframework.http.ResponseEntity.ok().cacheControl(org.springframework.http.CacheControl.noStore()).body(service.registrarUsuario(body,(Long)auth.getPrincipal()));}
 @PatchMapping("/{id}/rol")
 public OperacionResponseDTO asignarRol(@PathVariable long id,@Valid @RequestBody AsignarRolRequestDTO body , Authentication auth){return service.asignarRol(id,body,(Long)auth.getPrincipal());}
 @PatchMapping("/{id}/estado")

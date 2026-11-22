@@ -31,7 +31,10 @@ public class LiquidacionServiceImpl implements LiquidacionService {
     public OperacionResponseDTO pagarDoctor(PagoDoctorRequestDTO i,long actor) {
         permisos.exigir(actor,"TESORERA","ADMINISTRADORA");
         if(i.fechaFin().isBefore(i.fechaInicio()))throw new IllegalArgumentException("Rango de fechas inválido");
-        Long id=repository.pagarDoctor(actor,actor,i.idDoctor(),i.fechaInicio(),i.fechaFin(),i.monto(),i.metodoPago(),i.numeroOperacion(),i.numeroBoleta());
-        return OperacionResponseDTO.resultado("doctor-pagar",id);
+        String referencia=java.util.UUID.randomUUID().toString().replace("-", "").toUpperCase(java.util.Locale.ROOT);
+        String operacion="OP-"+referencia;
+        String boleta="BOL-"+referencia;
+        Long id=repository.pagarDoctor(actor,actor,i.idDoctor(),i.fechaInicio(),i.fechaFin(),i.monto(),i.metodoPago(),operacion,boleta);
+        return new OperacionResponseDTO("doctor-pagar",id,"Pago registrado. Operación: "+operacion+". Boleta: "+boleta+".");
     }
 }
