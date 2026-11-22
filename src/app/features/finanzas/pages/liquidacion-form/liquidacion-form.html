@@ -1,0 +1,90 @@
+<div class="k-module k-finanzas">
+  <header class="k-module-header">
+    <div>
+      <span class="k-eyebrow">GESTIÓN ECONÓMICA / FINANZAS</span>
+      <h1 class="k-title">Área financiera</h1>
+      <p class="k-subtitle">
+        Controla liquidaciones, pagos a médicos e ingresos registrados de la
+        gestora.
+      </p>
+    </div>
+    <div class="k-header-actions">
+      <button class="k-button k-button-secondary" (click)="cargar()">
+        ↻ Actualizar registros
+      </button>
+    </div>
+  </header>
+  <app-feature-nav feature="finanzas" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Registrar pago a médico</h2>
+        <p>Selecciona el médico y el periodo al que corresponde el pago.</p>
+      </div>
+    </div>
+    <form [formGroup]="liqGroup" (ngSubmit)="registrarPago()">
+      <fieldset class="k-form" [disabled]="guardando">
+        <label class="k-field">
+          Doctor
+          <select formControlName="idDoctor">
+            <option [ngValue]="null">Selecciona un médico</option>
+            @for (doctor of doctores; track doctor.idDoctor) {
+            <option [ngValue]="doctor.idDoctor">
+              {{doctor.nombres}} {{doctor.apellidos}}
+            </option>
+            }
+          </select>
+        </label>
+        <label class="k-field">
+          Fecha de inicio
+          <input type="date" formControlName="fechaInicio" />
+        </label>
+        <label class="k-field">
+          Fecha de fin
+          <input type="date" formControlName="fechaFin" />
+        </label>
+        <label class="k-field">
+          Monto a pagar (S/)
+          <input type="number" min="0.01" step="0.01" formControlName="monto" />
+        </label>
+        <label class="k-field">
+          Método de pago
+          <select formControlName="metodoPago">
+            <option value="TRANSFERENCIA">Transferencia</option>
+            <option value="EFECTIVO">Efectivo</option>
+          </select>
+        </label>
+        <label class="k-field">
+          Número de operación
+          <input maxlength="120" formControlName="numeroOperacion" />
+        </label>
+        <label class="k-field">
+          Número de boleta
+          <input maxlength="60" formControlName="numeroBoleta" />
+        </label>
+      </fieldset>
+      <div class="k-actions">
+        <button
+          *siPermiso="'PAGOS_REGISTRAR'"
+          type="submit"
+          class="k-button"
+          [disabled]="guardando || liqGroup.invalid"
+        >
+          Registrar pago
+        </button>
+        <button
+          type="button"
+          class="k-button k-button-secondary"
+          routerLink="/finanzas"
+        >
+          Volver a liquidaciones
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

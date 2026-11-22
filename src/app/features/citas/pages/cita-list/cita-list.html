@@ -1,0 +1,99 @@
+<div class="k-module k-citas">
+  <header class="k-module-header">
+    <div>
+      <span class="k-eyebrow">GESTIÓN CLÍNICA / AGENDA</span>
+      <h1 class="k-title">Citas médicas</h1>
+      <p class="k-subtitle">
+        Consulta la agenda, reserva turnos y gestiona pagos y reprogramaciones.
+      </p>
+    </div>
+    <div class="k-header-actions">
+      <button class="k-button k-button-secondary" (click)="cargar()">
+        ↻ Actualizar agenda
+      </button>
+    </div>
+  </header>
+  <app-feature-nav feature="citas" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Agenda de citas médicas</h2>
+        <p>Consulta los turnos confirmados, estados e importes.</p>
+      </div>
+      <span class="k-count">{{citasFiltradas().length}} citas</span>
+    </div>
+    <div class="k-toolbar">
+      <label class="k-search"
+        ><span>Buscar una cita</span
+        ><input
+          [(ngModel)]="buscar"
+          placeholder="Paciente, doctor o estado"
+          aria-label="Buscar en agenda"
+      /></label>
+      @if(auth.tienePermiso('CITAS_RESERVAR')){<button
+        class="k-button"
+        routerLink="/citas/nueva"
+      >
+        + Reservar cita</button
+      >}
+    </div>
+    <div class="k-table-wrap">
+      <table class="k-table">
+        <thead>
+          <tr>
+            <th>Cita</th>
+            <th>Fecha</th>
+            <th>Inicio</th>
+            <th>Paciente</th>
+            <th>Doctor</th>
+            <th>Consultorio</th>
+            <th>Estado</th>
+            <th>Importe</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(c of citasFiltradas();track c.idCita){
+          <tr>
+            <td>#{{c.idCita}}</td>
+            <td>{{c.fechaCita}}</td>
+            <td>{{c.horaInicio}}</td>
+            <td><strong>{{c.nombrePaciente}}</strong></td>
+            <td>{{c.nombreDoctor}}</td>
+            <td>{{c.consultorio}}</td>
+            <td>
+              <span
+                class="k-status"
+                [class.is-active]="c.estadoCita==='ATENDIDA'"
+                >{{c.estadoCita}}</span
+              >
+            </td>
+            <td>S/ {{c.montoTotal}}</td>
+            <td>
+              @if(auth.tienePermiso('CITAS_REPROGRAMAR') &&
+              c.estadoCita==='PROGRAMADA'){<button
+                *siPermiso="'CITAS_REPROGRAMAR'"
+                class="k-button k-button-small k-button-secondary"
+                (click)="seleccionarReprogramar(c)"
+              >
+                Reprogramar</button
+              >}@else{<span class="k-muted">—</span>}
+            </td>
+          </tr>
+          } @empty{
+          <tr>
+            <td colspan="9" class="k-empty">
+              No se encontraron citas con los filtros actuales.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,116 @@
+<div class="k-module k-doctores">
+  <header class="k-module-header">
+    <div>
+      <span class="k-eyebrow">GESTIÓN CLÍNICA / PERSONAL MÉDICO</span>
+      <h1 class="k-title">Doctores</h1>
+      <p class="k-subtitle">
+        Administra médicos, especialidades, documentos y disponibilidad de
+        atención.
+      </p>
+    </div>
+    <div class="k-header-actions">
+      <button class="k-button k-button-secondary" (click)="cargar()">
+        ↻ Actualizar datos
+      </button>
+    </div>
+  </header>
+  <app-feature-nav feature="doctores" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel" *siPermiso="'HORARIOS_ESCRIBIR'">
+    <div class="k-section-heading">
+      <div>
+        <h2>Disponibilidad médica</h2>
+        <p>Configura las fechas y turnos de atención para cada médico.</p>
+      </div>
+    </div>
+    <div class="k-form">
+      <label class="k-field"
+        >Doctor<select [formControl]="horarioGroup.controls.idDoctor" [appControlDisabled]="guardando" (change)="cargarEspecialidades()">
+          <option [ngValue]="null">Selecciona un doctor</option>
+          @for(d of doctores;track d.idDoctor){
+          <option [ngValue]="d.idDoctor">{{d.nombres}} {{d.apellidos}}</option>
+          }
+        </select></label
+      >
+      <label class="k-field">Especialidad del turno<select [formControl]="horarioGroup.controls.idEspecialidad" [appControlDisabled]="guardando || cargandoEspecialidades || !horario.idDoctor">
+        <option [ngValue]="null">Selecciona una especialidad del doctor</option>
+        @for(e of especialidades;track e.idEspecialidad){<option [ngValue]="e.idEspecialidad">{{e.nombre}}</option>}
+      </select></label>
+      <label class="k-field"
+        >Fecha de atención<input
+          type="date"
+          [min]="fechaMinima"
+          [formControl]="horarioGroup.controls.fecha"
+      />
+      @if(horarioGroup.controls.fecha.touched && horarioGroup.controls.fecha.hasError('fechaPasada')){
+        <small role="alert">La fecha no puede ser anterior a hoy.</small>
+      }</label>
+      <label class="k-field"
+        >Franja horaria<select [formControl]="horarioGroup.controls.idFranja">
+          <option [ngValue]="null">Selecciona un turno</option>
+          @for(f of franjas;track f.idFranja){
+          <option [ngValue]="f.idFranja">
+            {{f.horaInicio}} – {{f.horaFin}}
+          </option>
+          }
+        </select></label
+      >
+    </div>
+    <div class="k-actions">
+      <button
+        *siPermiso="'HORARIOS_ESCRIBIR'"
+        class="k-button"
+        [disabled]="guardando || cargandoEspecialidades || (!horario.idDoctor || !horario.idEspecialidad || !horario.fecha || !horario.idFranja)"
+        (click)="registrarHorario()"
+      >
+        Registrar disponibilidad
+      </button>
+    </div>
+  </section>
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Horarios registrados</h2>
+        <p>Disponibilidades activas e históricas registradas.</p>
+      </div>
+    </div>
+    <div class="k-table-wrap">
+      <table class="k-table">
+        <thead>
+          <tr>
+            <th>Doctor</th>
+            <th>Especialidad</th>
+            <th>Fecha</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(h of disponibilidades;track h.idDisponibilidad){
+          <tr>
+            <td>{{h.nombreDoctor}}</td>
+            <td>{{h.nombreEspecialidad || 'Pendiente de asignar'}}</td>
+            <td>{{h.fechaTurno}}</td>
+            <td>{{h.horaInicio}}</td>
+            <td>{{h.horaFin}}</td>
+            <td><span class="k-status">{{h.estado}}</span></td>
+            <td>@if(!h.idEspecialidad && h.fechaTurno>=fechaMinima){<button *siPermiso="'HORARIOS_ESCRIBIR'" type="button" class="k-button k-button-small k-button-secondary" [disabled]="guardando" (click)="prepararClasificacion(h)">Asignar especialidad</button>}</td>
+          </tr>
+          }@empty{
+          <tr>
+            <td colspan="7" class="k-empty">
+              Todavía no se registraron horarios.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,16 @@
+<header class="cabecera-superior">
+  <div></div>
+  <div class="datos-usuario">
+    <div class="texto-usuario">
+      <strong>{{auth.session()?.usuario}}</strong
+      ><span>{{auth.session()?.rol}}</span>
+    </div>
+    <img src="/img/ICON_USER.png" alt="Usuario" class="icono-usuario" /><button
+      type="button"
+      class="btn-logout"
+      (click)="auth.logout()"
+    >
+      Cerrar sesión
+    </button>
+  </div>
+</header>

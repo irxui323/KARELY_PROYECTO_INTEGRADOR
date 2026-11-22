@@ -1,0 +1,113 @@
+<div class="k-module k-pacientes">
+  <header class="k-module-header">
+    <div>
+      <span class="k-eyebrow">GESTIÓN CLÍNICA / PACIENTES</span>
+      <h1 class="k-title">Pacientes</h1>
+      <p class="k-subtitle">
+        Registra pacientes, consulta sus datos y confirma su llegada a las
+        citas.
+      </p>
+    </div>
+    <div class="k-header-actions">
+      <button
+        type="button"
+        class="k-button k-button-secondary"
+        (click)="cargar()"
+      >
+        ↻ Actualizar datos
+      </button>
+    </div>
+  </header>
+  <app-feature-nav feature="pacientes" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  } @if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>
+          {{form.idPaciente?'Editar paciente':'Registrar nuevo paciente'}}
+        </h2>
+        <p>Completa los datos de identificación y contacto.</p>
+      </div>
+    </div>
+    <h3 class="k-form-title">Datos personales</h3>
+    <div class="k-form">
+      <label class="k-field"
+        >Tipo de documento<select
+          [formControl]="formGroup.controls.tipoDocumento"
+          [appControlDisabled]="!!form.idPaciente"
+        >
+          <option>DNI</option>
+          <option>CE</option>
+          <option>PASAPORTE</option>
+        </select></label
+      >
+      <label class="k-field"
+        >Número de documento<input
+          [formControl]="formGroup.controls.numeroDocumento"
+          [appControlDisabled]="!!form.idPaciente"
+          placeholder="Número de identificación"
+      /></label>
+      <label class="k-field"
+        >Nombres<input
+          [formControl]="formGroup.controls.nombres"
+          placeholder="Nombres del paciente"
+      /></label>
+      <label class="k-field"
+        >Apellidos<input
+          [formControl]="formGroup.controls.apellidos"
+          placeholder="Apellidos del paciente"
+      /></label>
+      <label class="k-field"
+        >Fecha de nacimiento<input
+          type="date"
+          [formControl]="formGroup.controls.fechaNacimiento"
+          [appControlDisabled]="!!form.idPaciente"
+      /></label>
+      @if(form.idPaciente){<label class="k-field"
+        >Estado<select [formControl]="formGroup.controls.estado">
+          <option>ACTIVO</option>
+          <option>INACTIVO</option>
+        </select></label
+      >}
+    </div>
+    <h3 class="k-form-title">Información de contacto</h3>
+    <div class="k-form">
+      <label class="k-field"
+        >Teléfono<input
+          [formControl]="formGroup.controls.telefono"
+          placeholder="Teléfono"
+      /></label>
+      <label class="k-field"
+        >Correo electrónico<input
+          type="email"
+          [formControl]="formGroup.controls.correo"
+          placeholder="correo@ejemplo.com"
+      /></label>
+      <label class="k-field k-field-wide"
+        >Dirección<input
+          [formControl]="formGroup.controls.direccion"
+          placeholder="Dirección del paciente"
+      /></label>
+    </div>
+    <div class="k-actions">
+      <button
+        type="button"
+        class="k-button"
+        (click)="guardar()"
+        [disabled]="cargando || !registroDisponible"
+      >
+        {{cargando?'Guardando...':'Guardar paciente'}}</button
+      ><button
+        type="button"
+        class="k-button k-button-secondary"
+        routerLink="/pacientes"
+      >
+        Cancelar
+      </button>
+    </div>
+  </section>
+</div>

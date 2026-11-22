@@ -1,0 +1,70 @@
+<div class="k-module k-admin">
+  <header class="k-module-header">
+    <div>
+      <span class="k-eyebrow">CONFIGURACIÓN / ADMINISTRACIÓN</span>
+      <h1 class="k-title">Administración</h1>
+      <p class="k-subtitle">
+        Gestiona usuarios, parámetros, catálogos, notificaciones y auditoría.
+      </p>
+    </div>
+    <div class="k-header-actions">
+      <button class="k-button k-button-secondary" (click)="cargar()">
+        ↻ Actualizar información
+      </button>
+    </div>
+  </header>
+  <app-feature-nav feature="administracion" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Crear cuenta de usuario</h2>
+        <p>Completa los datos de acceso y asigna el rol correspondiente.</p>
+      </div>
+    </div>
+    <div class="k-form">
+      <label class="k-field"
+        >Nombre de usuario<input
+          [formControl]="nuevoGroup.controls.username"
+          placeholder="Ej. recepcionista1"
+          autocomplete="off"
+      /></label>
+      <label class="k-field"
+        >Correo electrónico<input
+          type="email"
+          [formControl]="nuevoGroup.controls.correo"
+          placeholder="usuario@ejemplo.com"
+      /></label>
+      <label class="k-field"
+        >Rol<select [formControl]="nuevoGroup.controls.idRol">
+          <option [ngValue]="null">Selecciona un rol</option>
+          @for(r of roles;track r.idRol){
+          <option [ngValue]="r.idRol">{{r.nombre}}</option>
+          }
+        </select></label
+      >
+      <label class="k-field"
+        >Contraseña inicial (mínimo 12 caracteres)<input
+          type="password"
+          [formControl]="nuevoGroup.controls.password"
+          autocomplete="new-password"
+          placeholder="Contraseña segura"
+      /></label>
+    </div>
+    <div class="k-actions">
+      <button
+        class="k-button"
+        [disabled]="guardando || (!nuevo.username || !nuevo.correo || !nuevo.idRol || !nuevo.password || nuevo.password.length<12)"
+        (click)="crearUsuario()"
+      >
+        Registrar usuario</button
+      ><button class="k-button k-button-secondary" routerLink="/admin">
+        Cancelar
+      </button>
+    </div>
+  </section>
+</div>

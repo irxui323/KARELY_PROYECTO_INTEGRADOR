@@ -1,0 +1,71 @@
+<div class="k-module k-citas">
+  <header class="k-module-header">
+    <div>
+      <span class="k-eyebrow">GESTIÓN CLÍNICA / AGENDA</span>
+      <h1 class="k-title">Citas médicas</h1>
+      <p class="k-subtitle">
+        Consulta la agenda, reserva turnos y gestiona pagos y reprogramaciones.
+      </p>
+    </div>
+    <div class="k-header-actions">
+      <button class="k-button k-button-secondary" (click)="cargar()">
+        ↻ Actualizar agenda
+      </button>
+    </div>
+  </header>
+  <app-feature-nav feature="citas" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>2. Confirmar pago y cita</h2>
+        <p>
+          Utiliza el número de pre-reserva vigente y el comprobante del cobro
+          verificado.
+        </p>
+      </div>
+    </div>
+    <div class="k-info">
+      Este formulario <strong>no realiza cobros bancarios</strong>. Registra el
+      pago únicamente tras verificarlo externamente.
+    </div>
+    <div class="k-form">
+      <label class="k-field"
+        >Pre-reserva vigente<select
+          [formControl]="pagoGroup.controls.idPreReserva"
+        >
+          <option [ngValue]="null">Selecciona una pre-reserva</option>
+          @for(r of reservas;track r.idPreReserva){
+          <option [ngValue]="r.idPreReserva">
+            #{{r.idPreReserva}} · S/ {{r.monto}} · vence {{r.fechaExpiracion}}
+          </option>
+          }
+        </select></label
+      >
+      <label class="k-field"
+        >Método de pago<select [formControl]="pagoGroup.controls.metodoPago">
+          <option>EFECTIVO</option>
+          <option>TARJETA</option>
+          <option>YAPE</option>
+          <option>PLIN</option>
+          <option>TRANSFERENCIA</option>
+        </select></label
+      >
+    </div>
+    <p class="k-info">El código del cobro se genera automáticamente al confirmar el pago, para cualquier método.</p>
+    <div class="k-actions">
+      <button
+        class="k-button"
+        [disabled]="guardando || pagoGroup.invalid"
+        (click)="confirmarPago()"
+      >
+        Registrar pago y confirmar cita
+      </button>
+      <a class="k-button k-button-secondary" routerLink="/citas">Ver citas</a>
+    </div>
+  </section>
+</div>

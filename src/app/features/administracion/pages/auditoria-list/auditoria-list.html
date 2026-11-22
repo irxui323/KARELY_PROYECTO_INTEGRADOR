@@ -1,0 +1,60 @@
+<div class="k-module k-admin">
+  <header class="k-module-header">
+    <div>
+      <span class="k-eyebrow">CONFIGURACIÓN / ADMINISTRACIÓN</span>
+      <h1 class="k-title">Administración</h1>
+      <p class="k-subtitle">
+        Gestiona usuarios, parámetros, catálogos, notificaciones y auditoría.
+      </p>
+    </div>
+    <div class="k-header-actions">
+      <button class="k-button k-button-secondary" (click)="cargar()">
+        ↻ Actualizar información
+      </button>
+    </div>
+  </header>
+  <app-feature-nav feature="administracion" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Registro de auditoría</h2>
+        <p>Consulta el historial de acciones relevantes en el sistema.</p>
+      </div>
+    </div>
+    <div class="k-table-wrap">
+      <table class="k-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Usuario</th>
+            <th>Tabla</th>
+            <th>Acción</th>
+            <th>Detalle</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(a of auditoria;track a.idAuditoria){
+          <tr>
+            <td>{{a.fechaOperacion}}</td>
+            <td>{{a.idUsuario}}</td>
+            <td>{{a.tablaAfectada}}</td>
+            <td>{{a.accion}}</td>
+            <td>{{a.detalle}}</td>
+          </tr>
+          }@empty{
+          <tr>
+            <td class="k-empty" colspan="5">
+              No hay registros de auditoría para mostrar.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

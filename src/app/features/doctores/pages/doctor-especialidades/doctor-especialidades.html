@@ -1,0 +1,89 @@
+<div class="k-module k-doctores">
+  <header class="k-module-header">
+    <div>
+      <span class="k-eyebrow">GESTIÓN CLÍNICA / PERSONAL MÉDICO</span>
+      <h1 class="k-title">Doctores</h1>
+      <p class="k-subtitle">
+        Administra médicos, especialidades, documentos y disponibilidad de
+        atención.
+      </p>
+    </div>
+    <div class="k-header-actions">
+      <button class="k-button k-button-secondary" (click)="cargar()">
+        ↻ Actualizar datos
+      </button>
+    </div>
+  </header>
+  <app-feature-nav feature="doctores" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Asignación de especialidades</h2>
+        <p>
+          Relaciona a cada médico con las especialidades que tiene habilitadas.
+        </p>
+      </div>
+    </div>
+    <div class="k-form">
+      <label class="k-field"
+        >Doctor<select [formControl]="especialidadFormGroup.controls.idDoctor" [appControlDisabled]="guardando" (change)="error='';exito='';cargarAsignadas()">
+          <option [ngValue]="null">Selecciona un doctor</option>
+          @for(d of doctores;track d.idDoctor){
+          <option [ngValue]="d.idDoctor">{{d.nombres}} {{d.apellidos}}</option>
+          }
+        </select></label
+      >
+      <label class="k-field"
+        >Especialidad<select
+          [formControl]="especialidadFormGroup.controls.idEspecialidad"
+          [appControlDisabled]="guardando || cargandoAsignadas || !especialidadForm.idDoctor"
+        >
+          <option [ngValue]="null">Selecciona una especialidad</option>
+          @for(e of disponibles;track e.idEspecialidad){
+          <option [ngValue]="e.idEspecialidad">{{e.nombre}}</option>
+          }
+        </select></label
+      >
+    </div>
+    <div class="k-actions">
+      <button
+        class="k-button"
+        [disabled]="guardando || cargandoAsignadas || (!especialidadForm.idDoctor || !especialidadForm.idEspecialidad)"
+        (click)="asignarEspecialidad()"
+      >
+        Asignar especialidad
+      </button>
+    </div>
+  </section>
+  <section class="k-panel" aria-labelledby="asignadas-titulo">
+    <div class="k-section-heading">
+      <div><h2 id="asignadas-titulo">Especialidades del doctor</h2><p>Quita una asignación si fue registrada por error. El historial de citas se conserva.</p></div>
+    </div>
+    @if(!especialidadForm.idDoctor){
+      <p class="k-empty">Selecciona un doctor para ver sus especialidades.</p>
+    }@else if(cargandoAsignadas){
+      <p role="status">Cargando especialidades…</p>
+    }@else{
+      <ul class="asignadas-lista">
+        @for(e of asignadas;track e.idEspecialidad){
+          <li><div><strong>{{e.nombre}}</strong><span>{{e.estado === 'ACTIVO' ? 'Especialidad asignada' : 'Especialidad inactiva'}}</span></div>
+            <button type="button" class="k-button k-button-secondary" [disabled]="guardando" (click)="confirmarQuitar(e)">Quitar asignación</button></li>
+        }@empty{<li class="k-empty">Este doctor no tiene especialidades asignadas.</li>}
+      </ul>
+    }
+    @if(porQuitar;as e){
+      <div class="confirmar-retiro" role="alertdialog" aria-labelledby="retiro-titulo" aria-describedby="retiro-detalle">
+        <h3 id="retiro-titulo">¿Quitar {{e.nombre}}?</h3>
+        <p id="retiro-detalle">El doctor dejará de ofrecer esta especialidad. No podrás quitarla si tiene citas pendientes o reservas vigentes.</p>
+        @if(asignadas.length === 1){<p>Es su única especialidad: necesitará otra asignación para recibir nuevas reservas.</p>}
+        <div class="k-actions"><button type="button" class="k-button" [disabled]="guardando" (click)="quitarEspecialidad()">{{guardando ? 'Quitando…' : 'Sí, quitar asignación'}}</button>
+          <button type="button" class="k-button k-button-secondary" [disabled]="guardando" (click)="porQuitar=null">Cancelar</button></div>
+      </div>
+    }
+  </section>
+</div>

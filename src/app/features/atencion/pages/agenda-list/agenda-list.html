@@ -1,0 +1,123 @@
+<div class="k-module k-doctor">
+  <header class="k-module-header">
+    <div>
+      <span class="k-eyebrow">{{ esAdministradora ? "KARELY / ADMINISTRACIÓN" : "KARELY / PORTAL DEL MÉDICO" }}</span>
+      <h1 class="k-title">{{ esAdministradora ? "Agenda y atención médica" : "Panel Médico" }}</h1>
+      <p class="k-subtitle">
+        {{ esAdministradora ? "Consulta las citas de todos los médicos y gestiona las atenciones." : "Consulta tus citas, administra tu disponibilidad y registra atenciones médicas." }}
+      </p>
+      <p class="doctor-identidad">
+        Médico: <strong>{{ nombreDoctor }}</strong>
+      </p>
+    </div>
+    <div class="k-header-actions">
+      <span class="k-count">{{ citas.length }} citas asignadas</span>
+      <button
+        type="button"
+        class="k-button k-button-secondary"
+        (click)="cargar()"
+        [disabled]="cargando || procesando"
+      >
+        {{ cargando ? 'Actualizando…' : '↻ Actualizar datos' }}
+      </button>
+    </div>
+  </header>
+
+  <app-feature-nav feature="atencion" />
+
+  @if (error) {
+  <div class="k-error" role="alert">{{ error }}</div>
+  } @if (exito) {
+  <div class="k-success" role="status">{{ exito }}</div>
+  } @if (!doctor && !esAdministradora) {
+  <div class="k-info" role="status">
+    Esta cuenta todavía no está vinculada con un registro médico. Solicita a
+    Administración que vincule el usuario con su ID_DOCTOR.
+  </div>
+  }
+  <section class="k-panel" aria-labelledby="titulo-mis-citas">
+    <div class="k-section-heading">
+      <div>
+        <h2 id="titulo-mis-citas">{{ esAdministradora ? "Todas las citas" : "Mis citas asignadas" }}</h2>
+        <p>Consulta el horario, el paciente y el estado de cada cita.</p>
+      </div>
+      <span class="k-count">{{ citasFiltradas.length }} registros</span>
+    </div>
+
+    <div class="k-toolbar">
+      <label class="k-search">
+        <span>{{ esAdministradora ? "Buscar citas" : "Buscar en mis citas" }}</span>
+        <input
+          type="search"
+          [(ngModel)]="busqueda"
+          placeholder="Paciente, fecha, estado o ID"
+        />
+      </label>
+      <button
+        type="button"
+        class="k-button k-button-secondary"
+        (click)="cargar()"
+        [disabled]="cargando"
+      >
+        Actualizar listado
+      </button>
+    </div>
+
+    <div class="k-table-wrap">
+      <table class="k-table">
+        <thead>
+          <tr>
+            <th scope="col">Cita</th>
+            <th scope="col">Fecha</th>
+            <th scope="col">Hora</th>
+            @if (esAdministradora) { <th scope="col">Doctor</th> }
+            <th scope="col">Paciente</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of citasFiltradas; track c.idCita) {
+          <tr>
+            <td><strong>#{{ c.idCita }}</strong></td>
+            <td>{{ fechaLegible(c.fechaCita) }}</td>
+            <td>{{ c.horaInicio || '—' }}</td>
+            @if (esAdministradora) { <td>{{ c.nombreDoctor }}</td> }
+            <td>{{ c.nombrePaciente || '—' }}</td>
+            <td>
+              <span
+                class="k-status"
+                [class.is-active]="c.estadoCita === 'ATENDIDA'"
+                >{{ estadoLegible(c.estadoCita) }}</span
+              >
+            </td>
+            <td class="k-row-actions">
+              @if (c.estadoCita === 'EN_ATENCION') {
+              <button
+                type="button"
+                class="k-button k-button-small"
+                (click)="seleccionar(c)"
+              >
+                Ir a consulta
+              </button>
+              } @else {
+              <span class="k-muted">Sin acción disponible</span>
+              }
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td [attr.colspan]="esAdministradora ? 7 : 6" class="k-empty">
+              Aún no hay citas asignadas o la búsqueda no encontró resultados.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="doctor-help">
+      Una cita pasa a «En atención» cuando recepción registra la asistencia del
+      paciente. Solo entonces puede iniciarse la consulta.
+    </p>
+  </section>
+</div>

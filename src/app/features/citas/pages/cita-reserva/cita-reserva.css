@@ -1,0 +1,19 @@
+.disponibilidad-resumen { margin-top:24px; padding:20px; border:1px solid #c5dfed; border-radius:10px; background:#f5fbfe; }
+.disponibilidad-resumen p { line-height:1.6; margin:0 0 12px; }
+.disponibilidad-encabezado { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:12px; }
+.doctores-disponibles { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr)); gap:12px; }
+.doctor-opcion { display:flex; flex-direction:column; align-items:flex-start; gap:10px; text-align:left; padding:16px; border:1px solid #b7d3e4; border-radius:8px; color:#17415b; background:white; }
+.doctor-opcion.seleccionado { border:2px solid #006aa6; padding:15px; background:#eaf6fd; }
+.doctor-opcion span { color:#11623e; font-size:14px; }
+.doctor-opcion .pocos-turnos { color:#825800; }
+.doctor-opcion .sin-turnos { color:#667480; }
+.doctor-opcion:disabled { cursor:not-allowed; background:#f0f4f6; }
+.doctor-opcion:focus-visible { outline:3px solid #78bde1; outline-offset:2px; }
+.disponibilidad-resumen .disponibilidad-nota { font-size:13px; color:#526b7a; margin:16px 0 0; }
+.fecha-selector { display:flex; align-items:center; justify-content:space-between; width:100%; min-height:46px; padding:10px 13px; border:1px solid #b7d3e4; border-radius:9px; background:white; color:#1b384b; font-weight:400; font-size:15px; text-align:left; }
+.fecha-selector:disabled { background:#edf3f6; color:#5e7683; cursor:not-allowed; }
+.fecha-selector:focus-visible { outline:2px solid #006aa6; outline-offset:2px; }
+.calendario-reserva { margin:20px auto 0; max-width:420px; width:100%; }
+.calendario-contexto { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.calendario-contexto button { background:transparent; border:0; font-size:25px; color:#28536e; min-width:36px; min-height:36px; }
+.calendario-reserva > p { font-size:13px; color:#526b7a; line-height:1.6; }

@@ -1,0 +1,96 @@
+<div class="k-module k-citas">
+  <header class="k-module-header">
+    <div>
+      <span class="k-eyebrow">GESTIÓN CLÍNICA / AGENDA</span>
+      <h1 class="k-title">Citas médicas</h1>
+      <p class="k-subtitle">
+        Consulta la agenda, reserva turnos y gestiona pagos y reprogramaciones.
+      </p>
+    </div>
+    <div class="k-header-actions">
+      <button class="k-button k-button-secondary" (click)="cargar()">
+        ↻ Actualizar agenda
+      </button>
+    </div>
+  </header>
+  <app-feature-nav feature="citas" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Reprogramar una cita</h2>
+        <p>
+          El paciente debe aceptar el nuevo turno antes de que comience su cita
+          original.
+        </p>
+      </div>
+    </div>
+    <div class="k-info">
+      Solo se permite una reprogramación por cita y no se registra un segundo
+      cobro.
+    </div>
+    <div class="k-form">
+      <label class="k-field k-field-wide"
+        >Cita original<select [formControl]="reproGroup.controls.idCita">
+          <option [ngValue]="null">Selecciona una cita programada</option>
+          @for(c of citas;track c.idCita){@if(c.estadoCita==='PROGRAMADA'){
+          <option [ngValue]="c.idCita">
+            #{{c.idCita}} — {{c.nombrePaciente}} — {{c.fechaCita}}
+          </option>
+          }}
+        </select></label
+      >
+      <label class="k-field"
+        >Nueva fecha<input
+          type="date"
+          [formControl]="reproGroup.controls.fechaNueva"
+      /></label>
+      <label class="k-field"
+        >Nuevo turno<select [formControl]="reproGroup.controls.idFranjaNueva">
+          <option [ngValue]="null">Selecciona un horario</option>
+          @for(f of franjas;track f.idFranja){
+          <option [ngValue]="f.idFranja">
+            {{f.horaInicio}} – {{f.horaFin}}
+          </option>
+          }
+        </select></label
+      >
+      <label class="k-field"
+        >Nuevo consultorio<select
+          [formControl]="reproGroup.controls.idConsultorioNuevo"
+        >
+          <option [ngValue]="null">Selecciona un consultorio</option>
+          @for(c of consultorios;track c.idConsultorio){
+          <option [ngValue]="c.idConsultorio">{{c.nombre}}</option>
+          }
+        </select></label
+      >
+      <label class="k-field"
+        >Motivo de reprogramación<input
+          [formControl]="reproGroup.controls.motivo"
+          placeholder="Motivo informado por el paciente"
+      /></label>
+      <label class="k-field"
+        >Aceptación del paciente<select
+          [formControl]="reproGroup.controls.aceptacionPaciente"
+        >
+          <option value="N">Pendiente</option>
+          <option value="S">Sí, aceptada</option>
+        </select></label
+      >
+    </div>
+    <div class="k-actions">
+      <button
+        class="k-button"
+        [disabled]="guardando || (repro.aceptacionPaciente!=='S' || !repro.idCita || !repro.fechaNueva || !repro.idFranjaNueva || !repro.idConsultorioNuevo || !repro.motivo)"
+        (click)="reprogramar()"
+      >
+        Guardar reprogramación
+      </button>
+    </div>
+  </section>
+</div>

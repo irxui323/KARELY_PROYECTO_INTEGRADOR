@@ -1,0 +1,124 @@
+<div class="k-module k-finanzas">
+  <header class="k-module-header">
+    <div>
+      <span class="k-eyebrow">GESTIÓN ECONÓMICA / FINANZAS</span>
+      <h1 class="k-title">Área financiera</h1>
+      <p class="k-subtitle">
+        Controla liquidaciones, pagos a médicos e ingresos registrados de la
+        gestora.
+      </p>
+    </div>
+    <div class="k-header-actions">
+      <button class="k-button k-button-secondary" (click)="cargar()">
+        ↻ Actualizar registros
+      </button>
+    </div>
+  </header>
+  <app-feature-nav feature="finanzas" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }
+  <div class="k-overview">
+    <div class="k-overview-card">
+      <span>Liquidaciones registradas</span
+      ><strong>{{liquidaciones.length}}</strong
+      ><small>Liquidaciones de médicos</small>
+    </div>
+    <div class="k-overview-card">
+      <span>Movimientos de gestora</span><strong>{{ingresos.length}}</strong
+      ><small>Ingresos contables registrados</small>
+    </div>
+  </div>
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <h2>Consultar saldo</h2>
+    </div>
+    <form [formGroup]="saldoForm" (ngSubmit)="consultarSaldo()">
+      <fieldset class="k-form" [disabled]="consultandoSaldo">
+        <label class="k-field">
+          Doctor
+          <select formControlName="idDoctor">
+            <option [ngValue]="null">Selecciona un médico</option>
+            @for (doctor of doctores; track doctor.idDoctor) {
+            <option [ngValue]="doctor.idDoctor">
+              {{doctor.nombres}} {{doctor.apellidos}}
+            </option>
+            }
+          </select>
+        </label>
+        <label class="k-field">
+          Fecha de corte
+          <input type="date" formControlName="fechaCorte" />
+        </label>
+      </fieldset>
+      <div class="k-actions">
+        <button
+          type="submit"
+          class="k-button k-button-secondary"
+          [disabled]="saldoForm.invalid || consultandoSaldo"
+        >
+          Consultar saldo
+        </button>
+      </div>
+    </form>
+    @if (errorSaldo) {
+    <div class="k-error" role="alert">{{errorSaldo}}</div>
+    } @if (saldo; as resultado) {
+    <div class="k-info" role="status">
+      Saldo pendiente del médico #{{resultado.idDoctor}} al
+      {{resultado.fechaCorte}}:
+      <strong>S/ {{resultado.saldoPendiente}}</strong>
+    </div>
+    }
+  </section>
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <h2>Liquidaciones registradas</h2>
+      <button
+        *siPermiso="'PAGOS_REGISTRAR'"
+        class="k-button"
+        routerLink="/finanzas/pagos"
+      >
+        Registrar pago
+      </button>
+    </div>
+    <div class="k-table-wrap">
+      <table class="k-table">
+        <thead>
+          <tr>
+            <th>Liquidación</th>
+            <th>Doctor</th>
+            <th>Periodo</th>
+            <th>Monto pagado</th>
+            <th>Saldo al cierre</th>
+            <th>Método</th>
+            <th>Operación</th>
+            <th>Boleta</th>
+            <th>Fecha de pago</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (pago of liquidaciones; track pago.idLiquidacion) {
+          <tr>
+            <td>#{{pago.idLiquidacion}}</td>
+            <td>{{pago.nombreDoctor}}</td>
+            <td>{{pago.periodoInicio}} – {{pago.periodoFin}}</td>
+            <td>S/ {{pago.montoPagado}}</td>
+            <td>S/ {{pago.saldoPendiente}}</td>
+            <td>{{pago.metodoPago}}</td>
+            <td>{{pago.numeroOperacion}}</td>
+            <td>{{pago.numeroBoleta}}</td>
+            <td>{{pago.fechaPago}}</td>
+          </tr>
+          } @empty {
+          <tr>
+            <td class="k-empty" colspan="9">
+              Todavía no hay liquidaciones registradas.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,63 @@
+<div class="k-module k-finanzas">
+  <header class="k-module-header">
+    <div>
+      <span class="k-eyebrow">GESTIÓN ECONÓMICA / FINANZAS</span>
+      <h1 class="k-title">Área financiera</h1>
+      <p class="k-subtitle">
+        Controla liquidaciones, pagos a médicos e ingresos registrados de la
+        gestora.
+      </p>
+    </div>
+    <div class="k-header-actions">
+      <button class="k-button k-button-secondary" (click)="cargar()">
+        ↻ Actualizar registros
+      </button>
+    </div>
+  </header>
+  <app-feature-nav feature="finanzas" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Ingresos de la gestora</h2>
+        <p>
+          Comisiones y movimientos registrados conforme a las reglas de negocio.
+        </p>
+      </div>
+    </div>
+    <div class="k-info">
+      Los importes mostrados son registros contables del sistema; no sustituyen
+      una conciliación bancaria.
+    </div>
+    <div class="k-table-wrap">
+      <table class="k-table">
+        <thead>
+          <tr>
+            <th>Fecha de la cita</th>
+            <th>Concepto</th>
+            <th>Monto (S/)</th>
+            <th>Cita</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(r of ingresos;track r.idCita){
+          <tr>
+            <td>{{r.fechaCita}}</td>
+            <td>{{r.concepto}}</td>
+            <td><strong>S/ {{r.montoIngreso}}</strong></td>
+            <td>#{{r.idCita}}</td>
+          </tr>
+          }@empty{
+          <tr>
+            <td class="k-empty" colspan="4">No hay ingresos registrados.</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

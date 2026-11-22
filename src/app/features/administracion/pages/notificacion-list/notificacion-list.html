@@ -1,0 +1,68 @@
+<div class="k-module k-admin">
+  <header class="k-module-header">
+    <div>
+      <span class="k-eyebrow">CONFIGURACIÓN / ADMINISTRACIÓN</span>
+      <h1 class="k-title">Administración</h1>
+      <p class="k-subtitle">
+        Gestiona usuarios, parámetros, catálogos, notificaciones y auditoría.
+      </p>
+    </div>
+    <div class="k-header-actions">
+      <button class="k-button k-button-secondary" (click)="cargar()">
+        ↻ Actualizar información
+      </button>
+    </div>
+  </header>
+  <app-feature-nav feature="administracion" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Cola de notificaciones</h2>
+        <p>Seguimiento de avisos preparados, enviados o fallidos.</p>
+      </div>
+    </div>
+    <div class="k-info">
+      El envío real requiere el servicio SMTP/API externo; esta tabla muestra el
+      estado registrado en Oracle.
+    </div>
+    <div class="k-table-wrap">
+      <table class="k-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tipo</th>
+            <th>Canal</th>
+            <th>Código de evento</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(n of notificaciones;track $index){
+          <tr>
+            <td>{{n.idNotificacion}}</td>
+            <td>{{n.tipo}}</td>
+            <td>{{n.canal}}</td>
+            <td>{{n.codigoEvento}}</td>
+            <td>
+              <span class="k-status" [class.is-active]="n.estado==='ENVIADA'"
+                >{{n.estado}}</span
+              >
+            </td>
+          </tr>
+          }@empty{
+          <tr>
+            <td class="k-empty" colspan="5">
+              No hay notificaciones registradas.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

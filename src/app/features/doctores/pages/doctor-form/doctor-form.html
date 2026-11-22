@@ -1,0 +1,80 @@
+<div class="k-module k-doctores">
+  <header class="k-module-header">
+    <div>
+      <span class="k-eyebrow">GESTIÓN CLÍNICA / PERSONAL MÉDICO</span>
+      <h1 class="k-title">Doctores</h1>
+      <p class="k-subtitle">
+        Administra médicos, especialidades, documentos y disponibilidad de
+        atención.
+      </p>
+    </div>
+    <div class="k-header-actions">
+      <button class="k-button k-button-secondary" (click)="cargar()">
+        ↻ Actualizar datos
+      </button>
+    </div>
+  </header>
+  <app-feature-nav feature="doctores" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>
+          {{doctorForm.idDoctor?'Editar médico':'Registrar nuevo médico'}}
+        </h2>
+        <p>Datos de identificación y contacto profesional.</p>
+      </div>
+    </div>
+    <div class="k-form">
+      <label class="k-field"
+        >Tipo de documento<select
+          [formControl]="doctorFormGroup.controls.tipoDocumento"
+          [appControlDisabled]="!!doctorForm.idDoctor"
+        >
+          <option>DNI</option>
+          <option>CE</option>
+        </select></label
+      ><label class="k-field"
+        >Número de documento<input
+          [formControl]="doctorFormGroup.controls.numeroDocumento"
+          [appControlDisabled]="!!doctorForm.idDoctor"
+      /></label>
+      <label class="k-field"
+        >Nombres<input
+          [formControl]="doctorFormGroup.controls.nombres" /></label
+      ><label class="k-field"
+        >Apellidos<input [formControl]="doctorFormGroup.controls.apellidos"
+      /></label>
+      <label class="k-field"
+        >Teléfono<input
+          [formControl]="doctorFormGroup.controls.telefono" /></label
+      ><label class="k-field"
+        >Correo electrónico<input
+          type="email"
+          [formControl]="doctorFormGroup.controls.correo"
+      /></label>
+      @if(doctorForm.idDoctor){<label class="k-field"
+        >Estado<select [formControl]="doctorFormGroup.controls.estado">
+          <option>ACTIVO</option>
+          <option>INACTIVO</option>
+        </select></label
+      >}
+    </div>
+    <div class="k-actions">
+      <button
+        [disabled]="guardando || !registroDisponible"
+        *siPermiso="'DOCTORES_ESCRIBIR'"
+        class="k-button"
+        (click)="guardarDoctor()"
+      >
+        Guardar doctor</button
+      ><button class="k-button k-button-secondary" routerLink="/doctores">
+        Volver al listado
+      </button>
+    </div>
+  </section>
+</div>

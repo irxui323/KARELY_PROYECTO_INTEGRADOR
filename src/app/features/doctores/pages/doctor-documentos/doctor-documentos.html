@@ -1,0 +1,167 @@
+<div class="k-module k-doctores">
+  <header class="k-module-header">
+    <div>
+      <span class="k-eyebrow">GESTIÓN CLÍNICA / PERSONAL MÉDICO</span>
+      <h1 class="k-title">Documentación de doctores</h1>
+      <p class="k-subtitle">
+        Revisa por separado el DNI y el título profesional.
+      </p>
+    </div>
+  </header>
+  <app-feature-nav feature="doctores" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  } @if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <label class="k-field"
+      >Doctor<select
+        [(ngModel)]="selectedDoctor"
+        (ngModelChange)="cargarDocumentos()"
+        [disabled]="guardando"
+      >
+        <option [ngValue]="0">Selecciona un doctor</option>
+        @for(d of doctores;track d.idDoctor){
+        <option [ngValue]="d.idDoctor">
+          {{d.nombres}} {{d.apellidos}} — {{d.estadoDocumentacion}}
+        </option>
+        }
+      </select></label
+    >
+  </section>
+  @if(guardadoPendiente){
+  <p class="k-info" role="status">Hay archivos pendientes de subir.</p>
+  }
+  @if(!selectedDoctor){
+  <section class="k-panel documentos-vacio">
+    <h2>Selecciona al doctor que vas a revisar</h2>
+    <p>Verás su DNI y su título profesional por separado. Abre ambos archivos antes de confirmar la revisión manual.</p>
+  </section>
+  }@else{
+  <div class="documentos-grid">
+    @for(tipo of tipos;track selectedDoctor + ':' + tipo){
+    <section class="k-panel documento-card">
+      <h2>{{tipo === 'DNI' ? 'DNI' : 'Título profesional'}}</h2>
+      @if(doctorSeleccionado;as doctor){
+      <p class="documento-identidad">
+        <strong>{{doctor.nombres}} {{doctor.apellidos}}</strong
+        ><br />{{doctor.tipoDocumento}} registrado: {{doctor.numeroDocumento}}
+      </p>
+      }
+      <div class="documento-upload">
+      <label class="k-field"
+        >Archivo PDF o imagen (máximo 10 MB)<input
+          type="file"
+          accept="application/pdf,image/png,image/jpeg"
+          [disabled]="guardando || !selectedDoctor"
+          (change)="cambiarArchivo($event,tipo)"
+      /></label>
+      @if(archivos[tipo];as archivo){
+      <p class="k-info">Pendiente de subir: {{archivo.name}}</p>
+      }
+      <button
+        class="k-button"
+        [disabled]="guardando || !selectedDoctor || !archivos[tipo]"
+        (click)="subirDocumento(tipo)"
+      >
+        Subir {{tipo === 'DNI' ? 'DNI' : 'título'}}
+      </button>
+      </div>
+      @if(ultimo(tipo);as d){
+      <div class="documento-version">
+      <h3>Última versión</h3>
+      <p class="documento-archivo"><span>{{d.nombreArchivo}}</span> <span class="k-status">{{d.estado}}</span></p>
+      @if(d.motivoRechazo){
+      <p>{{d.motivoRechazo}}</p>
+      }
+      <button class="k-button k-button-secondary" (click)="verDocumento(d)">
+        Ver archivo
+      </button>
+      <label class="k-field"
+        >Motivo de rechazo<input
+          [(ngModel)]="motivos[d.idDocumento]"
+          [disabled]="guardando" /></label
+      ><button
+        class="k-button k-button-secondary"
+        [disabled]="guardando || !motivos[d.idDocumento]?.trim()"
+        (click)="rechazarDocumento(d)"
+      >
+        Rechazar documento
+      </button>
+      @if(tipo === 'DNI'){<label class="revision"
+        ><input
+          type="checkbox"
+          [(ngModel)]="dniConforme"
+          [disabled]="guardando || !abiertos.has(d.idDocumento) || d.estado === 'RECHAZADO'"
+        />
+        Comprobé que número y nombres coinciden con el doctor registrado</label
+      >}@else{<label class="revision"
+        ><input
+          type="checkbox"
+          [(ngModel)]="tituloConforme"
+          [disabled]="guardando || !abiertos.has(d.idDocumento) || d.estado === 'RECHAZADO'"
+        />
+        Título pertenece al doctor y es conforme</label
+      >}
+      </div>
+      }@else{
+      <p class="k-info">Todavía no se adjuntó este documento.</p>
+      }
+    </section>
+    }
+  </div>
+  <section class="k-panel">
+    <p class="k-info">
+      Abre cada última versión y confirma su conformidad antes de aprobar.
+    </p>
+    <button
+      class="k-button"
+      [disabled]="guardando || !selectedDoctor || !puedeAprobar"
+      (click)="aprobarDoctor()"
+    >
+      Validar DNI y título
+    </button>
+  </section>
+  <section class="k-panel">
+    <h2>Historial de documentos</h2>
+    <div class="k-table-wrap">
+      <table class="k-table">
+        <thead>
+          <tr>
+            <th>Versión</th>
+            <th>Tipo</th>
+            <th>Archivo</th>
+            <th>Estado</th>
+            <th>Motivo</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(d of documentos;track d.idDocumento){
+          <tr>
+            <td>{{d.idDocumento}}</td>
+            <td>{{d.tipoDocumento}}</td>
+            <td>{{d.nombreArchivo}}</td>
+            <td>{{d.estado}}</td>
+            <td>{{d.motivoRechazo || '—'}}</td>
+            <td>
+              <button
+                class="k-button k-button-small k-button-secondary"
+                (click)="verDocumento(d)"
+              >
+                Ver archivo
+              </button>
+            </td>
+          </tr>
+          }@empty{
+          <tr>
+            <td colspan="6" class="k-empty">Sin documentos para mostrar.</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+  }
+</div>

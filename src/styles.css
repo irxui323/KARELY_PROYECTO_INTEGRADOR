@@ -403,7 +403,7 @@ button {
     font-size: 14px;
 }
 
-/* Inicio: recupera los rectángulos con descripción y botón */
+ 
 .zona-modulos {
     width: 100%;
     max-width: 1120px;
@@ -950,7 +950,7 @@ button {
     cursor: not-allowed;
 }
 
-/* Acciones y botones */
+ 
 .k-module .k-actions {
     display: flex;
     flex-wrap: wrap;
