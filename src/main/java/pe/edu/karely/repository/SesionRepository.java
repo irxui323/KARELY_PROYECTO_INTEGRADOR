@@ -1,9 +1,9 @@
 package pe.edu.karely.repository;
 
+import pe.edu.karely.dto.auth.RolActivoDTO;
 import java.util.List;
-import java.util.Map;
 import org.springframework.stereotype.Repository;
-import pe.edu.karely.persistence.OracleJdbc;
+import pe.edu.karely.repository.OracleJdbc;
 
 @Repository
 public class SesionRepository {
@@ -21,8 +21,8 @@ public class SesionRepository {
         jdbc.update("UPDATE SESION_USUARIO SET ESTADO='CERRADA',FECHA_FIN=SYSTIMESTAMP WHERE ID_SESION=? AND ID_USUARIO=? AND ESTADO='ACTIVA'", sessionId, userId);
     }
 
-    public List<Map<String, Object>> buscarSesionActiva(long sesion, long usuario) {
-        return jdbc.list("""
+    public List<RolActivoDTO> buscarSesionActiva(long sesion, long usuario) {
+        return jdbc.list(RolActivoDTO.class, """
        SELECT R.NOMBRE AS ROL FROM SESION_USUARIO S JOIN USUARIO U ON U.ID_USUARIO=S.ID_USUARIO
        JOIN ROL R ON R.ID_ROL=U.ID_ROL
        WHERE S.ID_SESION=? AND U.ID_USUARIO=? AND S.ESTADO='ACTIVA'

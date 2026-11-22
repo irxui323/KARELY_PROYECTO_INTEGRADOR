@@ -1,8 +1,9 @@
 package pe.edu.karely.repository;
 
+import pe.edu.karely.dto.reporte.IngresoResponseDTO;
+import pe.edu.karely.dto.reporte.TotalIngresoResponseDTO;
 import java.util.List;
-import java.util.Map;
-import pe.edu.karely.persistence.OracleJdbc;
+import pe.edu.karely.repository.OracleJdbc;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -11,12 +12,12 @@ public class IngresoRepository {
     public IngresoRepository(OracleJdbc jdbc) {
         this.jdbc = jdbc;
     }
-    public List<Map<String, Object>> listarIngresos() {
-        return jdbc.list("SELECT * FROM VW_INGRESOS_GESTORA ORDER BY FECHA_REGISTRO DESC FETCH FIRST 200 ROWS ONLY");
+    public List<IngresoResponseDTO> listarIngresos() {
+        return jdbc.list(IngresoResponseDTO.class, "SELECT ID_CITA, ID_DOCTOR, FECHA_CITA, CONCEPTO, MONTO_INGRESO FROM VW_INGRESOS_GESTORA ORDER BY FECHA_CITA DESC FETCH FIRST 200 ROWS ONLY");
     }
 
-    public List<Map<String, Object>> sumarIngresos(long doctor) {
-        return jdbc.list("""
+    public List<TotalIngresoResponseDTO> sumarIngresos(long doctor) {
+        return jdbc.list(TotalIngresoResponseDTO.class, """
                 SELECT NVL(SUM(MONTO_INGRESO), 0) AS TOTAL
                 FROM VW_INGRESOS_GESTORA WHERE ID_DOCTOR = ?
                 """, doctor);

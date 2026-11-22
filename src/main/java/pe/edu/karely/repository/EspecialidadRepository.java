@@ -1,24 +1,39 @@
 package pe.edu.karely.repository;
 
+import jakarta.persistence.EntityManager;
+import org.springframework.transaction.annotation.Transactional;
+import pe.edu.karely.entity.Especialidad;
+import pe.edu.karely.mapper.EspecialidadMapper;
+import pe.edu.karely.dto.catalogo.EspecialidadResponseDTO;
 import java.util.List;
-import java.util.Map;
-import pe.edu.karely.persistence.OracleJdbc;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Transactional
 public class EspecialidadRepository {
-    private final OracleJdbc jdbc;
-    public EspecialidadRepository(OracleJdbc jdbc) {
-        this.jdbc = jdbc;
+    private final EntityManager entidades;
+
+    public EspecialidadRepository(EntityManager entidades) {
+        this.entidades = entidades;
     }
-    public List<Map<String, Object>> listarEspecialidades() {
-        return jdbc.list("SELECT ID_ESPECIALIDAD,NOMBRE,PRECIO_CONSULTA,ESTADO FROM ESPECIALIDAD WHERE ESTADO='ACTIVO' ORDER BY NOMBRE");
+    public List<EspecialidadResponseDTO> listarEspecialidades() {
+        return entidades.createQuery("SELECT e FROM Especialidad e WHERE e.estado = 'ACTIVO' ORDER BY e.nombre", Especialidad.class)
+                .getResultList().stream().map(EspecialidadMapper::respuesta).toList();
     }
     public Long registrarEspecialidad(String nombre, java.math.BigDecimal precioConsulta) {
-        return jdbc.insertReturning("begin insert into ESPECIALIDAD(NOMBRE,PRECIO_CONSULTA) values(?,?) returning ID_ESPECIALIDAD into ?; end;", nombre, precioConsulta);
+        Especialidad registro = new Especialidad();
+        registro.setNombre(nombre);
+        registro.setPrecioConsulta(precioConsulta);
+        entidades.persist(registro);
+        return registro.getIdEspecialidad();
     }
 
     public int editarEspecialidad(long id, String nombre, java.math.BigDecimal precioConsulta, String estado) {
-        return jdbc.update("UPDATE ESPECIALIDAD SET NOMBRE=?, PRECIO_CONSULTA=?, ESTADO=? WHERE ID_ESPECIALIDAD=?", nombre, precioConsulta, estado, id);
+        Especialidad registro = entidades.find(Especialidad.class, id);
+        if (registro == null) return 0;
+        registro.setNombre(nombre);
+        registro.setPrecioConsulta(precioConsulta);
+        registro.setEstado(estado);
+        return 1;
     }
 }

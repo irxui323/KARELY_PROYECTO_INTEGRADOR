@@ -1,6 +1,9 @@
 package pe.edu.karely.config;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +19,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import pe.edu.karely.security.AuthFilter;
+import pe.edu.karely.dto.ErrorResponseDTO;
+import tools.jackson.databind.ObjectMapper;
+import org.springframework.http.MediaType;
 import pe.edu.karely.security.JwtService;
 
 @Configuration
@@ -27,9 +33,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    CorsConfigurationSource cors(@Value("${app.frontend-origin}") String origin) {
+    CorsConfigurationSource cors(@Value("${app.frontend-origin}") String origins) {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(origin));
+        config.setAllowedOrigins(Arrays.stream(origins.split(",")).map(String::trim).filter(origin -> !origin.isEmpty()).toList());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -37,23 +43,24 @@ public class SecurityConfig {
         return source;
     }
 
-    /**
-     * AuthFilter se instancia dentro de la cadena de seguridad y NO como
-     * @Component; así evitamos que el contenedor Servlet lo ejecute también
-     * por fuera de Spring Security.
-     */
     @Bean
-    SecurityFilterChain chain(HttpSecurity http, JwtService jwt, SesionRepository sesiones) throws Exception {
+    SecurityFilterChain chain(HttpSecurity http, JwtService jwt, SesionRepository sesiones, ObjectMapper mapper) throws Exception {
         http.csrf(csrf -> csrf.disable())
             .cors(cors -> {})
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/auth/login", "/api/v1/health").permitAll()
+                .requestMatchers("/api/v1/auth/login", "/api/v1/auth/recuperacion", "/api/v1/auth/restablecer-password", "/api/v1/health", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                 .anyRequest().authenticated())
             .exceptionHandling(errors -> errors
-                .authenticationEntryPoint((request, response, ex) -> response.sendError(401))
-                .accessDeniedHandler((request, response, ex) -> response.sendError(403)))
+                .authenticationEntryPoint((request, response, ex) -> writeError(response, mapper, 401, "Sesión no válida"))
+                .accessDeniedHandler((request, response, ex) -> writeError(response, mapper, 403, "Acceso no autorizado")))
             .addFilterBefore(new AuthFilter(jwt, sesiones), UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+    private void writeError(HttpServletResponse response, ObjectMapper mapper, int status, String detail) throws IOException {
+        response.setStatus(status);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
+        mapper.writeValue(response.getOutputStream(), new ErrorResponseDTO(detail));
     }
 }

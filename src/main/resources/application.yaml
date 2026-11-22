@@ -1,14 +1,25 @@
 spring:
   application:
     name: karely-backend
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 11MB
   datasource:
-    url: ${DB_URL:jdbc:oracle:thin:@//localhost:1522/FREEPDB1}
+    url: ${DB_URL:jdbc:oracle:thin:@//localhost:1521/orcl}
     username: ${DB_USERNAME:KARELY_BD2}
     password: ${DB_PASSWORD}
     driver-class-name: oracle.jdbc.OracleDriver
     hikari:
       maximum-pool-size: 8
       connection-timeout: 15000
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  sql:
+    init:
+      mode: never
   mail:
     host: ${MAIL_HOST:}
     port: ${MAIL_PORT:587}
@@ -24,6 +35,8 @@ spring:
       mail.smtp.writetimeout: 7000
   jackson:
     time-zone: America/Lima
+    deserialization:
+      accept-float-as-int: false
 server:
   port: ${PORT:8080}
   error:
@@ -32,7 +45,7 @@ app:
   jwt:
     secret: ${APP_JWT_SECRET}
     expiration-minutes: ${APP_JWT_EXPIRATION_MINUTES:60}
-  frontend-origin: ${APP_FRONTEND_ORIGIN:http://localhost:4200}
+  frontend-origin: ${APP_FRONTEND_ORIGIN:http://localhost:4200,http://127.0.0.1:4200}
   bootstrap:
     username: ${APP_BOOTSTRAP_USERNAME:}
     email: ${APP_BOOTSTRAP_EMAIL:}
@@ -42,3 +55,17 @@ app:
     operator-id: ${APP_MAIL_OPERATOR_ID:0}
     from: ${APP_MAIL_FROM:}
     poll-ms: ${APP_MAIL_POLL_MS:30000}
+  recovery:
+    enabled: ${APP_RECOVERY_ENABLED:false}
+    base-url: ${APP_RECOVERY_BASE_URL:http://localhost:4200/restablecer-password}
+    expiration-minutes: ${APP_RECOVERY_EXPIRATION_MINUTES:15}
+    from: ${APP_RECOVERY_FROM:${APP_MAIL_FROM:}}
+
+springdoc:
+  api-docs:
+    enabled: ${APP_API_DOCS_ENABLED:true}
+  swagger-ui:
+    enabled: ${APP_API_DOCS_ENABLED:true}
+logging:
+  level:
+    pe.edu.karely: ${APP_LOG_LEVEL:INFO}

@@ -1,31 +1,59 @@
 package pe.edu.karely.repository;
 
+import jakarta.persistence.EntityManager;
+import org.springframework.transaction.annotation.Transactional;
+import pe.edu.karely.entity.Paciente;
+import pe.edu.karely.mapper.PacienteMapper;
+import pe.edu.karely.dto.paciente.PacienteResponseDTO;
 import java.util.List;
-import java.util.Map;
-import pe.edu.karely.persistence.OracleJdbc;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Transactional
 public class PacienteRepository {
-    private final OracleJdbc jdbc;
-    public PacienteRepository(OracleJdbc jdbc) {
-        this.jdbc = jdbc;
+    private final EntityManager entidades;
+
+    public PacienteRepository(EntityManager entidades) {
+        this.entidades = entidades;
     }
-    public List<Map<String, Object>> listarPacientes() {
-        return jdbc.list("SELECT ID_PACIENTE,TIPO_DOCUMENTO,NUMERO_DOCUMENTO,NOMBRES,APELLIDOS,FECHA_NACIMIENTO,TELEFONO,CORREO,DIRECCION,ESTADO FROM PACIENTE ORDER BY ID_PACIENTE DESC FETCH FIRST 200 ROWS ONLY");
+    public List<PacienteResponseDTO> listarPacientes() {
+        return entidades.createQuery("SELECT e FROM Paciente e ORDER BY e.idPaciente DESC", Paciente.class)
+                .setMaxResults(200)
+                .getResultList().stream().map(PacienteMapper::respuesta).toList();
     }
     public Long registrarPaciente(String tipoDocumento, String numeroDocumento, String nombres, String apellidos, java.sql.Date fechaNacimiento, String telefono, String correo, String direccion) {
-        return jdbc.insertReturning("begin insert into PACIENTE(TIPO_DOCUMENTO,NUMERO_DOCUMENTO,NOMBRES,APELLIDOS,FECHA_NACIMIENTO,TELEFONO,CORREO,DIRECCION) values(?,?,?,?,?,?,?,?) returning ID_PACIENTE into ?; end;", tipoDocumento, numeroDocumento, nombres, apellidos, fechaNacimiento, telefono, correo, direccion);
+        Paciente registro = new Paciente();
+        registro.setTipoDocumento(tipoDocumento);
+        registro.setNumeroDocumento(numeroDocumento);
+        registro.setNombres(nombres);
+        registro.setApellidos(apellidos);
+        registro.setFechaNacimiento(fechaNacimiento == null ? null : fechaNacimiento.toLocalDate());
+        registro.setTelefono(telefono);
+        registro.setCorreo(correo);
+        registro.setDireccion(direccion);
+        entidades.persist(registro);
+        return registro.getIdPaciente();
     }
     public int editarPaciente(String nombres, String apellidos, String telefono, String correo, String direccion, String estado, Long idPaciente) {
-        return jdbc.update("UPDATE PACIENTE SET NOMBRES=?,APELLIDOS=?,TELEFONO=?,CORREO=?,DIRECCION=?,ESTADO=? WHERE ID_PACIENTE=?", nombres, apellidos, telefono, correo, direccion, estado, idPaciente);
+        Paciente registro = entidades.find(Paciente.class, idPaciente);
+        if (registro == null) return 0;
+        registro.setNombres(nombres);
+        registro.setApellidos(apellidos);
+        registro.setTelefono(telefono);
+        registro.setCorreo(correo);
+        registro.setDireccion(direccion);
+        registro.setEstado(estado);
+        return 1;
     }
 
-    public List<Map<String, Object>> buscarPaciente(String tipo, String documento) {
-        return jdbc.list("""
-                SELECT ID_PACIENTE,TIPO_DOCUMENTO,NUMERO_DOCUMENTO,NOMBRES,APELLIDOS,
-                       FECHA_NACIMIENTO,TELEFONO,CORREO,DIRECCION,ESTADO
-                FROM PACIENTE WHERE TIPO_DOCUMENTO = ? AND NUMERO_DOCUMENTO = ?
-                """, tipo.trim().toUpperCase(java.util.Locale.ROOT), documento.trim());
+    public List<PacienteResponseDTO> buscarPaciente(String tipo, String documento) {
+        return entidades.createQuery("SELECT e FROM Paciente e WHERE e.tipoDocumento = :tipo AND e.numeroDocumento = :documento", Paciente.class)
+                .setParameter("tipo", tipo.trim().toUpperCase(java.util.Locale.ROOT))
+                .setParameter("documento", documento.trim())
+                .getResultList().stream().map(PacienteMapper::respuesta).toList();
+    }
+    public PacienteResponseDTO buscarPorId(long id) {
+        Paciente registro = entidades.find(Paciente.class, id);
+        return registro == null ? null : PacienteMapper.respuesta(registro);
     }
 }

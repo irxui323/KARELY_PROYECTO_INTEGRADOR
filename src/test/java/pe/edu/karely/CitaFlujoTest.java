@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import pe.edu.karely.controller.CitaController;
 import pe.edu.karely.repository.CitaRepository;
 import pe.edu.karely.security.PermisosUsuario;
-import pe.edu.karely.serviceimpl.CitaServiceImpl;
+import pe.edu.karely.service.impl.CitaServiceImpl;
 
 class CitaFlujoTest {
     @Test
@@ -22,11 +22,11 @@ class CitaFlujoTest {
         List<String> pasos = new ArrayList<>();
         var repo = new CitaRepository(null) {
             @Override
-            public List<Object> registrarCita(long actor, long usuario, Long reserva, String metodo, String referencia) {
-                assertEquals(List.of(7L, 7L, 14L, "EFECTIVO", "P-14"),
+            public Long registrarCita(long actor, long usuario, Long reserva, String metodo, String referencia) {
+                assertEquals(List.of(7L, 7L, 14L, "EFECTIVO", "COBRO-000014"),
                         List.of(actor, usuario, reserva, metodo, referencia));
                 pasos.add("confirmar");
-                return List.of(31L);
+                return 31L;
             }
         };
         var permisos = new PermisosUsuario(null) {
@@ -39,15 +39,16 @@ class CitaFlujoTest {
         };
         var mvc = MockMvcBuilders.standaloneSetup(new CitaController(new CitaServiceImpl(repo, permisos))).build();
 
-        mvc.perform(post("/api/v1/operaciones/cita-confirmar")
+        mvc.perform(post("/api/v1/citas/confirmar")
                 .principal(new UsernamePasswordAuthenticationToken(7L, null, List.of()))
                 .contentType("application/json")
                 .content("""
-                        {"idPreReserva":14,"metodoPago":"EFECTIVO","referenciaPago":"P-14"}
+                        {"idPreReserva":14,"metodoPago":"EFECTIVO"}
                         """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(31))
-                .andExpect(jsonPath("$.operacion").value("SP_CONFIRMAR_CITA_PAGADA"));
+                .andExpect(jsonPath("$.mensaje").value("Cobro COBRO-000014 registrado. Cita #31 confirmada."))
+                .andExpect(jsonPath("$.accion").value("SP_CONFIRMAR_CITA_PAGADA"));
 
         assertEquals(List.of("autorizar", "confirmar"), pasos);
     }
@@ -57,7 +58,7 @@ class CitaFlujoTest {
         var permisos = new PermisosUsuario(null) {
             @Override
             public void exigir(long actor, String... roles) {
-                assertEquals(List.of("DOCTOR"), List.of(roles));
+                assertEquals(List.of("DOCTOR", "ADMINISTRADORA"), List.of(roles));
                 throw new AccessDeniedException("Rol sin permiso");
             }
         };

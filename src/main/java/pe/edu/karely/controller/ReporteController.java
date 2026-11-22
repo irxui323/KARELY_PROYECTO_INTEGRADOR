@@ -1,26 +1,25 @@
 package pe.edu.karely.controller;
-
 import java.util.List;
-import java.util.Map;
-import pe.edu.karely.service.ReporteService;
-import pe.edu.karely.dto.ApiInput;
+import java.time.LocalDate;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
+import pe.edu.karely.service.service.ReporteService;
+import pe.edu.karely.dto.cita.CitaResponseDTO;
+import pe.edu.karely.dto.reporte.IngresoResponseDTO;
+import pe.edu.karely.dto.reporte.ResumenResponseDTO;
+import pe.edu.karely.dto.reporte.TotalIngresoResponseDTO;
 @RestController
-@RequestMapping("/api/v1")
-public class ReporteController {
-    private final ReporteService service;
-    public ReporteController(ReporteService service) {
-        this.service = service;
-    }
-    @GetMapping("/datos/resumen")
-    public List<Map<String, Object>> generarResumen(Authentication auth) {
-        return service.generarResumen((Long) auth.getPrincipal());
-    }
+@RequestMapping("/api/v1/reportes")
+public class ReporteController{
+private final ReporteService service;
+public ReporteController(ReporteService service){this.service=service;}
+@GetMapping("/resumen")
+public List<ResumenResponseDTO> resumen(Authentication auth){return service.generarResumen((Long)auth.getPrincipal());}
+@GetMapping("/citas")
+public List<CitaResponseDTO> citas(@RequestParam LocalDate desde,@RequestParam LocalDate hasta,@RequestParam(required=false) String estado , Authentication auth){return service.generarReporte(desde,hasta,estado,(Long)auth.getPrincipal());}
+@GetMapping("/ingresos")
+public List<IngresoResponseDTO> ingresos(Authentication auth){return service.listarIngresos((Long)auth.getPrincipal());}
+@GetMapping("/ingresos/doctores/{id}/total")
+public List<TotalIngresoResponseDTO> total(@PathVariable long id , Authentication auth){return service.sumarIngresos(id,(Long)auth.getPrincipal());}
 
-    @GetMapping("/reportes/citas")
-    public List<Map<String, Object>> generarReporte(@RequestParam java.time.LocalDate desde, @RequestParam java.time.LocalDate hasta, @RequestParam(required = false) String estado, Authentication auth) {
-        return service.generarReporte(desde, hasta, estado, (Long) auth.getPrincipal());
-    }
 }

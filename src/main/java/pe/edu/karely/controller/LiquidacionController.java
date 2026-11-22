@@ -1,37 +1,24 @@
 package pe.edu.karely.controller;
-
 import java.util.List;
-import java.util.Map;
-import pe.edu.karely.service.LiquidacionService;
-import pe.edu.karely.dto.ApiInput;
+import java.time.LocalDate;
+import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
+import pe.edu.karely.service.service.LiquidacionService;
+import pe.edu.karely.dto.OperacionResponseDTO;
+import pe.edu.karely.dto.finanzas.LiquidacionResponseDTO;
+import pe.edu.karely.dto.finanzas.PagoDoctorRequestDTO;
+import pe.edu.karely.dto.finanzas.SaldoDoctorResponseDTO;
 @RestController
-@RequestMapping("/api/v1")
-public class LiquidacionController {
-    private final LiquidacionService service;
-    public LiquidacionController(LiquidacionService service) {
-        this.service = service;
-    }
-    @GetMapping("/datos/liquidaciones")
-    public List<Map<String, Object>> listarLiquidaciones(Authentication auth) {
-        return service.listarLiquidaciones((Long) auth.getPrincipal());
-    }
-
-    @GetMapping("/datos/pagos-doctor")
-    public List<Map<String, Object>> listarPagos(Authentication auth) {
-        return service.listarPagos((Long) auth.getPrincipal());
-    }
-
-    @PostMapping("/operaciones/liquidacion-generar")
-    public Map<String, Object> generarLiquidacion(@RequestBody Map<String, Object> datos, Authentication auth) {
-        return service.generarLiquidacion(new ApiInput(datos), (Long) auth.getPrincipal());
-    }
-
-    @PostMapping("/operaciones/doctor-pagar")
-    public Map<String, Object> pagarDoctor(@RequestBody Map<String, Object> datos, Authentication auth) {
-        return service.pagarDoctor(new ApiInput(datos), (Long) auth.getPrincipal());
-    }
+@RequestMapping("/api/v1/liquidaciones")
+public class LiquidacionController{
+private final LiquidacionService service;
+public LiquidacionController(LiquidacionService service){this.service=service;}
+@GetMapping
+public List<LiquidacionResponseDTO> listar(Authentication auth){return service.listarLiquidaciones((Long)auth.getPrincipal());}
+@PostMapping
+public OperacionResponseDTO pagar(@Valid @RequestBody PagoDoctorRequestDTO body , Authentication auth){return service.pagarDoctor(body,(Long)auth.getPrincipal());}
+@GetMapping("/saldo")
+public SaldoDoctorResponseDTO saldo(@RequestParam long idDoctor,@RequestParam LocalDate fechaCorte , Authentication auth){return service.consultarSaldo(idDoctor,fechaCorte,(Long)auth.getPrincipal());}
 
 }

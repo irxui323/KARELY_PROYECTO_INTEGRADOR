@@ -18,7 +18,7 @@ public class PermisosUsuario {
         if (fila == null) {
             throw new AccessDeniedException("Usuario inactivo");
         }
-        return fila.get("ROL").toString();
+        return fila.rol();
     }
 
     public void exigir(long actor, String... roles) {

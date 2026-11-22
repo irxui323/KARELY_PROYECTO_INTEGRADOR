@@ -1,8 +1,9 @@
 package pe.edu.karely.repository;
 
+import pe.edu.karely.dto.finanzas.LiquidacionResponseDTO;
+import pe.edu.karely.dto.finanzas.SaldoDoctorResponseDTO;
 import java.util.List;
-import java.util.Map;
-import pe.edu.karely.persistence.OracleJdbc;
+import pe.edu.karely.repository.OracleJdbc;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -11,17 +12,16 @@ public class LiquidacionRepository {
     public LiquidacionRepository(OracleJdbc jdbc) {
         this.jdbc = jdbc;
     }
-    public List<Map<String, Object>> listarLiquidaciones() {
-        return jdbc.list("SELECT * FROM VW_SALDOS_LIQUIDACIONES ORDER BY ID_LIQUIDACION DESC FETCH FIRST 200 ROWS ONLY");
+    public List<LiquidacionResponseDTO> listarLiquidaciones() {
+        return jdbc.list(LiquidacionResponseDTO.class, "SELECT ID_LIQUIDACION, ID_DOCTOR, NOMBRE_DOCTOR, PERIODO_INICIO, PERIODO_FIN, MONTO_PAGADO, METODO_PAGO, NUMERO_OPERACION, NUMERO_BOLETA, FECHA_PAGO, SALDO_PENDIENTE FROM VW_SALDOS_LIQUIDACIONES ORDER BY ID_LIQUIDACION DESC FETCH FIRST 200 ROWS ONLY");
     }
-    public List<Map<String, Object>> listarPagos() {
-        return jdbc.list("SELECT ID_PAGO_DOCTOR,ID_LIQUIDACION,MONTO,METODO_PAGO,NUMERO_OPERACION,NUMERO_BOLETA,FECHA_PAGO FROM PAGO_DOCTOR ORDER BY ID_PAGO_DOCTOR DESC FETCH FIRST 200 ROWS ONLY");
-    }
-    public List<Object> generarLiquidacion(long actor, long usuario, Long idDoctor, java.time.LocalDate fechaInicio, java.time.LocalDate fechaFin) {
-        return jdbc.call("SP_GENERAR_LIQUIDACION", actor, usuario, idDoctor, fechaInicio, fechaFin, OracleJdbc.outNumber());
-    }
-    public List<Object> pagarDoctor(long actor, long usuario, Long idLiquidacion, java.math.BigDecimal monto, String metodoPago, String numeroOperacion, String numeroBoleta) {
-        return jdbc.call("SP_PAGAR_DOCTOR", actor, usuario, idLiquidacion, monto, metodoPago, numeroOperacion, numeroBoleta, OracleJdbc.outNumber());
+    public Long pagarDoctor(long actor, long usuario, Long idDoctor, java.time.LocalDate fechaInicio, java.time.LocalDate fechaFin, java.math.BigDecimal monto, String metodoPago, String numeroOperacion, String numeroBoleta) {
+        return jdbc.callId("SP_PAGAR_DOCTOR", actor, usuario, idDoctor, fechaInicio, fechaFin, monto, metodoPago, numeroOperacion, numeroBoleta, OracleJdbc.outNumber());
     }
 
+    public SaldoDoctorResponseDTO saldoDoctor(long idDoctor, java.time.LocalDate fechaCorte) {
+        return jdbc.one(SaldoDoctorResponseDTO.class,
+                "SELECT ? AS ID_DOCTOR, ? AS FECHA_CORTE, FN_SALDO_DOCTOR(?, ?) AS SALDO_PENDIENTE FROM DUAL",
+                idDoctor, fechaCorte, idDoctor, fechaCorte);
+    }
 }
