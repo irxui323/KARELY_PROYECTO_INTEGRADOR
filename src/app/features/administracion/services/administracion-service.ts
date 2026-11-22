@@ -80,6 +80,10 @@ export class AdministracionService {
     }
   }
   crearUsuario(data: AdministracionRequest) {
-    return this.http.post<AccesoUsuario>(this.url + "/usuarios", {idRol:data.idRol, username:data.username, correo:data.correo});
+    return this.http.post<AccesoUsuario>(this.url + "/usuarios", {
+      idRol: data.idRol,
+      username: data.username,
+      correo: data.correo,
+    });
   }
 }

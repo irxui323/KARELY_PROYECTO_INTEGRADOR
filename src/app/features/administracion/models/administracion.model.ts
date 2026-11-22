@@ -53,4 +53,9 @@ export type AdministracionAccion =
   | "usuario-estado"
   | "parametro-cambiar";
 
-export interface AccesoUsuario { idUsuario: number; username: string; correo: string; password: string; }
+export interface AccesoUsuario {
+  idUsuario: number;
+  username: string;
+  correo: string;
+  password: string;
+}

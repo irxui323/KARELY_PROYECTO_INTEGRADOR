@@ -72,14 +72,21 @@
           [formControl]="horarioGroup.controls.fecha"
           [appControlDisabled]="!puedeRegistrarHorario || procesando"
         />
-        @if(horarioGroup.controls.fecha.touched && horarioGroup.controls.fecha.hasError('fechaPasada')){
-          <small role="alert">La fecha no puede ser anterior a hoy.</small>
+        @if(horarioGroup.controls.fecha.touched &&
+        horarioGroup.controls.fecha.hasError('fechaPasada')){
+        <small role="alert">La fecha no puede ser anterior a hoy.</small>
         }
       </label>
-      <label class="k-field">Especialidad del turno
-        <select [formControl]="horarioGroup.controls.idEspecialidad" [appControlDisabled]="!puedeRegistrarHorario || procesando">
+      <label class="k-field"
+        >Especialidad del turno
+        <select
+          [formControl]="horarioGroup.controls.idEspecialidad"
+          [appControlDisabled]="!puedeRegistrarHorario || procesando"
+        >
           <option [ngValue]="null">Selecciona tu especialidad</option>
-          @for(e of especialidades;track e.idEspecialidad){<option [ngValue]="e.idEspecialidad">{{e.nombre}}</option>}
+          @for(e of especialidades;track e.idEspecialidad){
+          <option [ngValue]="e.idEspecialidad">{{e.nombre}}</option>
+          }
         </select>
       </label>
       <label class="k-field"
@@ -141,7 +148,16 @@
                 >{{ h.estado }}</span
               >
             </td>
-            <td>@if(!h.idEspecialidad && h.fechaTurno>=fechaMinima){<button type="button" class="k-button k-button-small k-button-secondary" [disabled]="guardando" (click)="prepararClasificacion(h)">Asignar especialidad</button>}</td>
+            <td>
+              @if(!h.idEspecialidad && h.fechaTurno>=fechaMinima){<button
+                type="button"
+                class="k-button k-button-small k-button-secondary"
+                [disabled]="guardando"
+                (click)="prepararClasificacion(h)"
+              >
+                Asignar especialidad</button
+              >}
+            </td>
           </tr>
           } @empty {
           <tr>

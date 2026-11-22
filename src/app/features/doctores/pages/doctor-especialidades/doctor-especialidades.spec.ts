@@ -10,18 +10,32 @@ import { DoctorEspecialidades } from "./doctor-especialidades";
 
 describe("DoctorEspecialidades validación", () => {
   function preparar() {
-    TestBed.configureTestingModule({providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]),
-      {provide: ChangeDetectorRef, useValue: {markForCheck() {}}}]});
-    return {http:TestBed.inject(HttpTestingController),page:TestBed.runInInjectionContext(()=>new DoctorEspecialidades())};
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        { provide: ChangeDetectorRef, useValue: { markForCheck() {} } },
+      ],
+    });
+    return {
+      http: TestBed.inject(HttpTestingController),
+      page: TestBed.runInInjectionContext(() => new DoctorEspecialidades()),
+    };
   }
-  it("solicita confirmación antes de quitar y refresca las asignadas",async()=>{
-    const {http,page}=preparar();
-    const especialidad={idEspecialidad:2,nombre:"Dermatología",precioConsulta:100,estado:"ACTIVO"};
+  it("solicita confirmación antes de quitar y refresca las asignadas", async () => {
+    const { http, page } = preparar();
+    const especialidad = {
+      idEspecialidad: 2,
+      nombre: "Dermatología",
+      precioConsulta: 100,
+      estado: "ACTIVO",
+    };
     page.especialidadFormGroup.controls.idDoctor.setValue(1);
-    page.asignadas=[especialidad];
+    page.asignadas = [especialidad];
     page.confirmarQuitar(especialidad);
-    http.expectNone(r=>r.method==="DELETE");
-    const pending=page.quitarEspecialidad();
+    http.expectNone((r) => r.method === "DELETE");
+    const pending = page.quitarEspecialidad();
     http.expectOne("/api/v1/doctores/1/especialidades/2").flush({});
     await Promise.resolve();
     http.expectOne("/api/v1/doctores/1/especialidades").flush([]);
@@ -30,29 +44,39 @@ describe("DoctorEspecialidades validación", () => {
     expect(page.exito).toContain("retirada");
     http.verify();
   });
-  it("conserva la asignación y muestra el rechazo por citas pendientes",async()=>{
-    const {http,page}=preparar();
-    const especialidad={idEspecialidad:2,nombre:"Dermatología",precioConsulta:100,estado:"ACTIVO"};
+  it("conserva la asignación y muestra el rechazo por citas pendientes", async () => {
+    const { http, page } = preparar();
+    const especialidad = {
+      idEspecialidad: 2,
+      nombre: "Dermatología",
+      precioConsulta: 100,
+      estado: "ACTIVO",
+    };
     page.especialidadFormGroup.controls.idDoctor.setValue(1);
-    page.asignadas=[especialidad];
+    page.asignadas = [especialidad];
     page.confirmarQuitar(especialidad);
-    const pending=page.quitarEspecialidad();
-    http.expectOne("/api/v1/doctores/1/especialidades/2").flush({message:"Hay citas pendientes"},{status:409,statusText:"Conflict"});
+    const pending = page.quitarEspecialidad();
+    http
+      .expectOne("/api/v1/doctores/1/especialidades/2")
+      .flush(
+        { message: "Hay citas pendientes" },
+        { status: 409, statusText: "Conflict" },
+      );
     await pending;
     expect(page.asignadas).toEqual([especialidad]);
     expect(page.error).toContain("citas pendientes");
     http.verify();
   });
-  it("descarta una respuesta del doctor seleccionado anteriormente",async()=>{
-    const {http,page}=preparar();
+  it("descarta una respuesta del doctor seleccionado anteriormente", async () => {
+    const { http, page } = preparar();
     page.especialidadFormGroup.controls.idDoctor.setValue(1);
-    const primera=page.cargarAsignadas();
-    const request1=http.expectOne("/api/v1/doctores/1/especialidades");
+    const primera = page.cargarAsignadas();
+    const request1 = http.expectOne("/api/v1/doctores/1/especialidades");
     page.especialidadFormGroup.controls.idDoctor.setValue(2);
-    const segunda=page.cargarAsignadas();
+    const segunda = page.cargarAsignadas();
     http.expectOne("/api/v1/doctores/2/especialidades").flush([]);
     await segunda;
-    request1.flush([{idEspecialidad:99,nombre:"Anterior"}]);
+    request1.flush([{ idEspecialidad: 99, nombre: "Anterior" }]);
     await primera;
     expect(page.asignadas).toEqual([]);
     http.verify();

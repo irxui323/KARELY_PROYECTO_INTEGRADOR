@@ -11,7 +11,10 @@ export const ATENCION_ROUTES: Routes = [
   {
     path: "horarios",
     canActivate: [permisoGuard],
-    data: { permiso: "HORARIOS_ESCRIBIR", redireccionAdmin: "/doctores/horarios" },
+    data: {
+      permiso: "HORARIOS_ESCRIBIR",
+      redireccionAdmin: "/doctores/horarios",
+    },
     loadComponent: () =>
       import("./pages/disponibilidad-form/disponibilidad-form").then(
         (m) => m.DisponibilidadForm,

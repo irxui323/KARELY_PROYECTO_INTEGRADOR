@@ -1,5 +1,10 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from "@angular/core";
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { errorText } from "../../../../core/utils/http-error";
@@ -28,11 +33,14 @@ export class CitaConfirmacion implements OnInit {
   readonly pagoGroup = new FormGroup({
     idPreReserva: new FormControl<number | null | undefined>(undefined, {
       nonNullable: true,
-      validators:[Validators.required,Validators.min(1)],
+      validators: [Validators.required, Validators.min(1)],
     }),
     metodoPago: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
-      validators:[Validators.required,Validators.pattern(/^(EFECTIVO|TARJETA|YAPE|PLIN|TRANSFERENCIA)$/)],
+      validators: [
+        Validators.required,
+        Validators.pattern(/^(EFECTIVO|TARJETA|YAPE|PLIN|TRANSFERENCIA)$/),
+      ],
     }),
   });
   get pago(): CitaRequest {
@@ -63,9 +71,9 @@ export class CitaConfirmacion implements OnInit {
     try {
       this.error = "";
       this.exito = "";
-      if(this.pagoGroup.invalid) {
+      if (this.pagoGroup.invalid) {
         this.pagoGroup.markAllAsTouched();
-        this.error="Selecciona una pre-reserva vigente y el método de pago.";
+        this.error = "Selecciona una pre-reserva vigente y el método de pago.";
         return;
       }
       try {

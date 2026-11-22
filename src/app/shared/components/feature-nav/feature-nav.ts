@@ -12,10 +12,20 @@ export class FeatureNav {
   @Input() feature = "";
   private readonly auth = inject(AuthService);
   get links() {
-    return (FEATURE_NAVIGATION[this.feature] || []).filter((link) =>
-      this.auth.tienePermiso(link.permiso),
-    ).map(link => this.feature === "atencion" && this.auth.session()?.rol === "ADMINISTRADORA"
-      ? { ...link, label: link.path === "/doctor" ? "Agenda general" : link.label, path: link.path === "/doctor/horarios" ? "/doctores/horarios" : link.path }
-      : link);
+    return (FEATURE_NAVIGATION[this.feature] || [])
+      .filter((link) => this.auth.tienePermiso(link.permiso))
+      .map((link) =>
+        this.feature === "atencion" &&
+        this.auth.session()?.rol === "ADMINISTRADORA"
+          ? {
+              ...link,
+              label: link.path === "/doctor" ? "Agenda general" : link.label,
+              path:
+                link.path === "/doctor/horarios"
+                  ? "/doctores/horarios"
+                  : link.path,
+            }
+          : link,
+      );
   }
 }

@@ -47,7 +47,6 @@ export class UsuarioForm implements OnInit {
       nonNullable: true,
       validators: [Validators.required, Validators.email],
     }),
-
   });
   get nuevo(): AdministracionRequest {
     return this.nuevoGroup.getRawValue();
@@ -61,7 +60,11 @@ export class UsuarioForm implements OnInit {
   async cargar() {
     try {
       try {
-        this.roles = (await firstValueFrom(this.administracionService.roles())).filter(r => r.nombre !== "DOCTOR" && (!r.estado || r.estado === "ACTIVO"));
+        this.roles = (
+          await firstValueFrom(this.administracionService.roles())
+        ).filter(
+          (r) => r.nombre !== "DOCTOR" && (!r.estado || r.estado === "ACTIVO"),
+        );
       } catch (e) {
         this.error = errorText(e);
       }
@@ -76,8 +79,7 @@ export class UsuarioForm implements OnInit {
       if (this.nuevoGroup.invalid) {
         this.nuevoGroup.markAllAsTouched();
         this.exito = "";
-        this.error =
-          "Completa el rol, el usuario y un correo válido.";
+        this.error = "Completa el rol, el usuario y un correo válido.";
         return;
       }
       this.error = "";
@@ -87,7 +89,8 @@ export class UsuarioForm implements OnInit {
         this.acceso = await firstValueFrom(
           this.administracionService.crearUsuario(this.nuevo),
         );
-        this.exito = "Trabajador registrado. Entrega estas credenciales al trabajador antes de salir.";
+        this.exito =
+          "Trabajador registrado. Entrega estas credenciales al trabajador antes de salir.";
         this.nuevo = {};
 
         await this.cargar();

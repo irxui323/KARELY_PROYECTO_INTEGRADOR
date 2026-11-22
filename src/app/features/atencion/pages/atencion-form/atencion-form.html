@@ -1,10 +1,17 @@
 <div class="k-module k-doctor">
   <header class="k-module-header">
     <div>
-      <span class="k-eyebrow">{{ esAdministradora ? "KARELY / ADMINISTRACIÓN" : "KARELY / PORTAL DEL MÉDICO" }}</span>
-      <h1 class="k-title">{{ esAdministradora ? "Agenda y atención médica" : "Panel Médico" }}</h1>
+      <span class="k-eyebrow"
+        >{{ esAdministradora ? "KARELY / ADMINISTRACIÓN" : "KARELY / PORTAL DEL
+        MÉDICO" }}</span
+      >
+      <h1 class="k-title">
+        {{ esAdministradora ? "Agenda y atención médica" : "Panel Médico" }}
+      </h1>
       <p class="k-subtitle">
-        {{ esAdministradora ? "Consulta las citas de todos los médicos y gestiona las atenciones." : "Consulta tus citas, administra tu disponibilidad y registra atenciones médicas." }}
+        {{ esAdministradora ? "Consulta las citas de todos los médicos y
+        gestiona las atenciones." : "Consulta tus citas, administra tu
+        disponibilidad y registra atenciones médicas." }}
       </p>
       <p class="doctor-identidad">
         Médico: <strong>{{ nombreDoctor }}</strong>
@@ -59,8 +66,8 @@
           <option [ngValue]="null">Selecciona una cita en atención</option>
           @for (c of citasEnAtencion; track c.idCita) {
           <option [ngValue]="c.idCita">
-            #{{ c.idCita }} — {{ c.nombrePaciente }} {{ esAdministradora ? "— " + c.nombreDoctor : "" }} ({{
-            fechaLegible(c.fechaCita) }})
+            #{{ c.idCita }} — {{ c.nombrePaciente }} {{ esAdministradora ? "— "
+            + c.nombreDoctor : "" }} ({{ fechaLegible(c.fechaCita) }})
           </option>
           }
         </select>
@@ -147,7 +154,9 @@
       </label>
     </div>
     <p class="doctor-help">
-      {{ medico.idReceta ? 'La receta de esta consulta está registrada. Puedes agregar los medicamentos.' : 'La receta se vincula automáticamente a esta consulta al crearla.' }}
+      {{ medico.idReceta ? 'La receta de esta consulta está registrada. Puedes
+      agregar los medicamentos.' : 'La receta se vincula automáticamente a esta
+      consulta al crearla.' }}
     </p>
     <div class="k-actions">
       <button

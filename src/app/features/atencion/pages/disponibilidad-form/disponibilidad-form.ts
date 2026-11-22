@@ -11,7 +11,10 @@ import { errorText } from "../../../../core/utils/http-error";
 import { fechaActual, fechaNoPasada } from "../../../../core/utils/fecha";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
 import { ControlDisabled } from "../../../../shared/directives/control-disabled";
-import { Franja, Especialidad } from "../../../catalogos/models/catalogos.model";
+import {
+  Franja,
+  Especialidad,
+} from "../../../catalogos/models/catalogos.model";
 import { CatalogoService } from "../../../catalogos/services/catalogos-service";
 import {
   Disponibilidad,
@@ -29,7 +32,9 @@ type PestanaMedica = "citas" | "horarios" | "consultas";
 export class DisponibilidadForm implements OnInit {
   private readonly changeDetector = inject(ChangeDetectorRef);
   guardando = false;
-  get fechaMinima() { return fechaActual(); }
+  get fechaMinima() {
+    return fechaActual();
+  }
   constructor() {
     this.horario = { fecha: "", idFranja: null };
   }
@@ -42,14 +47,22 @@ export class DisponibilidadForm implements OnInit {
   procesando = false;
   doctor: Doctor | undefined;
   franjas: Franja[] = [];
-  especialidades:Especialidad[]=[];
-  prepararClasificacion(h:Disponibilidad) {
-    this.horario={idDoctor:this.doctor?.idDoctor,fecha:h.fechaTurno,idFranja:h.idFranja,idEspecialidad:null};
-    this.exito='Selecciona la especialidad y guarda para clasificar este horario pendiente.';
+  especialidades: Especialidad[] = [];
+  prepararClasificacion(h: Disponibilidad) {
+    this.horario = {
+      idDoctor: this.doctor?.idDoctor,
+      fecha: h.fechaTurno,
+      idFranja: h.idFranja,
+      idEspecialidad: null,
+    };
+    this.exito =
+      "Selecciona la especialidad y guarda para clasificar este horario pendiente.";
   }
   disponibles: Disponibilidad[] = [];
   readonly horarioGroup = new FormGroup({
-    idEspecialidad:new FormControl<number|null|undefined>(undefined,{validators:[Validators.required]}),
+    idEspecialidad: new FormControl<number | null | undefined>(undefined, {
+      validators: [Validators.required],
+    }),
     idDoctor: new FormControl<number | null | undefined>(undefined, {
       nonNullable: true,
     }),
@@ -110,9 +123,13 @@ export class DisponibilidadForm implements OnInit {
           (d) => d.idDoctor === this.doctor?.idDoctor,
         );
         this.horarioGroup.controls.idDoctor.setValue(this.doctor?.idDoctor);
-        this.especialidades=this.doctor
-          ?(await firstValueFrom(this.doctoresService.especialidades(this.doctor.idDoctor))).filter(e=>e.estado==='ACTIVO')
-          :[];
+        this.especialidades = this.doctor
+          ? (
+              await firstValueFrom(
+                this.doctoresService.especialidades(this.doctor.idDoctor),
+              )
+            ).filter((e) => e.estado === "ACTIVO")
+          : [];
       } catch (e) {
         this.error = errorText(e);
       } finally {
@@ -151,7 +168,7 @@ export class DisponibilidadForm implements OnInit {
             idDoctor: this.doctor?.idDoctor,
             fecha: this.horario.fecha,
             idFranja: this.horario.idFranja,
-            idEspecialidad:this.horario.idEspecialidad,
+            idEspecialidad: this.horario.idEspecialidad,
           }),
         );
         this.exito = "Disponibilidad registrada correctamente.";

@@ -11,11 +11,17 @@ export const routes: Routes = [
   },
   {
     path: "recuperar-password",
-    loadComponent: () => import("./features/auth/pages/recuperar-password/recuperar-password").then(m => m.RecuperarPassword),
+    loadComponent: () =>
+      import("./features/auth/pages/recuperar-password/recuperar-password").then(
+        (m) => m.RecuperarPassword,
+      ),
   },
   {
     path: "restablecer-password",
-    loadComponent: () => import("./features/auth/pages/restablecer-password/restablecer-password").then(m => m.RestablecerPassword),
+    loadComponent: () =>
+      import("./features/auth/pages/restablecer-password/restablecer-password").then(
+        (m) => m.RestablecerPassword,
+      ),
   },
   {
     path: "",

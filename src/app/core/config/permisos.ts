@@ -52,4 +52,10 @@ export const PERMISOS_POR_ROL: Readonly<Record<Rol, readonly Permiso[]>> = {
   ],
 };
 
-export const INICIO_POR_ROL: Readonly<Record<Rol, string>> = {ADMINISTRADORA:"/home",RECEPCIONISTA:"/citas",CAJERA:"/citas/confirmar",TESORERA:"/finanzas",DOCTOR:"/doctor"};
+export const INICIO_POR_ROL: Readonly<Record<Rol, string>> = {
+  ADMINISTRADORA: "/home",
+  RECEPCIONISTA: "/citas",
+  CAJERA: "/citas/confirmar",
+  TESORERA: "/finanzas",
+  DOCTOR: "/doctor",
+};

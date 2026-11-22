@@ -31,7 +31,9 @@ export class AgendaList implements OnInit {
   procesando = false;
   citas: Cita[] = [];
   doctor: Doctor | undefined;
-  get esAdministradora(): boolean { return this.auth.session()?.rol === "ADMINISTRADORA"; }
+  get esAdministradora(): boolean {
+    return this.auth.session()?.rol === "ADMINISTRADORA";
+  }
   get nombreDoctor(): string {
     if (this.esAdministradora) return "Todos los médicos";
     return this.doctor

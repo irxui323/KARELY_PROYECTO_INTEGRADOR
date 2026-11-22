@@ -275,5 +275,14 @@ body {
   }
 }
 
-.enlace-recuperacion { display:inline-block; margin-top:18px; color:#005b83; font-weight:700; font-size:14px; }
-.enlace-recuperacion:focus-visible { outline:3px solid #005b83; outline-offset:4px; }
+.enlace-recuperacion {
+  display: inline-block;
+  margin-top: 18px;
+  color: #005b83;
+  font-weight: 700;
+  font-size: 14px;
+}
+.enlace-recuperacion:focus-visible {
+  outline: 3px solid #005b83;
+  outline-offset: 4px;
+}

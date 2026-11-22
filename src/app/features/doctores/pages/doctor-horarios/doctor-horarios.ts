@@ -10,7 +10,10 @@ import { errorText } from "../../../../core/utils/http-error";
 import { fechaActual, fechaNoPasada } from "../../../../core/utils/fecha";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
 import { SiPermiso } from "../../../../shared/directives/si-permiso";
-import { Franja, Especialidad } from "../../../catalogos/models/catalogos.model";
+import {
+  Franja,
+  Especialidad,
+} from "../../../catalogos/models/catalogos.model";
 import { ControlDisabled } from "../../../../shared/directives/control-disabled";
 import { CatalogoService } from "../../../catalogos/services/catalogos-service";
 import {
@@ -30,7 +33,9 @@ import { DoctorService } from "../../services/doctores-service";
 export class DoctorHorarios implements OnInit {
   private readonly changeDetector = inject(ChangeDetectorRef);
   guardando = false;
-  get fechaMinima() { return fechaActual(); }
+  get fechaMinima() {
+    return fechaActual();
+  }
   constructor() {
     this.horario = {};
   }
@@ -38,32 +43,50 @@ export class DoctorHorarios implements OnInit {
   private catalogoService = inject(CatalogoService);
   doctores: Doctor[] = [];
   franjas: Franja[] = [];
-  especialidades:Especialidad[]=[];
-  cargandoEspecialidades=false;
-  private cargaEspecialidades=0;
+  especialidades: Especialidad[] = [];
+  cargandoEspecialidades = false;
+  private cargaEspecialidades = 0;
   async cargarEspecialidades() {
-    const carga=++this.cargaEspecialidades;
-    const id=this.horario.idDoctor;
+    const carga = ++this.cargaEspecialidades;
+    const id = this.horario.idDoctor;
     this.horarioGroup.controls.idEspecialidad.reset(null);
-    this.especialidades=[];
-    this.cargandoEspecialidades=!!id;
+    this.especialidades = [];
+    this.cargandoEspecialidades = !!id;
     try {
-      if(!id)return;
-      const especialidades=await firstValueFrom(this.doctoresService.especialidades(id));
-      if(carga===this.cargaEspecialidades)this.especialidades=especialidades.filter(e=>e.estado==='ACTIVO');
-    }catch(e){if(carga===this.cargaEspecialidades)this.error=errorText(e);}
-    finally{if(carga===this.cargaEspecialidades)this.cargandoEspecialidades=false;this.changeDetector.markForCheck();}
+      if (!id) return;
+      const especialidades = await firstValueFrom(
+        this.doctoresService.especialidades(id),
+      );
+      if (carga === this.cargaEspecialidades)
+        this.especialidades = especialidades.filter(
+          (e) => e.estado === "ACTIVO",
+        );
+    } catch (e) {
+      if (carga === this.cargaEspecialidades) this.error = errorText(e);
+    } finally {
+      if (carga === this.cargaEspecialidades)
+        this.cargandoEspecialidades = false;
+      this.changeDetector.markForCheck();
+    }
   }
-  async prepararClasificacion(h:Disponibilidad) {
-    this.horario={idDoctor:h.idDoctor,fecha:h.fechaTurno,idFranja:h.idFranja,idEspecialidad:null};
+  async prepararClasificacion(h: Disponibilidad) {
+    this.horario = {
+      idDoctor: h.idDoctor,
+      fecha: h.fechaTurno,
+      idFranja: h.idFranja,
+      idEspecialidad: null,
+    };
     await this.cargarEspecialidades();
-    this.exito='Selecciona la especialidad y guarda para clasificar este horario pendiente.';
+    this.exito =
+      "Selecciona la especialidad y guarda para clasificar este horario pendiente.";
   }
   disponibilidades: Disponibilidad[] = [];
   error = "";
   exito = "";
   readonly horarioGroup = new FormGroup({
-    idEspecialidad:new FormControl<number|null|undefined>(undefined,{validators:[Validators.required]}),
+    idEspecialidad: new FormControl<number | null | undefined>(undefined, {
+      validators: [Validators.required],
+    }),
     idDoctor: new FormControl<number | null | undefined>(undefined, {
       nonNullable: true,
       validators: [Validators.required],
@@ -135,7 +158,8 @@ export class DoctorHorarios implements OnInit {
       if (this.horarioGroup.invalid) {
         this.horarioGroup.markAllAsTouched();
         this.exito = "";
-        this.error = "Selecciona el doctor, la especialidad, la fecha y la franja.";
+        this.error =
+          "Selecciona el doctor, la especialidad, la fecha y la franja.";
         return;
       }
       await this.run(

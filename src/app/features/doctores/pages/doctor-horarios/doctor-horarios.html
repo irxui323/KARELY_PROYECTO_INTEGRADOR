@@ -29,26 +29,41 @@
     </div>
     <div class="k-form">
       <label class="k-field"
-        >Doctor<select [formControl]="horarioGroup.controls.idDoctor" [appControlDisabled]="guardando" (change)="cargarEspecialidades()">
+        >Doctor<select
+          [formControl]="horarioGroup.controls.idDoctor"
+          [appControlDisabled]="guardando"
+          (change)="cargarEspecialidades()"
+        >
           <option [ngValue]="null">Selecciona un doctor</option>
           @for(d of doctores;track d.idDoctor){
           <option [ngValue]="d.idDoctor">{{d.nombres}} {{d.apellidos}}</option>
           }
         </select></label
       >
-      <label class="k-field">Especialidad del turno<select [formControl]="horarioGroup.controls.idEspecialidad" [appControlDisabled]="guardando || cargandoEspecialidades || !horario.idDoctor">
-        <option [ngValue]="null">Selecciona una especialidad del doctor</option>
-        @for(e of especialidades;track e.idEspecialidad){<option [ngValue]="e.idEspecialidad">{{e.nombre}}</option>}
-      </select></label>
+      <label class="k-field"
+        >Especialidad del turno<select
+          [formControl]="horarioGroup.controls.idEspecialidad"
+          [appControlDisabled]="guardando || cargandoEspecialidades || !horario.idDoctor"
+        >
+          <option [ngValue]="null">
+            Selecciona una especialidad del doctor
+          </option>
+          @for(e of especialidades;track e.idEspecialidad){
+          <option [ngValue]="e.idEspecialidad">{{e.nombre}}</option>
+          }
+        </select></label
+      >
       <label class="k-field"
         >Fecha de atención<input
           type="date"
           [min]="fechaMinima"
           [formControl]="horarioGroup.controls.fecha"
-      />
-      @if(horarioGroup.controls.fecha.touched && horarioGroup.controls.fecha.hasError('fechaPasada')){
+        />
+        @if(horarioGroup.controls.fecha.touched &&
+        horarioGroup.controls.fecha.hasError('fechaPasada')){
         <small role="alert">La fecha no puede ser anterior a hoy.</small>
-      }</label>
+        }</label
+      >
       <label class="k-field"
         >Franja horaria<select [formControl]="horarioGroup.controls.idFranja">
           <option [ngValue]="null">Selecciona un turno</option>
@@ -100,7 +115,17 @@
             <td>{{h.horaInicio}}</td>
             <td>{{h.horaFin}}</td>
             <td><span class="k-status">{{h.estado}}</span></td>
-            <td>@if(!h.idEspecialidad && h.fechaTurno>=fechaMinima){<button *siPermiso="'HORARIOS_ESCRIBIR'" type="button" class="k-button k-button-small k-button-secondary" [disabled]="guardando" (click)="prepararClasificacion(h)">Asignar especialidad</button>}</td>
+            <td>
+              @if(!h.idEspecialidad && h.fechaTurno>=fechaMinima){<button
+                *siPermiso="'HORARIOS_ESCRIBIR'"
+                type="button"
+                class="k-button k-button-small k-button-secondary"
+                [disabled]="guardando"
+                (click)="prepararClasificacion(h)"
+              >
+                Asignar especialidad</button
+              >}
+            </td>
           </tr>
           }@empty{
           <tr>

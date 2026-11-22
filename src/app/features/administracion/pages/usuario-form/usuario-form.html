@@ -18,12 +18,21 @@
   <div class="k-error" role="alert">{{error}}</div>
   }@if(exito){
   <div class="k-success" role="status">{{exito}}</div>
-  }
-  @if (acceso) {
+  } @if (acceso) {
   <section class="k-panel" aria-label="Credenciales del trabajador">
     <h2>Cuenta creada</h2>
-    <p>Guarda estos datos antes de salir. La contraseña no se mostrará en el listado.</p>
-    <dl><dt>Usuario</dt><dd>{{ acceso.username }}</dd><dt>Correo</dt><dd>{{ acceso.correo }}</dd><dt>Contraseña inicial</dt><dd><code>{{ acceso.password }}</code></dd></dl>
+    <p>
+      Guarda estos datos antes de salir. La contraseña no se mostrará en el
+      listado.
+    </p>
+    <dl>
+      <dt>Usuario</dt>
+      <dd>{{ acceso.username }}</dd>
+      <dt>Correo</dt>
+      <dd>{{ acceso.correo }}</dd>
+      <dt>Contraseña inicial</dt>
+      <dd><code>{{ acceso.password }}</code></dd>
+    </dl>
     <a class="k-button" routerLink="/admin">Volver a usuarios</a>
   </section>
   }
@@ -55,7 +64,10 @@
           }
         </select></label
       >
-      <p class="k-info">El sistema generará una contraseña segura. Las cuentas de doctores se crean desde Doctores, después de aprobar su documentación.</p>
+      <p class="k-info">
+        El sistema generará una contraseña segura. Las cuentas de doctores se
+        crean desde Doctores, después de aprobar su documentación.
+      </p>
     </div>
     <div class="k-actions">
       <button

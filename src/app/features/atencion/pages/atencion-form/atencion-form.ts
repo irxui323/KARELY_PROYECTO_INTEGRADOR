@@ -90,7 +90,9 @@ export class AtencionForm implements OnInit {
   set medico(value: AtencionRequest) {
     this.medicoGroup.reset(value);
   }
-  get esAdministradora(): boolean { return this.auth.session()?.rol === "ADMINISTRADORA"; }
+  get esAdministradora(): boolean {
+    return this.auth.session()?.rol === "ADMINISTRADORA";
+  }
   get nombreDoctor(): string {
     if (this.esAdministradora) return "Todos los médicos";
     return this.doctor
@@ -168,8 +170,12 @@ export class AtencionForm implements OnInit {
     }
   }
   private restaurarReceta(): void {
-    this.medicoGroup.controls.idReceta.setValue(this.atencionActual?.idReceta ?? null);
-    this.medicoGroup.controls.indicaciones.setValue(this.atencionActual?.indicacionesReceta ?? "");
+    this.medicoGroup.controls.idReceta.setValue(
+      this.atencionActual?.idReceta ?? null,
+    );
+    this.medicoGroup.controls.indicaciones.setValue(
+      this.atencionActual?.indicacionesReceta ?? "",
+    );
   }
   limpiarDetalleConsulta(): void {
     const id = this.medico.idCita;

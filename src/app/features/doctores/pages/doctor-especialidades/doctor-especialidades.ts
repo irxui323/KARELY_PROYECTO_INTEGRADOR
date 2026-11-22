@@ -39,7 +39,11 @@ export class DoctorEspecialidades implements OnInit {
   cargandoAsignadas = false;
   private cargaAsignadas = 0;
   get disponibles() {
-    return this.especialidades.filter(e => e.estado === "ACTIVO" && !this.asignadas.some(a => a.idEspecialidad === e.idEspecialidad));
+    return this.especialidades.filter(
+      (e) =>
+        e.estado === "ACTIVO" &&
+        !this.asignadas.some((a) => a.idEspecialidad === e.idEspecialidad),
+    );
   }
   error = "";
   exito = "";
@@ -86,8 +90,14 @@ export class DoctorEspecialidades implements OnInit {
     this.cargandoAsignadas = !!doctor;
     try {
       if (!doctor) return;
-      const asignadas = await firstValueFrom(this.doctoresService.especialidades(doctor));
-      if (carga === this.cargaAsignadas && doctor === this.especialidadForm.idDoctor) this.asignadas = asignadas;
+      const asignadas = await firstValueFrom(
+        this.doctoresService.especialidades(doctor),
+      );
+      if (
+        carga === this.cargaAsignadas &&
+        doctor === this.especialidadForm.idDoctor
+      )
+        this.asignadas = asignadas;
     } catch (e) {
       if (carga === this.cargaAsignadas) this.error = errorText(e);
     } finally {
@@ -109,7 +119,12 @@ export class DoctorEspecialidades implements OnInit {
     this.error = "";
     this.exito = "";
     try {
-      await firstValueFrom(this.doctoresService.quitarEspecialidad(doctor,especialidad.idEspecialidad));
+      await firstValueFrom(
+        this.doctoresService.quitarEspecialidad(
+          doctor,
+          especialidad.idEspecialidad,
+        ),
+      );
       this.exito = "Especialidad retirada del doctor";
       await this.cargarAsignadas();
     } catch (e) {

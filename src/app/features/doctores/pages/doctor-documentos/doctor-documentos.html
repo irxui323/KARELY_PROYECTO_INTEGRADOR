@@ -32,11 +32,13 @@
   </section>
   @if(guardadoPendiente){
   <p class="k-info" role="status">Hay archivos pendientes de subir.</p>
-  }
-  @if(!selectedDoctor){
+  } @if(!selectedDoctor){
   <section class="k-panel documentos-vacio">
     <h2>Selecciona al doctor que vas a revisar</h2>
-    <p>Verás su DNI y su título profesional por separado. Abre ambos archivos antes de confirmar la revisión manual.</p>
+    <p>
+      Verás su DNI y su título profesional por separado. Abre ambos archivos
+      antes de confirmar la revisión manual.
+    </p>
   </section>
   }@else{
   <div class="documentos-grid">
@@ -50,60 +52,64 @@
       </p>
       }
       <div class="documento-upload">
-      <label class="k-field"
-        >Archivo PDF o imagen (máximo 10 MB)<input
-          type="file"
-          accept="application/pdf,image/png,image/jpeg"
-          [disabled]="guardando || !selectedDoctor"
-          (change)="cambiarArchivo($event,tipo)"
-      /></label>
-      @if(archivos[tipo];as archivo){
-      <p class="k-info">Pendiente de subir: {{archivo.name}}</p>
-      }
-      <button
-        class="k-button"
-        [disabled]="guardando || !selectedDoctor || !archivos[tipo]"
-        (click)="subirDocumento(tipo)"
-      >
-        Subir {{tipo === 'DNI' ? 'DNI' : 'título'}}
-      </button>
+        <label class="k-field"
+          >Archivo PDF o imagen (máximo 10 MB)<input
+            type="file"
+            accept="application/pdf,image/png,image/jpeg"
+            [disabled]="guardando || !selectedDoctor"
+            (change)="cambiarArchivo($event,tipo)"
+        /></label>
+        @if(archivos[tipo];as archivo){
+        <p class="k-info">Pendiente de subir: {{archivo.name}}</p>
+        }
+        <button
+          class="k-button"
+          [disabled]="guardando || !selectedDoctor || !archivos[tipo]"
+          (click)="subirDocumento(tipo)"
+        >
+          Subir {{tipo === 'DNI' ? 'DNI' : 'título'}}
+        </button>
       </div>
       @if(ultimo(tipo);as d){
       <div class="documento-version">
-      <h3>Última versión</h3>
-      <p class="documento-archivo"><span>{{d.nombreArchivo}}</span> <span class="k-status">{{d.estado}}</span></p>
-      @if(d.motivoRechazo){
-      <p>{{d.motivoRechazo}}</p>
-      }
-      <button class="k-button k-button-secondary" (click)="verDocumento(d)">
-        Ver archivo
-      </button>
-      <label class="k-field"
-        >Motivo de rechazo<input
-          [(ngModel)]="motivos[d.idDocumento]"
-          [disabled]="guardando" /></label
-      ><button
-        class="k-button k-button-secondary"
-        [disabled]="guardando || !motivos[d.idDocumento]?.trim()"
-        (click)="rechazarDocumento(d)"
-      >
-        Rechazar documento
-      </button>
-      @if(tipo === 'DNI'){<label class="revision"
-        ><input
-          type="checkbox"
-          [(ngModel)]="dniConforme"
-          [disabled]="guardando || !abiertos.has(d.idDocumento) || d.estado === 'RECHAZADO'"
-        />
-        Comprobé que número y nombres coinciden con el doctor registrado</label
-      >}@else{<label class="revision"
-        ><input
-          type="checkbox"
-          [(ngModel)]="tituloConforme"
-          [disabled]="guardando || !abiertos.has(d.idDocumento) || d.estado === 'RECHAZADO'"
-        />
-        Título pertenece al doctor y es conforme</label
-      >}
+        <h3>Última versión</h3>
+        <p class="documento-archivo">
+          <span>{{d.nombreArchivo}}</span>
+          <span class="k-status">{{d.estado}}</span>
+        </p>
+        @if(d.motivoRechazo){
+        <p>{{d.motivoRechazo}}</p>
+        }
+        <button class="k-button k-button-secondary" (click)="verDocumento(d)">
+          Ver archivo
+        </button>
+        <label class="k-field"
+          >Motivo de rechazo<input
+            [(ngModel)]="motivos[d.idDocumento]"
+            [disabled]="guardando" /></label
+        ><button
+          class="k-button k-button-secondary"
+          [disabled]="guardando || !motivos[d.idDocumento]?.trim()"
+          (click)="rechazarDocumento(d)"
+        >
+          Rechazar documento
+        </button>
+        @if(tipo === 'DNI'){<label class="revision"
+          ><input
+            type="checkbox"
+            [(ngModel)]="dniConforme"
+            [disabled]="guardando || !abiertos.has(d.idDocumento) || d.estado === 'RECHAZADO'"
+          />
+          Comprobé que número y nombres coinciden con el doctor
+          registrado</label
+        >}@else{<label class="revision"
+          ><input
+            type="checkbox"
+            [(ngModel)]="tituloConforme"
+            [disabled]="guardando || !abiertos.has(d.idDocumento) || d.estado === 'RECHAZADO'"
+          />
+          Título pertenece al doctor y es conforme</label
+        >}
       </div>
       }@else{
       <p class="k-info">Todavía no se adjuntó este documento.</p>

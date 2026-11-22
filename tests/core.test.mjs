@@ -700,20 +700,36 @@ test("subir DNI conserva el título pendiente y bloquea doble envío sin alterar
 });
 
 test("administradora puede seleccionar atencion sin tener un registro de doctor", () => {
-  const fixture=mountComponent(DoctorComponent);
+  const fixture = mountComponent(DoctorComponent);
   try {
-    const service=TestBed.inject(AuthService);
-    const original=service.session;
-    service.session=()=>({rol:"ADMINISTRADORA",idUsuario:7});
-    const component=fixture.componentInstance;
-    component.doctor=undefined;
-    component.citas=[{idCita:31,idDoctor:2,nombreDoctor:"Ana",nombrePaciente:"Paciente",estadoCita:"EN_ATENCION"}];
-    component.medico={idCita:31,medioEntrega:"EMAIL"};
+    const service = TestBed.inject(AuthService);
+    const original = service.session;
+    service.session = () => ({ rol: "ADMINISTRADORA", idUsuario: 7 });
+    const component = fixture.componentInstance;
+    component.doctor = undefined;
+    component.citas = [
+      {
+        idCita: 31,
+        idDoctor: 2,
+        nombreDoctor: "Ana",
+        nombrePaciente: "Paciente",
+        estadoCita: "EN_ATENCION",
+      },
+    ];
+    component.medico = { idCita: 31, medioEntrega: "EMAIL" };
     fixture.detectChanges();
-    assert.equal(component.citaListaParaAtender,true);
-    assert.equal(component.nombreDoctor,"Todos los médicos");
-    assert.ok(fixture.nativeElement.textContent.includes("Agenda y atención médica"));
-    assert.ok(!fixture.nativeElement.textContent.includes("Esta cuenta todavía no está vinculada"));
-    service.session=original;
-  } finally { fixture.destroy(); }
+    assert.equal(component.citaListaParaAtender, true);
+    assert.equal(component.nombreDoctor, "Todos los médicos");
+    assert.ok(
+      fixture.nativeElement.textContent.includes("Agenda y atención médica"),
+    );
+    assert.ok(
+      !fixture.nativeElement.textContent.includes(
+        "Esta cuenta todavía no está vinculada",
+      ),
+    );
+    service.session = original;
+  } finally {
+    fixture.destroy();
+  }
 });

@@ -56,10 +56,15 @@ export class LoginComponent {
         const destino = returnUrlSeguro(
           this.route?.snapshot.queryParamMap.get("returnUrl"),
         );
-        const destinoMedico = destino && /^\/doctor(?:\/(?:horarios|consultas))?(?:[?#]|$)/.test(destino)
-          ? destino : "/doctor";
+        const destinoMedico =
+          destino &&
+          /^\/doctor(?:\/(?:horarios|consultas))?(?:[?#]|$)/.test(destino)
+            ? destino
+            : "/doctor";
         await this.router.navigateByUrl(
-          s.rol === "DOCTOR" ? destinoMedico : destino ?? INICIO_POR_ROL[s.rol],
+          s.rol === "DOCTOR"
+            ? destinoMedico
+            : (destino ?? INICIO_POR_ROL[s.rol]),
         );
       } catch (e) {
         this.error = errorText(e);

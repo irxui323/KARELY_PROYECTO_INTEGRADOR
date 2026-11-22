@@ -18,10 +18,14 @@ export class DoctorService {
     return this.http.get<Doctor[]>(this.url + "/doctores");
   }
   especialidades(idDoctor: number) {
-    return this.http.get<Especialidad[]>(this.url + "/doctores/" + idDoctor + "/especialidades");
+    return this.http.get<Especialidad[]>(
+      this.url + "/doctores/" + idDoctor + "/especialidades",
+    );
   }
-  quitarEspecialidad(idDoctor: number,idEspecialidad: number) {
-    return this.http.delete<OperationResponse>(this.url + "/doctores/" + idDoctor + "/especialidades/" + idEspecialidad);
+  quitarEspecialidad(idDoctor: number, idEspecialidad: number) {
+    return this.http.delete<OperationResponse>(
+      this.url + "/doctores/" + idDoctor + "/especialidades/" + idEspecialidad,
+    );
   }
   disponibilidades() {
     return this.http.get<Disponibilidad[]>(

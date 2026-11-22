@@ -50,7 +50,6 @@ export class LiquidacionForm implements OnInit {
       nonNullable: true,
       validators: Validators.required,
     }),
-
   });
 
   ngOnInit() {
@@ -72,13 +71,8 @@ export class LiquidacionForm implements OnInit {
     if (this.guardando) return;
     this.error = "";
     this.exito = "";
-    const {
-      idDoctor,
-      monto,
-      fechaInicio,
-      fechaFin,
-      metodoPago,
-    } = this.liqGroup.getRawValue();
+    const { idDoctor, monto, fechaInicio, fechaFin, metodoPago } =
+      this.liqGroup.getRawValue();
     if (
       this.liqGroup.invalid ||
       idDoctor === null ||

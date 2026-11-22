@@ -53,15 +53,28 @@
         </select></label
       >
       <label class="k-field"
-        >Doctor<select [formControl]="reservaGroup.controls.idDoctor" [appControlDisabled]="guardando || consultando || !reserva.idEspecialidad" (change)="reservaGroup.controls.idFranja.reset(null)">
+        >Doctor<select
+          [formControl]="reservaGroup.controls.idDoctor"
+          [appControlDisabled]="guardando || consultando || !reserva.idEspecialidad"
+          (change)="reservaGroup.controls.idFranja.reset(null)"
+        >
           <option [ngValue]="null">Selecciona un doctor</option>
           @for(d of doctoresDisponibles;track d.idDoctor){
-          <option [ngValue]="d.idDoctor" [disabled]="!!reserva.fecha && !d.turnos.length">{{d.nombre}} — {{estadoTurnos(d)}}</option>
+          <option
+            [ngValue]="d.idDoctor"
+            [disabled]="!!reserva.fecha && !d.turnos.length"
+          >
+            {{d.nombre}} — {{estadoTurnos(d)}}
+          </option>
           }
         </select></label
       >
       <label class="k-field"
-        >Consultorio<select [formControl]="reservaGroup.controls.idConsultorio" [appControlDisabled]="guardando" (change)="actualizarDisponibilidad()">
+        >Consultorio<select
+          [formControl]="reservaGroup.controls.idConsultorio"
+          [appControlDisabled]="guardando"
+          (change)="actualizarDisponibilidad()"
+        >
           <option [ngValue]="null">Selecciona un consultorio</option>
           @for(c of consultorios;track c.idConsultorio){
           <option [ngValue]="c.idConsultorio">{{c.nombre}}</option>
@@ -70,10 +83,22 @@
       >
       <label class="k-field"
         >Fecha de la cita
-        <button type="button" class="fecha-selector" [disabled]="guardando || !reserva.idEspecialidad" [attr.aria-expanded]="calendarioAbierto" aria-controls="calendario-cita" (click)="abrirCalendario()">{{fechaMostrada}} <span aria-hidden="true">▦</span></button>
+        <button
+          type="button"
+          class="fecha-selector"
+          [disabled]="guardando || !reserva.idEspecialidad"
+          [attr.aria-expanded]="calendarioAbierto"
+          aria-controls="calendario-cita"
+          (click)="abrirCalendario()"
+        >
+          {{fechaMostrada}} <span aria-hidden="true">▦</span>
+        </button>
       </label>
       <label class="k-field"
-        >Turno<select [formControl]="reservaGroup.controls.idFranja" [appControlDisabled]="guardando || consultando || !reserva.fecha || !reserva.idDoctor || !reserva.idConsultorio">
+        >Turno<select
+          [formControl]="reservaGroup.controls.idFranja"
+          [appControlDisabled]="guardando || consultando || !reserva.fecha || !reserva.idDoctor || !reserva.idConsultorio"
+        >
           <option [ngValue]="null">Selecciona un horario</option>
           @for(f of turnosDisponibles;track f.idFranja){
           <option [ngValue]="f.idFranja">
@@ -84,30 +109,91 @@
       >
     </div>
     @if(calendarioAbierto){
-      <div class="calendario-reserva" id="calendario-cita" (keydown.escape)="calendarioAbierto=false">
-        <div class="calendario-contexto"><strong>Elige un día con turnos libres</strong><button type="button" aria-label="Cerrar calendario" (click)="calendarioAbierto=false">×</button></div>
-        <p>{{reserva.idDoctor ? 'Disponibilidad del doctor seleccionado.' : 'Turnos de todos los doctores de esta especialidad.'}} {{reserva.idConsultorio ? 'Con el consultorio elegido.' : 'Selecciona un consultorio para comprobarlo también.'}}</p>
-        <app-calendario-disponibilidad [mes]="mesCalendario" [minima]="fechaMinima" [seleccionada]="reserva.fecha || ''" [cantidades]="cantidadesCalendario" [cargando]="cargandoCalendario" [error]="errorCalendario" (mesChange)="cargarMes($event)" (fechaChange)="seleccionarFecha($event)" />
+    <div
+      class="calendario-reserva"
+      id="calendario-cita"
+      (keydown.escape)="calendarioAbierto=false"
+    >
+      <div class="calendario-contexto">
+        <strong>Elige un día con turnos libres</strong
+        ><button
+          type="button"
+          aria-label="Cerrar calendario"
+          (click)="calendarioAbierto=false"
+        >
+          ×
+        </button>
       </div>
+      <p>
+        {{reserva.idDoctor ? 'Disponibilidad del doctor seleccionado.' : 'Turnos
+        de todos los doctores de esta especialidad.'}} {{reserva.idConsultorio ?
+        'Con el consultorio elegido.' : 'Selecciona un consultorio para
+        comprobarlo también.'}}
+      </p>
+      <app-calendario-disponibilidad
+        [mes]="mesCalendario"
+        [minima]="fechaMinima"
+        [seleccionada]="reserva.fecha || ''"
+        [cantidades]="cantidadesCalendario"
+        [cargando]="cargandoCalendario"
+        [error]="errorCalendario"
+        (mesChange)="cargarMes($event)"
+        (fechaChange)="seleccionarFecha($event)"
+      />
+    </div>
     }
     <div class="disponibilidad-resumen" aria-live="polite">
-      @if(consultando){<p role="status">Consultando turnos disponibles…</p>}
-      @else if(!reserva.idEspecialidad){<p>Selecciona una especialidad para ver sus doctores.</p>}
-      @else if(!doctoresDisponibles.length){<p>No hay doctores habilitados para esta especialidad.</p>}
-      @else if(!reserva.fecha){<p>Selecciona una fecha para consultar los turnos de cada doctor.</p>}
-      @else{
-        <div class="disponibilidad-encabezado"><strong>Disponibilidad para la fecha elegida</strong><button type="button" class="k-button k-button-small k-button-secondary" [disabled]="guardando" (click)="actualizarDisponibilidad()">Actualizar turnos</button></div>
-        @if(!reserva.idConsultorio){<p>Elige un consultorio para comprobar también que esté libre.</p>}
-        <div class="doctores-disponibles">
-          @for(d of doctoresDisponibles;track d.idDoctor){
-            <button type="button" class="doctor-opcion" [class.seleccionado]="reserva.idDoctor===d.idDoctor" [disabled]="!d.turnos.length || guardando" [attr.aria-pressed]="reserva.idDoctor===d.idDoctor" (click)="reservaGroup.controls.idDoctor.setValue(d.idDoctor);reservaGroup.controls.idFranja.reset(null)">
-              <strong>{{d.nombre}}</strong><span [class.sin-turnos]="!d.turnos.length" [class.pocos-turnos]="d.turnos.length>0 && d.turnos.length<=3">{{estadoTurnos(d)}}</span>
-            </button>
-          }
-        </div>
-        @if(reserva.idDoctor && !turnosDisponibles.length){<p>No quedan turnos libres para este doctor. Prueba otra fecha o consultorio.</p>}
+      @if(consultando){
+      <p role="status">Consultando turnos disponibles…</p>
+      } @else if(!reserva.idEspecialidad){
+      <p>Selecciona una especialidad para ver sus doctores.</p>
+      } @else if(!doctoresDisponibles.length){
+      <p>No hay doctores habilitados para esta especialidad.</p>
+      } @else if(!reserva.fecha){
+      <p>Selecciona una fecha para consultar los turnos de cada doctor.</p>
+      } @else{
+      <div class="disponibilidad-encabezado">
+        <strong>Disponibilidad para la fecha elegida</strong
+        ><button
+          type="button"
+          class="k-button k-button-small k-button-secondary"
+          [disabled]="guardando"
+          (click)="actualizarDisponibilidad()"
+        >
+          Actualizar turnos
+        </button>
+      </div>
+      @if(!reserva.idConsultorio){
+      <p>Elige un consultorio para comprobar también que esté libre.</p>
       }
-      <p class="disponibilidad-nota">Los turnos se vuelven a comprobar al bloquear la reserva.</p>
+      <div class="doctores-disponibles">
+        @for(d of doctoresDisponibles;track d.idDoctor){
+        <button
+          type="button"
+          class="doctor-opcion"
+          [class.seleccionado]="reserva.idDoctor===d.idDoctor"
+          [disabled]="!d.turnos.length || guardando"
+          [attr.aria-pressed]="reserva.idDoctor===d.idDoctor"
+          (click)="reservaGroup.controls.idDoctor.setValue(d.idDoctor);reservaGroup.controls.idFranja.reset(null)"
+        >
+          <strong>{{d.nombre}}</strong
+          ><span
+            [class.sin-turnos]="!d.turnos.length"
+            [class.pocos-turnos]="d.turnos.length>0 && d.turnos.length<=3"
+            >{{estadoTurnos(d)}}</span
+          >
+        </button>
+        }
+      </div>
+      @if(reserva.idDoctor && !turnosDisponibles.length){
+      <p>
+        No quedan turnos libres para este doctor. Prueba otra fecha o
+        consultorio.
+      </p>
+      } }
+      <p class="disponibilidad-nota">
+        Los turnos se vuelven a comprobar al bloquear la reserva.
+      </p>
     </div>
     <div class="k-actions">
       <button
