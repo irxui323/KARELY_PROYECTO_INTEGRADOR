@@ -205,7 +205,7 @@ class DoctorAccesoTest {
     void restriccionJpaDeEspecialidadSeConvierteEnConflicto() {
         when(doctores.asignarEspecialidad(1L, 2L))
                 .thenThrow(
-                        new org.springframework.dao.DataIntegrityViolationException("duplicado"));
+                        new org.springframework.dao.DataIntegrityViolationException("ORA-00001: unique constraint (KARELY_BD2.UQ_DOCTOR_ESPECIALIDAD) violated"));
         var error =
                 assertThrows(
                         org.springframework.web.server.ResponseStatusException.class,

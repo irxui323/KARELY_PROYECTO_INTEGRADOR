@@ -118,4 +118,47 @@ class DoctorEspecialidadesTest {
         assertThrows(AccessDeniedException.class, () -> service.quitarEspecialidad(1, 2, 7));
         verifyNoInteractions(repo, auditoria);
     }
+
+    @Test
+    void noConfundeUnaClaveForaneaInvalidaConEspecialidadDuplicada() {
+        var error =
+                new org.springframework.dao.DataIntegrityViolationException(
+                        "ORA-02291: integrity constraint (KARELY_BD2.FK_ESPECIALIDAD) violated");
+        when(repo.asignarEspecialidad(1L, 2L)).thenThrow(error);
+        assertSame(
+                error,
+                assertThrows(
+                        org.springframework.dao.DataIntegrityViolationException.class,
+                        () ->
+                                service.asignarEspecialidad(
+                                        1,
+                                        new pe.edu.karely.dto.doctor.AsignarEspecialidadRequestDTO(
+                                                2L),
+                                        7)));
+        verifyNoInteractions(auditoria);
+    }
+
+    @Test
+    void informaDuplicadoSoloParaLaRestriccionDeDoctorYEspecialidad() {
+        when(repo.asignarEspecialidad(1L, 2L))
+                .thenThrow(
+                        new org.springframework.dao.DataIntegrityViolationException(
+                                "Insert rejected",
+                                new java.sql.SQLException(
+                                        "ORA-00001: unique constraint"
+                                            + " (KARELY_BD2.UQ_DOCTOR_ESPECIALIDAD) violated",
+                                        "23000",
+                                        1)));
+        var error =
+                assertThrows(
+                        ResponseStatusException.class,
+                        () ->
+                                service.asignarEspecialidad(
+                                        1,
+                                        new pe.edu.karely.dto.doctor.AsignarEspecialidadRequestDTO(
+                                                2L),
+                                        7));
+        assertEquals(409, error.getStatusCode().value());
+        verifyNoInteractions(auditoria);
+    }
 }

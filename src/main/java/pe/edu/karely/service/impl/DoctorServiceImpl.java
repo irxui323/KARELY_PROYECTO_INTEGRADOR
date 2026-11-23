@@ -100,7 +100,7 @@ public class DoctorServiceImpl implements DoctorService {
                 || !repository.tieneEspecialidad(idDoctor))
             throw new IllegalArgumentException(
                     "Asigna una especialidad y aprueba el DNI y el título antes de crear el"
-                        + " acceso");
+                            + " acceso");
         if (doctor.correo() == null || doctor.correo().isBlank())
             throw new IllegalArgumentException(
                     "Registra el correo del doctor antes de crear su acceso");
@@ -142,6 +142,17 @@ public class DoctorServiceImpl implements DoctorService {
         try {
             repository.asignarEspecialidad(idDoctor, i.idEspecialidad());
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            boolean duplicada = false;
+            for (Throwable causa = e; causa != null; causa = causa.getCause()) {
+                if (causa.getMessage() != null
+                        && causa.getMessage()
+                                .toUpperCase(java.util.Locale.ROOT)
+                                .contains("UQ_DOCTOR_ESPECIALIDAD")) {
+                    duplicada = true;
+                    break;
+                }
+            }
+            if (!duplicada) throw e;
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.CONFLICT,
                     "El doctor ya tiene asignada esta especialidad",
@@ -176,7 +187,7 @@ public class DoctorServiceImpl implements DoctorService {
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.CONFLICT,
                     "No se puede quitar: hay citas pendientes, atenciones abiertas o reservas"
-                        + " vigentes con esta especialidad");
+                            + " vigentes con esta especialidad");
         if (repository.quitarEspecialidad(idDoctor, idEspecialidad) != 1)
             throw new RecursoNoEncontradoException("El doctor no tiene asignada esta especialidad");
         auditoria.registrar(

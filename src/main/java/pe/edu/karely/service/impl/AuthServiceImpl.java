@@ -2,6 +2,7 @@ package pe.edu.karely.service.impl;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -94,7 +95,7 @@ public class AuthServiceImpl implements AuthService {
         return new MensajeResponseDTO("Sesión cerrada");
     }
 
-    private ResponseStatusException credencialesIncorrectas() {
-        return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
+    private BadCredentialsException credencialesIncorrectas() {
+        return new BadCredentialsException("Credenciales inválidas");
     }
 }

@@ -5,7 +5,7 @@ import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.authentication.BadCredentialsException;
 
 import pe.edu.karely.dto.auth.CredencialesDTO;
 import pe.edu.karely.dto.auth.LoginRequestDTO;
@@ -32,16 +32,15 @@ class SesionRevisionTest {
     void credencialesVaciasNoConsultanBase() {
         var error =
                 assertThrows(
-                        ResponseStatusException.class,
+                        BadCredentialsException.class,
                         () -> servicio.login(new LoginRequestDTO(null, null)));
-        assertEquals(401, error.getStatusCode().value());
         verifyNoInteractions(usuarios, sesiones);
     }
 
     @Test
     void usuarioInexistenteNoAbreSesion() {
         assertThrows(
-                ResponseStatusException.class,
+                BadCredentialsException.class,
                 () -> servicio.login(new LoginRequestDTO("ausente", "incorrecta")));
         verifyNoInteractions(sesiones, intentos);
     }
@@ -51,7 +50,7 @@ class SesionRevisionTest {
         when(usuarios.buscarCredenciales("doctor"))
                 .thenReturn(new CredencialesDTO(1L, "hash", "ACTIVO", "DOCTOR"));
         assertThrows(
-                ResponseStatusException.class,
+                BadCredentialsException.class,
                 () -> servicio.login(new LoginRequestDTO("doctor", "incorrecta")));
         verify(intentos).failed(1L);
         verifyNoInteractions(sesiones);
@@ -80,7 +79,7 @@ class SesionRevisionTest {
         when(usuarios.bloquearCredenciales(1L))
                 .thenReturn(new CredencialesDTO(1L, "hash-nuevo", "ACTIVO", "DOCTOR"));
         assertThrows(
-                ResponseStatusException.class,
+                BadCredentialsException.class,
                 () -> servicio.login(new LoginRequestDTO("doctor", "correcta")));
         verifyNoInteractions(sesiones);
     }
