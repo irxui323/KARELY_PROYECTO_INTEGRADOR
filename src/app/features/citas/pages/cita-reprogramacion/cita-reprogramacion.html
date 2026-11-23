@@ -35,26 +35,15 @@
     </div>
     <div class="k-form">
       <label class="k-field k-field-wide"
-        >Cita original<select [formControl]="reproGroup.controls.idCita">
+        >Cita original<select
+          [formControl]="reproGroup.controls.idCita"
+          (change)="cambiarCita()"
+          [appControlDisabled]="guardando"
+        >
           <option [ngValue]="null">Selecciona una cita programada</option>
-          @for(c of citas;track c.idCita){@if(c.estadoCita==='PROGRAMADA'){
+          @for(c of citasProgramadas;track c.idCita){
           <option [ngValue]="c.idCita">
             #{{c.idCita}} — {{c.nombrePaciente}} — {{c.fechaCita}}
-          </option>
-          }}
-        </select></label
-      >
-      <label class="k-field"
-        >Nueva fecha<input
-          type="date"
-          [formControl]="reproGroup.controls.fechaNueva"
-      /></label>
-      <label class="k-field"
-        >Nuevo turno<select [formControl]="reproGroup.controls.idFranjaNueva">
-          <option [ngValue]="null">Selecciona un horario</option>
-          @for(f of franjas;track f.idFranja){
-          <option [ngValue]="f.idFranja">
-            {{f.horaInicio}} – {{f.horaFin}}
           </option>
           }
         </select></label
@@ -62,10 +51,45 @@
       <label class="k-field"
         >Nuevo consultorio<select
           [formControl]="reproGroup.controls.idConsultorioNuevo"
+          (change)="cambiarConsultorio()"
+          [appControlDisabled]="guardando"
         >
           <option [ngValue]="null">Selecciona un consultorio</option>
           @for(c of consultorios;track c.idConsultorio){
           <option [ngValue]="c.idConsultorio">{{c.nombre}}</option>
+          }
+        </select></label
+      >
+      <div class="k-field k-field-wide">
+        <span
+          >Nueva fecha · {{citaOriginal?.nombreDoctor}} ·
+          {{citaOriginal?.especialidad}}</span
+        >
+        <app-calendario-disponibilidad
+          [mes]="mes"
+          [minima]="fechaMinima"
+          [seleccionada]="repro.fechaNueva || ''"
+          [cantidades]="cantidades"
+          [cargando]="cargandoMes || guardando"
+          [error]="errorCalendario"
+          (mesChange)="cargarMes($event)"
+          (fechaChange)="elegirFecha($event)"
+        />
+        <small
+          >Selecciona un consultorio para ver las fechas con turnos libres del
+          doctor y la especialidad de la cita original.</small
+        >
+      </div>
+      <label class="k-field"
+        >Nuevo turno<select
+          [formControl]="reproGroup.controls.idFranjaNueva"
+          [appControlDisabled]="guardando || consultando || !repro.fechaNueva || !turnos.length"
+        >
+          <option [ngValue]="null">Selecciona un horario</option>
+          @for(f of turnos;track f.idFranja){
+          <option [ngValue]="f.idFranja">
+            {{f.horaInicio}} – {{f.horaFin}}
+          </option>
           }
         </select></label
       >
@@ -83,10 +107,17 @@
         </select></label
       >
     </div>
+    @if(repro.fechaNueva) {
+    <p class="k-info">
+      Fecha seleccionada: {{repro.fechaNueva}} · {{consultando ? "Consultando
+      turnos…" : turnos.length + " turnos disponibles"}}. La disponibilidad se
+      vuelve a comprobar al guardar.
+    </p>
+    }
     <div class="k-actions">
       <button
         class="k-button"
-        [disabled]="guardando || (repro.aceptacionPaciente!=='S' || !repro.idCita || !repro.fechaNueva || !repro.idFranjaNueva || !repro.idConsultorioNuevo || !repro.motivo)"
+        [disabled]="guardando || consultando || cargandoMes || reproGroup.invalid || !turnoValido"
         (click)="reprogramar()"
       >
         Guardar reprogramación

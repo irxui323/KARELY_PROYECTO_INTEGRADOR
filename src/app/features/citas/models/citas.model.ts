@@ -1,4 +1,7 @@
 export interface Cita {
+  idEspecialidad?: number;
+  idConsultorio?: number;
+  reprogramaciones?: number;
   idCita: number;
   idPaciente: number;
   idDoctor: number;
