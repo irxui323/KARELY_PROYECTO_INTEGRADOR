@@ -11,7 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import pe.edu.karely.dto.auth.RolActivoDTO;
-import pe.edu.karely.repository.SesionRepository;
+import pe.edu.karely.repository.auth.SesionRepository;
 
 import java.io.IOException;
 import java.util.List;

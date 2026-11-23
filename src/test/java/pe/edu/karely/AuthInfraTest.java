@@ -15,20 +15,20 @@ class AuthInfraTest {
     void autenticacionSeRespondeDesdeElManejadorGlobal() {
         var respuesta = new GlobalExceptionHandler().authentication(new BadCredentialsException("error"));
         assertEquals(401, respuesta.getStatusCode().value());
-        assertEquals("Credenciales incorrectas", respuesta.getBody().error());
+        assertEquals("Credenciales incorrectas", respuesta.getBody().message());
     }
 
     @Test
     void mensajeDeNegocioOracleOmiteRestoDelStack() {
         var causa =
                 new SQLException(
-                        "ORA-20003: La operación no está permitida\r\nORA-06512: SQL interno",
+                        "ORA-20003: La operaciÃ³n no estÃ¡ permitida\r\nORA-06512: SQL interno",
                         "",
                         20003);
         var respuesta =
                 new GlobalExceptionHandler()
                         .sql(new DataAccessResourceFailureException("SELECT interno", causa));
         assertEquals(400, respuesta.getStatusCode().value());
-        assertEquals("ORA-20003: La operación no está permitida", respuesta.getBody().error());
+        assertEquals("ORA-20003: La operaciÃ³n no estÃ¡ permitida", respuesta.getBody().message());
     }
 }

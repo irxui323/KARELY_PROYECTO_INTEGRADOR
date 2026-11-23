@@ -9,7 +9,7 @@ import org.springframework.orm.jpa.*;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import pe.edu.karely.repository.DoctorRepository;
+import pe.edu.karely.repository.doctores.DoctorRepository;
 import pe.edu.karely.repository.OracleJdbc;
 
 class DoctorEspecialidadPersistenciaTest {

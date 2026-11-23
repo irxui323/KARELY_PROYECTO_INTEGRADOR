@@ -8,8 +8,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import pe.edu.karely.controller.DoctorController;
-import pe.edu.karely.service.service.*;
+import pe.edu.karely.controller.doctores.DoctorController;
+import pe.edu.karely.service.service.administracion.*;
+import pe.edu.karely.service.service.atencion.*;
+import pe.edu.karely.service.service.auth.*;
+import pe.edu.karely.service.service.catalogos.*;
+import pe.edu.karely.service.service.citas.*;
+import pe.edu.karely.service.service.doctores.*;
+import pe.edu.karely.service.service.finanzas.*;
+import pe.edu.karely.service.service.pacientes.*;
+import pe.edu.karely.service.service.reportes.*;
 
 class DoctorFlujoManualTest {
     @Test

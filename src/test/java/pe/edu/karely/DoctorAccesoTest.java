@@ -1,5 +1,7 @@
 package pe.edu.karely;
 
+import pe.edu.karely.repository.OracleJdbc;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -9,9 +11,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import pe.edu.karely.dto.auth.IdRolDTO;
 import pe.edu.karely.dto.doctor.*;
-import pe.edu.karely.repository.*;
+import pe.edu.karely.repository.administracion.*;
+import pe.edu.karely.repository.atencion.*;
+import pe.edu.karely.repository.auth.*;
+import pe.edu.karely.repository.catalogos.*;
+import pe.edu.karely.repository.citas.*;
+import pe.edu.karely.repository.doctores.*;
+import pe.edu.karely.repository.finanzas.*;
+import pe.edu.karely.repository.pacientes.*;
+import pe.edu.karely.repository.reportes.*;
 import pe.edu.karely.security.PermisosUsuario;
-import pe.edu.karely.service.impl.DoctorServiceImpl;
+import pe.edu.karely.service.impl.doctores.DoctorServiceImpl;
 
 import java.util.List;
 
@@ -185,7 +195,7 @@ class DoctorAccesoTest {
                                         null)));
         when(documentos.rechazar(1, 10, 7)).thenReturn(1);
         service.rechazarDocumento(
-                1, 10, new RechazarDocumentoRequestDTO("El número no coincide"), 7);
+                1, 10, new RechazarDocumentoRequestDTO("El nÃºmero no coincide"), 7);
         verify(documentos).rechazar(1, 10, 7);
         verify(doctores).rechazarDocumentacion(1);
     }

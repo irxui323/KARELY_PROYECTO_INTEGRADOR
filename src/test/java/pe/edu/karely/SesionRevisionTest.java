@@ -9,11 +9,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 
 import pe.edu.karely.dto.auth.CredencialesDTO;
 import pe.edu.karely.dto.auth.LoginRequestDTO;
-import pe.edu.karely.repository.SesionRepository;
-import pe.edu.karely.repository.UsuarioRepository;
+import pe.edu.karely.repository.auth.SesionRepository;
+import pe.edu.karely.repository.administracion.UsuarioRepository;
 import pe.edu.karely.security.JwtService;
-import pe.edu.karely.service.impl.AuthServiceImpl;
-import pe.edu.karely.service.impl.LoginAttemptService;
+import pe.edu.karely.service.impl.auth.AuthServiceImpl;
+import pe.edu.karely.service.impl.auth.LoginAttemptService;
 
 import tools.jackson.databind.json.JsonMapper;
 

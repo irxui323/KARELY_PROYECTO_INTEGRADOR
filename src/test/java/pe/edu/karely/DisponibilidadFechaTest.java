@@ -6,9 +6,9 @@ import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.Test;
 
 import pe.edu.karely.dto.doctor.DisponibilidadRequestDTO;
-import pe.edu.karely.repository.DisponibilidadDoctorRepository;
+import pe.edu.karely.repository.doctores.DisponibilidadDoctorRepository;
 import pe.edu.karely.security.PermisosUsuario;
-import pe.edu.karely.service.impl.DisponibilidadServiceImpl;
+import pe.edu.karely.service.impl.doctores.DisponibilidadServiceImpl;
 
 import java.time.LocalDate;
 import java.time.ZoneId;

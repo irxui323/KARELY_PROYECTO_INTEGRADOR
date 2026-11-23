@@ -6,9 +6,9 @@ import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.Test;
 
 import pe.edu.karely.dto.cita.*;
-import pe.edu.karely.repository.CitaRepository;
+import pe.edu.karely.repository.citas.CitaRepository;
 import pe.edu.karely.security.PermisosUsuario;
-import pe.edu.karely.service.impl.CitaServiceImpl;
+import pe.edu.karely.service.impl.citas.CitaServiceImpl;
 
 import java.time.*;
 import java.util.List;
@@ -89,12 +89,12 @@ class CitaDisponibilidadServicioTest {
 
     @Test
     void exponeConsultaEnElControllerExistente() throws Exception {
-        var service = mock(pe.edu.karely.service.service.CitaService.class);
+        var service = mock(pe.edu.karely.service.service.citas.CitaService.class);
         when(service.disponibilidad(2, null, 4L, 7))
                 .thenReturn(List.of(new DoctorDisponibleDTO(1L, "Ana", List.of())));
         var mvc =
                 org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup(
-                                new pe.edu.karely.controller.CitaController(service))
+                                new pe.edu.karely.controller.citas.CitaController(service))
                         .build();
         mvc.perform(
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(

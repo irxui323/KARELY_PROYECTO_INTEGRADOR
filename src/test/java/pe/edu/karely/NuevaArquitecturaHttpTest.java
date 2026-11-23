@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import pe.edu.karely.controller.LiquidacionController;
-import pe.edu.karely.controller.PacienteController;
-import pe.edu.karely.service.service.LiquidacionService;
-import pe.edu.karely.service.service.PacienteService;
+import pe.edu.karely.controller.finanzas.LiquidacionController;
+import pe.edu.karely.controller.pacientes.PacienteController;
+import pe.edu.karely.service.service.finanzas.LiquidacionService;
+import pe.edu.karely.service.service.pacientes.PacienteService;
 
 class NuevaArquitecturaHttpTest {
     @Test

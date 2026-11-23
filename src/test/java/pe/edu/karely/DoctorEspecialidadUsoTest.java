@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-import pe.edu.karely.repository.DoctorRepository;
+import pe.edu.karely.repository.doctores.DoctorRepository;
 import pe.edu.karely.repository.OracleJdbc;
 
 import java.sql.Timestamp;

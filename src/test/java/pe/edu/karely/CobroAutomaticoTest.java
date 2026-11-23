@@ -6,9 +6,9 @@ import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.Test;
 
 import pe.edu.karely.dto.cita.ConfirmarCitaRequestDTO;
-import pe.edu.karely.repository.CitaRepository;
+import pe.edu.karely.repository.citas.CitaRepository;
 import pe.edu.karely.security.PermisosUsuario;
-import pe.edu.karely.service.impl.CitaServiceImpl;
+import pe.edu.karely.service.impl.citas.CitaServiceImpl;
 
 class CobroAutomaticoTest {
     @Test

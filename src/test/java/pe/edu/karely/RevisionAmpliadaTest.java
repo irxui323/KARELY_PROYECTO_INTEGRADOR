@@ -13,16 +13,16 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import pe.edu.karely.controller.CitaController;
+import pe.edu.karely.controller.citas.CitaController;
 import pe.edu.karely.dto.auth.RolActivoDTO;
 import pe.edu.karely.dto.doctor.AsignarEspecialidadRequestDTO;
 import pe.edu.karely.dto.paciente.PacienteRequestDTO;
 import pe.edu.karely.exception.GlobalExceptionHandler;
 import pe.edu.karely.repository.OracleJdbc;
-import pe.edu.karely.repository.SesionRepository;
+import pe.edu.karely.repository.auth.SesionRepository;
 import pe.edu.karely.security.AuthFilter;
 import pe.edu.karely.security.JwtService;
-import pe.edu.karely.service.service.CitaService;
+import pe.edu.karely.service.service.citas.CitaService;
 
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
@@ -87,7 +87,7 @@ class RevisionAmpliadaTest {
     void normalizaTextoYOpcionales() {
         var entrada =
                 new PacienteRequestDTO(
-                        " DNI ", " 12345678 ", " Ana ", " Pérez ", null, null, null, null, null);
+                        " DNI ", " 12345678 ", " Ana ", " PÃ©rez ", null, null, null, null, null);
         assertEquals("Ana", entrada.nombres());
         assertEquals("12345678", entrada.numeroDocumento());
         assertNull(entrada.correo());

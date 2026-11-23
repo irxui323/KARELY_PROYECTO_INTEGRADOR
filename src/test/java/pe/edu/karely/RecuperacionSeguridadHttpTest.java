@@ -16,11 +16,11 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import pe.edu.karely.config.SecurityConfig;
-import pe.edu.karely.controller.AuthController;
-import pe.edu.karely.repository.SesionRepository;
+import pe.edu.karely.controller.auth.AuthController;
+import pe.edu.karely.repository.auth.SesionRepository;
 import pe.edu.karely.security.JwtService;
-import pe.edu.karely.service.service.AuthService;
-import pe.edu.karely.service.service.RecuperacionService;
+import pe.edu.karely.service.service.auth.AuthService;
+import pe.edu.karely.service.service.auth.RecuperacionService;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;

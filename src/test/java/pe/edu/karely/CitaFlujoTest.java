@@ -10,10 +10,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import pe.edu.karely.controller.CitaController;
-import pe.edu.karely.repository.CitaRepository;
+import pe.edu.karely.controller.citas.CitaController;
+import pe.edu.karely.repository.citas.CitaRepository;
 import pe.edu.karely.security.PermisosUsuario;
-import pe.edu.karely.service.impl.CitaServiceImpl;
+import pe.edu.karely.service.impl.citas.CitaServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;

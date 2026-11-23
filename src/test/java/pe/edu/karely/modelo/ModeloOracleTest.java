@@ -12,9 +12,9 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import pe.edu.karely.entity.Cita;
-import pe.edu.karely.repository.LiquidacionRepository;
+import pe.edu.karely.repository.finanzas.LiquidacionRepository;
 import pe.edu.karely.repository.OracleJdbc;
-import pe.edu.karely.repository.PacienteRepository;
+import pe.edu.karely.repository.pacientes.PacienteRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

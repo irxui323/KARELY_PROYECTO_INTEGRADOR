@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import pe.edu.karely.repository.UsuarioRepository;
+import pe.edu.karely.repository.administracion.UsuarioRepository;
 
 import java.util.Locale;
 
@@ -27,7 +27,7 @@ public class BootstrapAdmin {
             }
             if (username.isBlank() || email.isBlank() || password.length() < 12) {
                 throw new IllegalArgumentException(
-                        "Bootstrap: usuario/correo/contraseña segura (12 caracteres mínimo)"
+                        "Bootstrap: usuario/correo/contraseÃ±a segura (12 caracteres mÃ­nimo)"
                             + " obligatorios");
             }
             if (usuarios.contarAdministradorasActivas().total() > 0) {

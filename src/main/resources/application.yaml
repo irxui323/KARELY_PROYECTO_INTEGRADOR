@@ -60,6 +60,10 @@ app:
     base-url: ${APP_RECOVERY_BASE_URL:http://localhost:4200/restablecer-password}
     expiration-minutes: ${APP_RECOVERY_EXPIRATION_MINUTES:15}
     from: ${APP_RECOVERY_FROM:${APP_MAIL_FROM:}}
+  dni:
+    enabled: ${APP_DNI_ENABLED:false}
+    endpoint-url: ${APP_DNI_ENDPOINT_URL:https://api.endpoint.pe/v1/dni}
+    token: ${APP_DNI_TOKEN:}
 
 springdoc:
   api-docs:

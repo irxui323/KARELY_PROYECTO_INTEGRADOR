@@ -7,12 +7,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import pe.edu.karely.controller.AuthController;
+import pe.edu.karely.controller.auth.AuthController;
 import pe.edu.karely.dto.auth.MensajeResponseDTO;
 import pe.edu.karely.dto.auth.RestablecerPasswordRequestDTO;
 import pe.edu.karely.exception.GlobalExceptionHandler;
-import pe.edu.karely.service.service.AuthService;
-import pe.edu.karely.service.service.RecuperacionService;
+import pe.edu.karely.service.service.auth.AuthService;
+import pe.edu.karely.service.service.auth.RecuperacionService;
 
 class RecuperacionHttpTest {
     @Test
@@ -22,7 +22,7 @@ class RecuperacionHttpTest {
                                 new AuthController(
                                         mock(AuthService.class),
                                         mock(
-                                                pe.edu.karely.service.service.RecuperacionService
+                                                pe.edu.karely.service.service.auth.RecuperacionService
                                                         .class)))
                         .build();
         mvc.perform(
@@ -33,8 +33,8 @@ class RecuperacionHttpTest {
                 .andExpect(
                         jsonPath("$.mensaje")
                                 .value(
-                                        "Si el correo corresponde a una cuenta, recibirás"
-                                            + " instrucciones para restablecer tu contraseña"));
+                                        "Si el correo corresponde a una cuenta, recibirÃ¡s"
+                                            + " instrucciones para restablecer tu contraseÃ±a"));
     }
 
     @Test
@@ -59,7 +59,7 @@ class RecuperacionHttpTest {
         var service = mock(RecuperacionService.class);
         when(service.restablecer(any()))
                 .thenReturn(
-                        new MensajeResponseDTO("Contraseña actualizada. Vuelve a iniciar sesión"));
+                        new MensajeResponseDTO("ContraseÃ±a actualizada. Vuelve a iniciar sesiÃ³n"));
         var mvc =
                 MockMvcBuilders.standaloneSetup(new AuthController(auth, service))
                         .setControllerAdvice(new GlobalExceptionHandler())

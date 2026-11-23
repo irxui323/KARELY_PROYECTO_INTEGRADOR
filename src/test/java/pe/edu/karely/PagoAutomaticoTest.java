@@ -6,9 +6,9 @@ import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.Test;
 
 import pe.edu.karely.dto.finanzas.PagoDoctorRequestDTO;
-import pe.edu.karely.repository.LiquidacionRepository;
+import pe.edu.karely.repository.finanzas.LiquidacionRepository;
 import pe.edu.karely.security.PermisosUsuario;
-import pe.edu.karely.service.impl.LiquidacionServiceImpl;
+import pe.edu.karely.service.impl.finanzas.LiquidacionServiceImpl;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

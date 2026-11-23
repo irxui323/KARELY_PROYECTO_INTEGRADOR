@@ -5,6 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -22,6 +25,9 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import pe.edu.karely.dto.ErrorResponseDTO;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @RestControllerAdvice
@@ -32,7 +38,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ErrorResponseDTO> uploadTooLarge(MaxUploadSizeExceededException e) {
-        return error(413, "El archivo supera el máximo permitido de 10 MB");
+        return error(413, "El archivo supera el mÃ¡ximo permitido de 10 MB");
     }
 
     @ExceptionHandler({
@@ -43,22 +49,20 @@ public class GlobalExceptionHandler {
         HandlerMethodValidationException.class
     })
     public ResponseEntity<ErrorResponseDTO> malformedRequest(Exception e) {
-        return error(400, "Formato de solicitud inválido");
+        return error(400, "Formato de solicitud invÃ¡lido");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> invalidBody(MethodArgumentNotValidException e) {
-        var field = e.getBindingResult().getFieldError();
-        return error(
-                400,
-                field == null
-                        ? "Datos inválidos"
-                        : field.getField() + ": " + field.getDefaultMessage());
+        Map<String, String> validationErrors = new LinkedHashMap<>();
+        e.getBindingResult().getFieldErrors().forEach(
+                field -> validationErrors.put(field.getField(), field.getDefaultMessage()));
+        return error(400, "Existen errores de validación", validationErrors);
     }
 
     @ExceptionHandler({IllegalArgumentException.class, ReglaNegocioException.class})
     public ResponseEntity<ErrorResponseDTO> invalid(RuntimeException e) {
-        return error(400, e.getMessage() == null ? "Datos inválidos" : e.getMessage());
+        return error(400, e.getMessage() == null ? "Datos invÃ¡lidos" : e.getMessage());
     }
 
     @ExceptionHandler(RecursoNoEncontradoException.class)
@@ -107,7 +111,7 @@ public class GlobalExceptionHandler {
             }
         }
         LOG.error("Fallo interno de base de datos", e);
-        return error(500, "Error en la operación. Consulte el registro del servidor.");
+        return error(500, "Error en la operaciÃ³n. Consulte el registro del servidor.");
     }
 
     @ExceptionHandler(Exception.class)
@@ -117,6 +121,16 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<ErrorResponseDTO> error(int status, String detail) {
-        return ResponseEntity.status(status).body(new ErrorResponseDTO(detail));
+        return error(status, detail, null);
+    }
+
+    private ResponseEntity<ErrorResponseDTO> error(
+            int status, String detail, Map<String, String> validationErrors) {
+        var attributes = RequestContextHolder.getRequestAttributes();
+        String path = attributes instanceof ServletRequestAttributes servlet
+                ? servlet.getRequest().getRequestURI() : null;
+        return ResponseEntity.status(status).body(new ErrorResponseDTO(
+                LocalDateTime.now(), status, HttpStatus.valueOf(status).getReasonPhrase(),
+                detail, path, validationErrors));
     }
 }

@@ -10,9 +10,25 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.server.ResponseStatusException;
 
 import pe.edu.karely.dto.doctor.AsignarEspecialidadRequestDTO;
-import pe.edu.karely.repository.*;
+import pe.edu.karely.repository.administracion.*;
+import pe.edu.karely.repository.atencion.*;
+import pe.edu.karely.repository.auth.*;
+import pe.edu.karely.repository.catalogos.*;
+import pe.edu.karely.repository.citas.*;
+import pe.edu.karely.repository.doctores.*;
+import pe.edu.karely.repository.finanzas.*;
+import pe.edu.karely.repository.pacientes.*;
+import pe.edu.karely.repository.reportes.*;
 import pe.edu.karely.security.PermisosUsuario;
-import pe.edu.karely.service.impl.*;
+import pe.edu.karely.service.impl.administracion.*;
+import pe.edu.karely.service.impl.atencion.*;
+import pe.edu.karely.service.impl.auth.*;
+import pe.edu.karely.service.impl.catalogos.*;
+import pe.edu.karely.service.impl.citas.*;
+import pe.edu.karely.service.impl.doctores.*;
+import pe.edu.karely.service.impl.finanzas.*;
+import pe.edu.karely.service.impl.pacientes.*;
+import pe.edu.karely.service.impl.reportes.*;
 
 class DoctorAdministracionTest {
     @Test
@@ -51,18 +67,18 @@ class DoctorAdministracionTest {
 
     @Test
     void archivoDemasiadoGrandeResponde413() throws Exception {
-        var service = mock(pe.edu.karely.service.service.DocumentoDoctorService.class);
+        var service = mock(pe.edu.karely.service.service.doctores.DocumentoDoctorService.class);
         when(service.subir(anyLong(), anyString(), any(), anyLong()))
                 .thenThrow(
                         new org.springframework.web.multipart.MaxUploadSizeExceededException(
                                 10 * 1024 * 1024));
         var mvc =
                 org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup(
-                                new pe.edu.karely.controller.DoctorController(
-                                        mock(pe.edu.karely.service.service.DoctorService.class),
+                                new pe.edu.karely.controller.doctores.DoctorController(
+                                        mock(pe.edu.karely.service.service.doctores.DoctorService.class),
                                         service,
                                         mock(
-                                                pe.edu.karely.service.service.DisponibilidadService
+                                                pe.edu.karely.service.service.doctores.DisponibilidadService
                                                         .class)))
                         .setControllerAdvice(new pe.edu.karely.exception.GlobalExceptionHandler())
                         .build();
@@ -95,7 +111,7 @@ class DoctorAdministracionTest {
                                 "ORA-20004: Falta DNI o titulo vigente", "72000", 20004));
         var response = new pe.edu.karely.exception.GlobalExceptionHandler().sql(error);
         assertEquals(400, response.getStatusCode().value());
-        assertTrue(response.getBody().error().contains("Falta DNI o titulo"));
+        assertTrue(response.getBody().message().contains("Falta DNI o titulo"));
     }
 
     @Test
