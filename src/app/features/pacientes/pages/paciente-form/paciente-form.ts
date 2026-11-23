@@ -9,6 +9,7 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { errorText, formErrorText } from "../../../../core/utils/http-error";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
+import { ModuleHeader } from "../../../../shared/components/module-header/module-header";
 import { ControlDisabled } from "../../../../shared/directives/control-disabled";
 import { Paciente, PacienteRequest } from "../../models/pacientes.model";
 import { PacienteService } from "../../services/pacientes-service";
@@ -16,7 +17,7 @@ import { CatalogoService } from "../../../catalogos/services/catalogos-service";
 
 @Component({
   standalone: true,
-  imports: [ControlDisabled, ReactiveFormsModule, RouterLink, FeatureNav],
+  imports: [ControlDisabled, ReactiveFormsModule, RouterLink, FeatureNav, ModuleHeader],
   templateUrl: "./paciente-form.html",
   styleUrl: "./paciente-form.css",
 })

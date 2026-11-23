@@ -1,3 +1,4 @@
+import { PaginaResponse } from "../../../core/models/pagina-response";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import { environment } from "../../../../environments/environment";
@@ -86,5 +87,11 @@ export class CitaService {
       case "asistencia-registrar":
         return this.http.post<OperationResponse>(detalle + "/asistencia", null);
     }
+  }
+
+  listarPagina(pagina = 0, tamanio = 10, filtro = "", vista = "proximas") {
+    return this.http.get<PaginaResponse<Cita>>(this.url + "/citas", {
+      params: { pagina, tamanio, filtro, vista },
+    });
   }
 }

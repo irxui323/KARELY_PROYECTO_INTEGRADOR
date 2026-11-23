@@ -1,6 +1,10 @@
+import { ListadoPaginado } from "../../../../core/utils/listado-paginado";
+import { Paginador } from "../../../../shared/components/paginador/paginador";
 import { ChangeDetectorRef, Component, inject, OnInit } from "@angular/core";
+import { DatePipe } from "@angular/common";
 import {
   FormControl,
+  FormsModule,
   FormGroup,
   ReactiveFormsModule,
   Validators,
@@ -9,6 +13,7 @@ import { RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { errorText } from "../../../../core/utils/http-error";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
+import { ModuleHeader } from "../../../../shared/components/module-header/module-header";
 import { SiPermiso } from "../../../../shared/directives/si-permiso";
 import { Doctor } from "../../../doctores/models/doctores.model";
 import { DoctorService } from "../../../doctores/services/doctores-service";
@@ -17,11 +22,23 @@ import { FinanzasService } from "../../services/finanzas-service";
 
 @Component({
   standalone: true,
-  imports: [RouterLink, FeatureNav, SiPermiso, ReactiveFormsModule],
+  imports: [
+    Paginador,
+    FormsModule,
+    RouterLink,
+    FeatureNav,
+    SiPermiso,
+    ReactiveFormsModule,
+    ModuleHeader,
+    DatePipe,
+  ],
   templateUrl: "./liquidacion-list.html",
   styleUrl: "./liquidacion-list.css",
 })
 export class LiquidacionList implements OnInit {
+  readonly paginacion = new ListadoPaginado<Liquidacion>();
+  buscar = "";
+
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly doctoresService = inject(DoctorService);
   private readonly finanzasService = inject(FinanzasService);
@@ -31,6 +48,7 @@ export class LiquidacionList implements OnInit {
   saldo: SaldoDoctor | null = null;
   liquidaciones: Liquidacion[] = [];
   ingresos: Ingreso[] = [];
+  totalIngresos = 0;
   doctores: Doctor[] = [];
 
   readonly saldoForm = new FormGroup({
@@ -49,8 +67,17 @@ export class LiquidacionList implements OnInit {
     this.error = "";
     try {
       [this.liquidaciones, this.ingresos, this.doctores] = await Promise.all([
-        firstValueFrom(this.finanzasService.liquidaciones()),
-        firstValueFrom(this.finanzasService.ingresos()),
+        this.paginacion.consultar(() =>
+          this.finanzasService.liquidacionesPagina(
+            this.paginacion.pagina,
+            this.paginacion.tamanio,
+            this.buscar,
+          ),
+        ),
+        firstValueFrom(this.finanzasService.ingresosPagina(0, 1)).then((r) => {
+          this.totalIngresos = r.totalElementos;
+          return r.contenido;
+        }),
         firstValueFrom(this.doctoresService.listar()),
       ]);
     } catch (error) {
@@ -76,5 +103,11 @@ export class LiquidacionList implements OnInit {
       this.consultandoSaldo = false;
       this.changeDetector.markForCheck();
     }
+  }
+
+  paginar(pagina: number, tamanio = this.paginacion.tamanio) {
+    this.paginacion.pagina = pagina;
+    this.paginacion.tamanio = tamanio;
+    void this.cargar();
   }
 }

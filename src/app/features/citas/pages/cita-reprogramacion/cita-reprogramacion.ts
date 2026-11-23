@@ -12,6 +12,7 @@ import { CalendarioDisponibilidad } from "../../../../shared/components/calendar
 import { ControlDisabled } from "../../../../shared/directives/control-disabled";
 import { errorText } from "../../../../core/utils/http-error";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
+import { ModuleHeader } from "../../../../shared/components/module-header/module-header";
 import { Consultorio } from "../../../catalogos/models/catalogos.model";
 import { CatalogoService } from "../../../catalogos/services/catalogos-service";
 import { Cita, CitaRequest, TurnoDisponible } from "../../models/citas.model";
@@ -22,6 +23,7 @@ import { CitaService } from "../../services/citas-service";
   imports: [
     ReactiveFormsModule,
     FeatureNav,
+    ModuleHeader,
     CalendarioDisponibilidad,
     ControlDisabled,
   ],

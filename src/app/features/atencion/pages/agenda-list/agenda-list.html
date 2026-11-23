@@ -1,33 +1,20 @@
 <div class="k-module k-doctor">
-  <header class="k-module-header">
-    <div>
-      <span class="k-eyebrow"
-        >{{ esAdministradora ? "KARELY / ADMINISTRACIÓN" : "KARELY / PORTAL DEL
-        MÉDICO" }}</span
-      >
-      <h1 class="k-title">
-        {{ esAdministradora ? "Agenda y atención médica" : "Panel Médico" }}
-      </h1>
-      <p class="k-subtitle">
-        {{ esAdministradora ? "Consulta las citas de todos los médicos y
-        gestiona las atenciones." : "Consulta tus citas, administra tu
-        disponibilidad y registra atenciones médicas." }}
-      </p>
-      <p class="doctor-identidad">
-        Médico: <strong>{{ nombreDoctor }}</strong>
-      </p>
-    </div>
-    <div class="k-header-actions">
-      <span class="k-count">{{ citas.length }} citas asignadas</span>
-      <button
-        type="button"
-        class="k-button k-button-secondary"
-        (click)="cargar()"
-        [disabled]="cargando || procesando"
-      >
-        {{ cargando ? 'Actualizando…' : '↻ Actualizar datos' }}
-      </button>
-    </div>
+  <header
+    appModuleHeader
+    class="k-module-header"
+    [contexto]="esAdministradora ? 'KARELY / ADMINISTRACIÓN' : 'KARELY / PORTAL DEL MÉDICO'"
+    [titulo]="esAdministradora ? 'Agenda y atención médica' : 'Panel Médico'"
+    [descripcion]="esAdministradora ? 'Consulta las citas de todos los médicos y gestiona las atenciones.' : 'Consulta tus citas, administra tu disponibilidad y registra atenciones médicas.'"
+    [textoActualizar]="cargando ? 'Actualizando…' : '↻ Actualizar datos'"
+    [actualizacionDeshabilitada]="cargando || procesando"
+    (actualizar)="cargar()"
+  >
+    <p moduleHeaderDetail class="doctor-identidad">
+      Médico: <strong>{{ nombreDoctor }}</strong>
+    </p>
+    <span moduleHeaderAction class="k-count"
+      >{{paginacion.totalElementos}} citas asignadas</span
+    >
   </header>
 
   <app-feature-nav feature="atencion" />
@@ -50,7 +37,7 @@
         </h2>
         <p>Consulta el horario, el paciente y el estado de cada cita.</p>
       </div>
-      <span class="k-count">{{ citasFiltradas.length }} registros</span>
+      <span class="k-count">{{paginacion.totalElementos}} registros</span>
     </div>
 
     <div class="k-toolbar">
@@ -61,6 +48,8 @@
         <input
           type="search"
           [(ngModel)]="busqueda"
+          (ngModelChange)="paginar(0)"
+          maxlength="150"
           placeholder="Paciente, fecha, estado o ID"
         />
       </label>
@@ -74,6 +63,15 @@
       </button>
     </div>
 
+    <div class="k-toolbar">
+      <label class="k-field"
+        >Ver citas<select [(ngModel)]="vista" (ngModelChange)="paginar(0)">
+          <option value="proximas">Próximas pendientes</option>
+          <option value="historial">Historial</option>
+          <option value="todas">Todas</option>
+        </select></label
+      >
+    </div>
     <div class="k-table-wrap">
       <table class="k-table">
         <thead>
@@ -130,6 +128,15 @@
         </tbody>
       </table>
     </div>
+    <app-paginador
+      [pagina]="paginacion.pagina"
+      [tamanio]="paginacion.tamanio"
+      [totalElementos]="paginacion.totalElementos"
+      [totalPaginas]="paginacion.totalPaginas"
+      [cargando]="paginacion.cargando"
+      (cambioPagina)="paginar($event)"
+      (cambioTamanio)="paginar(0, $event)"
+    />
     <p class="doctor-help">
       Una cita pasa a «En atención» cuando recepción registra la asistencia del
       paciente. Solo entonces puede iniciarse la consulta.

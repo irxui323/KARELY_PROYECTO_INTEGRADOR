@@ -7,6 +7,16 @@ export interface Atencion {
   diagnostico?: string;
   observaciones?: string;
 }
+export interface Recibo {
+  idRecibo: number;
+  idCita: number;
+  numeroRecibo: string;
+  monto: number;
+  fechaEmision: string;
+  correo?: string | null;
+  fechaEntrega?: string | null;
+  medioEntrega?: string | null;
+}
 export interface AtencionRequest {
   idCita?: number | null;
   idReceta?: number | null;

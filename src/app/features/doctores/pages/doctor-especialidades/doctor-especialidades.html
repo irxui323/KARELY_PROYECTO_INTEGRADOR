@@ -80,7 +80,7 @@
     <p role="status">Cargando especialidades…</p>
     }@else{
     <ul class="asignadas-lista">
-      @for(e of asignadas;track e.idEspecialidad){
+      @for(e of tabla.contenido();track e.idEspecialidad){
       <li>
         <div>
           <strong>{{e.nombre}}</strong
@@ -102,6 +102,7 @@
       <li class="k-empty">Este doctor no tiene especialidades asignadas.</li>
       }
     </ul>
+    <app-paginador #tabla [registros]="asignadas" />
     } @if(porQuitar;as e){
     <div
       class="confirmar-retiro"

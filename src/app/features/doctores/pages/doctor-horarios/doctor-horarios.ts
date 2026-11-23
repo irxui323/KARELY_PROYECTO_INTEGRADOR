@@ -1,3 +1,6 @@
+import { FormsModule } from "@angular/forms";
+import { ListadoPaginado } from "../../../../core/utils/listado-paginado";
+import { Paginador } from "../../../../shared/components/paginador/paginador";
 import { ChangeDetectorRef, Component, inject, OnInit } from "@angular/core";
 import {
   FormControl,
@@ -26,11 +29,21 @@ import { DoctorService } from "../../services/doctores-service";
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, FeatureNav, SiPermiso, ControlDisabled],
+  imports: [
+    Paginador,
+    FormsModule,
+    ReactiveFormsModule,
+    FeatureNav,
+    SiPermiso,
+    ControlDisabled,
+  ],
   templateUrl: "./doctor-horarios.html",
   styleUrl: "./doctor-horarios.css",
 })
 export class DoctorHorarios implements OnInit {
+  readonly paginacion = new ListadoPaginado<Disponibilidad>();
+  buscar = "";
+
   private readonly changeDetector = inject(ChangeDetectorRef);
   guardando = false;
   get fechaMinima() {
@@ -116,7 +129,13 @@ export class DoctorHorarios implements OnInit {
           await Promise.all([
             firstValueFrom(this.doctoresService.listar()),
             firstValueFrom(this.catalogoService.franjas()),
-            firstValueFrom(this.doctoresService.disponibilidades()),
+            this.paginacion.consultar(() =>
+              this.doctoresService.disponibilidadesPagina(
+                this.paginacion.pagina,
+                this.paginacion.tamanio,
+                this.buscar,
+              ),
+            ),
           ]);
       } catch (e) {
         this.error = errorText(e);
@@ -171,5 +190,11 @@ export class DoctorHorarios implements OnInit {
       this.guardando = false;
       this.changeDetector.markForCheck();
     }
+  }
+
+  paginar(pagina: number, tamanio = this.paginacion.tamanio) {
+    this.paginacion.pagina = pagina;
+    this.paginacion.tamanio = tamanio;
+    void this.cargar();
   }
 }

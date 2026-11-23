@@ -28,7 +28,9 @@
         [formGroup]="loginForm"
         (ngSubmit)="login()"
       >
+        <label for="login-usuario" class="etiqueta-accesible">Usuario</label>
         <input
+          id="login-usuario"
           name="username"
           formControlName="username"
           placeholder="Ingrese su usuario"
@@ -36,14 +38,21 @@
           autocomplete="username"
         />
         <div class="caja-contrasena">
+          <label for="login-contrasena" class="etiqueta-accesible">Contraseña</label>
           <input
+            id="login-contrasena"
             [type]="mostrar?'text':'password'"
             name="password"
             formControlName="password"
             placeholder="Contraseña"
             required
             autocomplete="current-password"
-          /><button type="button" class="boton-ojo" (click)="mostrar=!mostrar">
+          /><button
+            type="button"
+            class="boton-ojo"
+            [attr.aria-label]="mostrar ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            (click)="mostrar=!mostrar"
+          >
             ◉
           </button>
         </div>

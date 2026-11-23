@@ -4,3 +4,9 @@ fieldset.k-form {
   padding: 0;
   margin: 0;
 }
+
+fieldset.k-form + .k-info {
+  margin-top: 24px;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}

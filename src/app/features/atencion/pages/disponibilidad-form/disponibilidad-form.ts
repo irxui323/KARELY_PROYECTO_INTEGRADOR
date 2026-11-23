@@ -1,3 +1,6 @@
+import { FormsModule } from "@angular/forms";
+import { ListadoPaginado } from "../../../../core/utils/listado-paginado";
+import { Paginador } from "../../../../shared/components/paginador/paginador";
 import { ChangeDetectorRef, Component, inject, OnInit } from "@angular/core";
 import {
   FormControl,
@@ -10,6 +13,7 @@ import { AuthService } from "../../../../core/auth/auth-service";
 import { errorText } from "../../../../core/utils/http-error";
 import { fechaActual, fechaNoPasada } from "../../../../core/utils/fecha";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
+import { ModuleHeader } from "../../../../shared/components/module-header/module-header";
 import { ControlDisabled } from "../../../../shared/directives/control-disabled";
 import {
   Franja,
@@ -25,11 +29,21 @@ import { DoctorService } from "../../../doctores/services/doctores-service";
 type PestanaMedica = "citas" | "horarios" | "consultas";
 @Component({
   standalone: true,
-  imports: [ControlDisabled, ReactiveFormsModule, FeatureNav],
+  imports: [
+    Paginador,
+    FormsModule,
+    ControlDisabled,
+    ReactiveFormsModule,
+    FeatureNav,
+    ModuleHeader,
+  ],
   templateUrl: "./disponibilidad-form.html",
   styleUrl: "./disponibilidad-form.css",
 })
 export class DisponibilidadForm implements OnInit {
+  readonly paginacion = new ListadoPaginado<Disponibilidad>();
+  buscar = "";
+
   private readonly changeDetector = inject(ChangeDetectorRef);
   guardando = false;
   get fechaMinima() {
@@ -107,14 +121,19 @@ export class DisponibilidadForm implements OnInit {
   }
   async cargar() {
     try {
-      if (this.cargando) return;
       this.cargando = true;
       this.error = "";
       try {
         [this.doctores, this.franjas, this.disponibles] = await Promise.all([
           firstValueFrom(this.doctoresService.listar()),
           firstValueFrom(this.catalogoService.franjas()),
-          firstValueFrom(this.doctoresService.disponibilidades()),
+          this.paginacion.consultar(() =>
+            this.doctoresService.disponibilidadesPagina(
+              this.paginacion.pagina,
+              this.paginacion.tamanio,
+              this.buscar,
+            ),
+          ),
         ]);
         this.doctor = this.doctores.find(
           (d) => Number(d.idUsuario) === this.auth.session()?.idUsuario,
@@ -185,4 +204,10 @@ export class DisponibilidadForm implements OnInit {
     }
   }
   doctores: Doctor[] = [];
+
+  paginar(pagina: number, tamanio = this.paginacion.tamanio) {
+    this.paginacion.pagina = pagina;
+    this.paginacion.tamanio = tamanio;
+    void this.cargar();
+  }
 }

@@ -4,3 +4,21 @@ fieldset.k-form {
   padding: 0;
   margin: 0;
 }
+
+.liquidaciones-tabla { min-width: 1180px; }
+.liquidaciones-tabla th,
+.liquidaciones-tabla td { padding: 18px 16px; vertical-align: middle; }
+.liquidacion-periodo,
+.liquidacion-fecha { display: flex; flex-direction: column; gap: 8px; white-space: nowrap; }
+.liquidacion-periodo small { display: inline-block; min-width: 42px; }
+.liquidacion-periodo small,
+.liquidacion-fecha small { color: #57758b; font-size: 12px; }
+.liquidaciones-tabla .liquidacion-nowrap { white-space: nowrap; }
+.liquidaciones-tabla .liquidacion-referencia {
+  min-width: 145px;
+  max-width: 210px;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  line-height: 1.6;
+  font-size: 13px;
+}

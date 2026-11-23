@@ -1,0 +1,19 @@
+<div>
+  <span class="k-eyebrow">{{ contexto }}</span>
+  <h1 class="k-title">{{ titulo }}</h1>
+  <p class="k-subtitle">{{ descripcion }}</p>
+  <ng-content select="[moduleHeaderDetail]" />
+</div>
+<div class="k-header-actions">
+  <ng-content select="[moduleHeaderAction]" />
+  @if (textoActualizar) {
+    <button
+      type="button"
+      class="k-button k-button-secondary"
+      [disabled]="actualizacionDeshabilitada"
+      (click)="actualizar.emit()"
+    >
+      {{ textoActualizar }}
+    </button>
+  }
+</div>

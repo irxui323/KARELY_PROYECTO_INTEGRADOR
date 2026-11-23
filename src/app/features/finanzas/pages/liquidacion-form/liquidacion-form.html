@@ -1,22 +1,17 @@
 <div class="k-module k-finanzas">
-  <header class="k-module-header">
-    <div>
-      <span class="k-eyebrow">GESTIÓN ECONÓMICA / FINANZAS</span>
-      <h1 class="k-title">Área financiera</h1>
-      <p class="k-subtitle">
-        Controla liquidaciones, pagos a médicos e ingresos registrados de la
-        gestora.
-      </p>
-    </div>
-    <div class="k-header-actions">
-      <button class="k-button k-button-secondary" (click)="cargar()">
-        ↻ Actualizar registros
-      </button>
-    </div>
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="GESTIÓN ECONÓMICA / FINANZAS"
+    titulo="Área financiera"
+    descripcion="Controla liquidaciones, pagos a médicos e ingresos registrados de la gestora."
+    textoActualizar="↻ Actualizar registros"
+    (actualizar)="cargar()"
+  >
   </header>
   <app-feature-nav feature="finanzas" />
-  @if(error){
-  <div class="k-error" role="alert">{{error}}</div>
+  @if(error || liqGroup.hasError('periodoInvalido')){
+  <div class="k-error" role="alert">{{liqGroup.hasError('periodoInvalido') ? 'La fecha de fin debe ser igual o posterior a la fecha de inicio.' : error}}</div>
   }@if(exito){
   <div class="k-success" role="status">{{exito}}</div>
   }
@@ -42,11 +37,11 @@
         </label>
         <label class="k-field">
           Fecha de inicio
-          <input type="date" formControlName="fechaInicio" />
+          <input type="date" formControlName="fechaInicio" [max]="liqGroup.controls.fechaFin.value || ''" />
         </label>
         <label class="k-field">
           Fecha de fin
-          <input type="date" formControlName="fechaFin" />
+          <input type="date" formControlName="fechaFin" [min]="liqGroup.controls.fechaInicio.value || ''" />
         </label>
         <label class="k-field">
           Monto a pagar (S/)

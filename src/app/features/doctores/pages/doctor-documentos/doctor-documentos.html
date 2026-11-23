@@ -144,7 +144,7 @@
           </tr>
         </thead>
         <tbody>
-          @for(d of documentos;track d.idDocumento){
+          @for(d of tabla.contenido();track d.idDocumento){
           <tr>
             <td>{{d.idDocumento}}</td>
             <td>{{d.tipoDocumento}}</td>
@@ -168,6 +168,7 @@
         </tbody>
       </table>
     </div>
+    <app-paginador #tabla [registros]="documentos" />
   </section>
   }
 </div>

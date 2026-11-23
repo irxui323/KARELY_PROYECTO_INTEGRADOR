@@ -1,3 +1,5 @@
+import { ListadoPaginado } from "../../../../core/utils/listado-paginado";
+import { Paginador } from "../../../../shared/components/paginador/paginador";
 import { ChangeDetectorRef, Component, inject, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -10,11 +12,13 @@ import { DoctorService } from "../../services/doctores-service";
 
 @Component({
   standalone: true,
-  imports: [FormsModule, FeatureNav, SiPermiso],
+  imports: [Paginador, FormsModule, FeatureNav, SiPermiso],
   templateUrl: "./doctor-list.html",
   styleUrl: "./doctor-list.css",
 })
 export class DoctorList implements OnInit {
+  readonly paginacion = new ListadoPaginado<Doctor>();
+
   private readonly changeDetector = inject(ChangeDetectorRef);
 
   private readonly router = inject(Router);
@@ -30,7 +34,13 @@ export class DoctorList implements OnInit {
   async cargar() {
     try {
       try {
-        this.doctores = await firstValueFrom(this.doctoresService.listar());
+        this.doctores = await this.paginacion.consultar(() =>
+          this.doctoresService.listarPagina(
+            this.paginacion.pagina,
+            this.paginacion.tamanio,
+            this.buscar,
+          ),
+        );
       } catch (e) {
         this.error = errorText(e);
       }
@@ -39,12 +49,7 @@ export class DoctorList implements OnInit {
     }
   }
   filtrados() {
-    const q = this.buscar.toLowerCase();
-    return this.doctores.filter((d) =>
-      (d.nombres + " " + d.apellidos + " " + d.numeroDocumento)
-        .toLowerCase()
-        .includes(q),
-    );
+    return this.doctores;
   }
   nuevo() {
     void this.router.navigateByUrl("/doctores/nuevo");
@@ -56,5 +61,11 @@ export class DoctorList implements OnInit {
     void this.router.navigate(["/doctores/documentos"], {
       queryParams: { doctor: record.idDoctor },
     });
+  }
+
+  paginar(pagina: number, tamanio = this.paginacion.tamanio) {
+    this.paginacion.pagina = pagina;
+    this.paginacion.tamanio = tamanio;
+    void this.cargar();
   }
 }

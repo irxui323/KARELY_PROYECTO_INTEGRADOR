@@ -11,6 +11,7 @@ import { errorText } from "../../../../core/utils/http-error";
 import { fechaActual, fechaNoPasada } from "../../../../core/utils/fecha";
 import { ControlDisabled } from "../../../../shared/directives/control-disabled";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
+import { ModuleHeader } from "../../../../shared/components/module-header/module-header";
 import {
   Consultorio,
   Especialidad,
@@ -32,6 +33,7 @@ import { CitaService } from "../../services/citas-service";
     ReactiveFormsModule,
     RouterLink,
     FeatureNav,
+    ModuleHeader,
     ControlDisabled,
     CalendarioDisponibilidad,
   ],

@@ -1,19 +1,13 @@
 <div class="k-module k-finanzas">
-  <header class="k-module-header">
-    <div>
-      <span class="k-eyebrow">GESTIÓN ECONÓMICA / FINANZAS</span>
-      <h1 class="k-title">Área financiera</h1>
-      <p class="k-subtitle">
-        Controla liquidaciones, pagos a médicos e ingresos registrados de la
-        gestora.
-      </p>
-    </div>
-    <div class="k-header-actions">
-      <button class="k-button k-button-secondary" (click)="cargar()">
-        ↻ Actualizar registros
-      </button>
-    </div>
-  </header>
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="GESTIÓN ECONÓMICA / FINANZAS"
+    titulo="Área financiera"
+    descripcion="Controla liquidaciones, pagos a médicos e ingresos registrados de la gestora."
+    textoActualizar="↻ Actualizar registros"
+    (actualizar)="cargar()"
+  ></header>
   <app-feature-nav feature="finanzas" />
   @if(error){
   <div class="k-error" role="alert">{{error}}</div>
@@ -21,11 +15,11 @@
   <div class="k-overview">
     <div class="k-overview-card">
       <span>Liquidaciones registradas</span
-      ><strong>{{liquidaciones.length}}</strong
+      ><strong>{{paginacion.totalElementos}}</strong
       ><small>Liquidaciones de médicos</small>
     </div>
     <div class="k-overview-card">
-      <span>Movimientos de gestora</span><strong>{{ingresos.length}}</strong
+      <span>Movimientos de gestora</span><strong>{{totalIngresos}}</strong
       ><small>Ingresos contables registrados</small>
     </div>
   </div>
@@ -65,8 +59,8 @@
     <div class="k-error" role="alert">{{errorSaldo}}</div>
     } @if (saldo; as resultado) {
     <div class="k-info" role="status">
-      Saldo pendiente del médico #{{resultado.idDoctor}} al
-      {{resultado.fechaCorte}}:
+      Saldo pendiente del médico seleccionado al {{resultado.fechaCorte |
+      date:'dd/MM/yyyy'}}:
       <strong>S/ {{resultado.saldoPendiente}}</strong>
     </div>
     }
@@ -82,8 +76,19 @@
         Registrar pago
       </button>
     </div>
+    <div class="k-toolbar">
+      <label class="k-search"
+        ><span>Buscar en el listado</span
+        ><input
+          type="search"
+          [(ngModel)]="buscar"
+          (ngModelChange)="paginar(0)"
+          maxlength="150"
+          placeholder="Buscar registros"
+      /></label>
+    </div>
     <div class="k-table-wrap">
-      <table class="k-table">
+      <table class="k-table liquidaciones-tabla">
         <thead>
           <tr>
             <th>Liquidación</th>
@@ -102,13 +107,29 @@
           <tr>
             <td>#{{pago.idLiquidacion}}</td>
             <td>{{pago.nombreDoctor}}</td>
-            <td>{{pago.periodoInicio}} – {{pago.periodoFin}}</td>
-            <td>S/ {{pago.montoPagado}}</td>
-            <td>S/ {{pago.saldoPendiente}}</td>
-            <td>{{pago.metodoPago}}</td>
-            <td>{{pago.numeroOperacion}}</td>
-            <td>{{pago.numeroBoleta}}</td>
-            <td>{{pago.fechaPago}}</td>
+            <td>
+              <div class="liquidacion-periodo">
+                <span
+                  ><small>Desde</small> {{pago.periodoInicio |
+                  date:'dd/MM/yyyy'}}</span
+                >
+                <span
+                  ><small>Hasta</small> {{pago.periodoFin |
+                  date:'dd/MM/yyyy'}}</span
+                >
+              </div>
+            </td>
+            <td class="liquidacion-nowrap">S/ {{pago.montoPagado}}</td>
+            <td class="liquidacion-nowrap">S/ {{pago.saldoPendiente}}</td>
+            <td class="liquidacion-nowrap">{{pago.metodoPago}}</td>
+            <td class="liquidacion-referencia">{{pago.numeroOperacion}}</td>
+            <td class="liquidacion-referencia">{{pago.numeroBoleta}}</td>
+            <td>
+              <div class="liquidacion-fecha">
+                <span>{{pago.fechaPago | date:'dd/MM/yyyy'}}</span>
+                <small>{{pago.fechaPago | date:'HH:mm'}} h</small>
+              </div>
+            </td>
           </tr>
           } @empty {
           <tr>
@@ -120,5 +141,14 @@
         </tbody>
       </table>
     </div>
+    <app-paginador
+      [pagina]="paginacion.pagina"
+      [tamanio]="paginacion.tamanio"
+      [totalElementos]="paginacion.totalElementos"
+      [totalPaginas]="paginacion.totalPaginas"
+      [cargando]="paginacion.cargando"
+      (cambioPagina)="paginar($event)"
+      (cambioTamanio)="paginar(0, $event)"
+    />
   </section>
 </div>

@@ -1,0 +1,79 @@
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+import { ChangeDetectorRef, Component, inject } from "@angular/core";
+import { FormControl, FormGroup, ReactiveFormsModule, Validators, } from "@angular/forms";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { AuthService } from '../../../../core/auth/auth-service.mjs';
+import { errorText } from '../../../../core/utils/http-error.mjs';
+import { INICIO_POR_ROL } from '../../../../core/config/permisos.mjs';
+import { returnUrlSeguro } from '../../../../core/utils/return-url.mjs';
+let LoginComponent = class LoginComponent {
+    changeDetector = inject(ChangeDetectorRef);
+    auth = inject(AuthService);
+    router = inject(Router);
+    route = inject(ActivatedRoute, { optional: true });
+    aviso = this.route?.snapshot.queryParamMap.get("sesionExpirada") === "1"
+        ? "Tu sesión ha vencido. Inicia sesión nuevamente."
+        : "";
+    mostrar = false;
+    error = "";
+    loading = false;
+    loginForm = new FormGroup({
+        username: new FormControl("", {
+            nonNullable: true,
+            validators: [Validators.required],
+        }),
+        password: new FormControl("", {
+            nonNullable: true,
+            validators: [Validators.required],
+        }),
+    });
+    async login() {
+        try {
+            if (this.loading)
+                return;
+            if (this.loginForm.invalid) {
+                this.loginForm.markAllAsTouched();
+                this.error = "Introduce tu usuario y contraseña";
+                return;
+            }
+            this.error = "";
+            this.loading = true;
+            try {
+                const { username, password } = this.loginForm.getRawValue();
+                const s = await this.auth.login(username, password);
+                const destino = returnUrlSeguro(this.route?.snapshot.queryParamMap.get("returnUrl"));
+                const destinoMedico = destino &&
+                    /^\/doctor(?:\/(?:horarios|consultas))?(?:[?#]|$)/.test(destino)
+                    ? destino
+                    : "/doctor";
+                await this.router.navigateByUrl(s.rol === "DOCTOR"
+                    ? destinoMedico
+                    : (destino ?? INICIO_POR_ROL[s.rol]));
+            }
+            catch (e) {
+                this.error = errorText(e);
+            }
+            finally {
+                this.loading = false;
+            }
+        }
+        finally {
+            this.changeDetector.markForCheck();
+        }
+    }
+};
+LoginComponent = __decorate([
+    Component({
+        standalone: true,
+        imports: [ReactiveFormsModule, RouterLink],
+        template: "<main class=\"contenedor-login\">\n  <section class=\"zona-imagen\">\n    <a routerLink=\"/home\" class=\"boton-regresar\"\n      ><span class=\"circulo-flecha\">←</span><span>Regresar</span></a\n    ><img\n      src=\"/img/FONDO LOGIN.png\"\n      alt=\"Consultorio médico\"\n      class=\"imagen-consultorio\"\n    />\n  </section>\n  <div class=\"separador-azul\"></div>\n  <section class=\"zona-formulario\">\n    <div class=\"contenido-formulario\">\n      <img\n        src=\"/img/LOGO GRANDE.png\"\n        alt=\"Logo Karely's\"\n        class=\"logo-karelys\"\n      />\n      <h1>INICIAR SESIÓN</h1>\n      <p class=\"texto-ayuda\">\n        Ingrese sus credenciales para acceder al sistema\n      </p>\n      @if(aviso){\n      <p class=\"mensaje-error\" role=\"status\">{{aviso}}</p>\n      }\n      <form\n        class=\"formulario-login\"\n        [formGroup]=\"loginForm\"\n        (ngSubmit)=\"login()\"\n      >\n        <label for=\"login-usuario\" class=\"etiqueta-accesible\">Usuario</label>\n        <input\n          id=\"login-usuario\"\n          name=\"username\"\n          formControlName=\"username\"\n          placeholder=\"Ingrese su usuario\"\n          required\n          autocomplete=\"username\"\n        />\n        <div class=\"caja-contrasena\">\n          <label for=\"login-contrasena\" class=\"etiqueta-accesible\">Contraseña</label>\n          <input\n            id=\"login-contrasena\"\n            [type]=\"mostrar?'text':'password'\"\n            name=\"password\"\n            formControlName=\"password\"\n            placeholder=\"Contraseña\"\n            required\n            autocomplete=\"current-password\"\n          /><button\n            type=\"button\"\n            class=\"boton-ojo\"\n            [attr.aria-label]=\"mostrar ? 'Ocultar contraseña' : 'Mostrar contraseña'\"\n            (click)=\"mostrar=!mostrar\"\n          >\n            ◉\n          </button>\n        </div>\n        @if(error){\n        <p class=\"mensaje-error\" role=\"alert\">{{error}}</p>\n        }\n        <button class=\"boton-ingresar\" type=\"submit\" [disabled]=\"loading\">\n          {{loading?'Ingresando...':'Iniciar Sesión'}}\n        </button>\n      </form>\n      <a class=\"enlace-recuperacion\" routerLink=\"/recuperar-password\"\n        >Olvidé mi contraseña</a\n      >\n    </div>\n  </section>\n</main>\n",
+        styles: [],
+    })
+], LoginComponent);
+export { LoginComponent };
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoibG9naW4uanMiLCJzb3VyY2VSb290IjoiZmlsZTovLy9DOi9VTklWRVJTSURBRC9MUDIvU0VNQU5BMTEva2FyZWx5X21vZGVybm8vZnJvbnRlbmQvc3JjL2FwcC9mZWF0dXJlcy9hdXRoL3BhZ2VzL2xvZ2luLyIsInNvdXJjZXMiOlsibG9naW4udHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7O0FBQUEsT0FBTyxFQUFFLGlCQUFpQixFQUFFLFNBQVMsRUFBRSxNQUFNLEVBQUUsTUFBTSxlQUFlLENBQUM7QUFDckUsT0FBTyxFQUNMLFdBQVcsRUFDWCxTQUFTLEVBQ1QsbUJBQW1CLEVBQ25CLFVBQVUsR0FDWCxNQUFNLGdCQUFnQixDQUFDO0FBQ3hCLE9BQU8sRUFBRSxjQUFjLEVBQUUsTUFBTSxFQUFFLFVBQVUsRUFBRSxNQUFNLGlCQUFpQixDQUFDO0FBQ3JFLE9BQU8sRUFBRSxXQUFXLEVBQUUsTUFBTSxvQ0FBb0MsQ0FBQztBQUNqRSxPQUFPLEVBQUUsU0FBUyxFQUFFLE1BQU0sbUNBQW1DLENBQUM7QUFDOUQsT0FBTyxFQUFFLGNBQWMsRUFBRSxNQUFNLGtDQUFrQyxDQUFDO0FBQ2xFLE9BQU8sRUFBRSxlQUFlLEVBQUUsTUFBTSxtQ0FBbUMsQ0FBQztBQVE3RCxJQUFNLGNBQWMsR0FBcEIsTUFBTSxjQUFjO0lBQ1IsY0FBYyxHQUFHLE1BQU0sQ0FBQyxpQkFBaUIsQ0FBQyxDQUFDO0lBRTVELElBQUksR0FBRyxNQUFNLENBQUMsV0FBVyxDQUFDLENBQUM7SUFDM0IsTUFBTSxHQUFHLE1BQU0sQ0FBQyxNQUFNLENBQUMsQ0FBQztJQUN4QixLQUFLLEdBQUcsTUFBTSxDQUFDLGNBQWMsRUFBRSxFQUFFLFFBQVEsRUFBRSxJQUFJLEVBQUUsQ0FBQyxDQUFDO0lBQ25ELEtBQUssR0FDSCxJQUFJLENBQUMsS0FBSyxFQUFFLFFBQVEsQ0FBQyxhQUFhLENBQUMsR0FBRyxDQUFDLGdCQUFnQixDQUFDLEtBQUssR0FBRztRQUM5RCxDQUFDLENBQUMsaURBQWlEO1FBQ25ELENBQUMsQ0FBQyxFQUFFLENBQUM7SUFDVCxPQUFPLEdBQUcsS0FBSyxDQUFDO0lBQ2hCLEtBQUssR0FBRyxFQUFFLENBQUM7SUFDWCxPQUFPLEdBQUcsS0FBSyxDQUFDO0lBQ1AsU0FBUyxHQUFHLElBQUksU0FBUyxDQUFDO1FBQ2pDLFFBQVEsRUFBRSxJQUFJLFdBQVcsQ0FBQyxFQUFFLEVBQUU7WUFDNUIsV0FBVyxFQUFFLElBQUk7WUFDakIsVUFBVSxFQUFFLENBQUMsVUFBVSxDQUFDLFFBQVEsQ0FBQztTQUNsQyxDQUFDO1FBQ0YsUUFBUSxFQUFFLElBQUksV0FBVyxDQUFDLEVBQUUsRUFBRTtZQUM1QixXQUFXLEVBQUUsSUFBSTtZQUNqQixVQUFVLEVBQUUsQ0FBQyxVQUFVLENBQUMsUUFBUSxDQUFDO1NBQ2xDLENBQUM7S0FDSCxDQUFDLENBQUM7SUFDSCxLQUFLLENBQUMsS0FBSztRQUNULElBQUksQ0FBQztZQUNILElBQUksSUFBSSxDQUFDLE9BQU87Z0JBQUUsT0FBTztZQUN6QixJQUFJLElBQUksQ0FBQyxTQUFTLENBQUMsT0FBTyxFQUFFLENBQUM7Z0JBQzNCLElBQUksQ0FBQyxTQUFTLENBQUMsZ0JBQWdCLEVBQUUsQ0FBQztnQkFDbEMsSUFBSSxDQUFDLEtBQUssR0FBRyxtQ0FBbUMsQ0FBQztnQkFDakQsT0FBTztZQUNULENBQUM7WUFDRCxJQUFJLENBQUMsS0FBSyxHQUFHLEVBQUUsQ0FBQztZQUNoQixJQUFJLENBQUMsT0FBTyxHQUFHLElBQUksQ0FBQztZQUNwQixJQUFJLENBQUM7Z0JBQ0gsTUFBTSxFQUFFLFFBQVEsRUFBRSxRQUFRLEVBQUUsR0FBRyxJQUFJLENBQUMsU0FBUyxDQUFDLFdBQVcsRUFBRSxDQUFDO2dCQUM1RCxNQUFNLENBQUMsR0FBRyxNQUFNLElBQUksQ0FBQyxJQUFJLENBQUMsS0FBSyxDQUFDLFFBQVEsRUFBRSxRQUFRLENBQUMsQ0FBQztnQkFDcEQsTUFBTSxPQUFPLEdBQUcsZUFBZSxDQUM3QixJQUFJLENBQUMsS0FBSyxFQUFFLFFBQVEsQ0FBQyxhQUFhLENBQUMsR0FBRyxDQUFDLFdBQVcsQ0FBQyxDQUNwRCxDQUFDO2dCQUNGLE1BQU0sYUFBYSxHQUNqQixPQUFPO29CQUNQLGtEQUFrRCxDQUFDLElBQUksQ0FBQyxPQUFPLENBQUM7b0JBQzlELENBQUMsQ0FBQyxPQUFPO29CQUNULENBQUMsQ0FBQyxTQUFTLENBQUM7Z0JBQ2hCLE1BQU0sSUFBSSxDQUFDLE1BQU0sQ0FBQyxhQUFhLENBQzdCLENBQUMsQ0FBQyxHQUFHLEtBQUssUUFBUTtvQkFDaEIsQ0FBQyxDQUFDLGFBQWE7b0JBQ2YsQ0FBQyxDQUFDLENBQUMsT0FBTyxJQUFJLGNBQWMsQ0FBQyxDQUFDLENBQUMsR0FBRyxDQUFDLENBQUMsQ0FDdkMsQ0FBQztZQUNKLENBQUM7WUFBQyxPQUFPLENBQUMsRUFBRSxDQUFDO2dCQUNYLElBQUksQ0FBQyxLQUFLLEdBQUcsU0FBUyxDQUFDLENBQUMsQ0FBQyxDQUFDO1lBQzVCLENBQUM7b0JBQVMsQ0FBQztnQkFDVCxJQUFJLENBQUMsT0FBTyxHQUFHLEtBQUssQ0FBQztZQUN2QixDQUFDO1FBQ0gsQ0FBQztnQkFBUyxDQUFDO1lBQ1QsSUFBSSxDQUFDLGNBQWMsQ0FBQyxZQUFZLEVBQUUsQ0FBQztRQUNyQyxDQUFDO0lBQ0gsQ0FBQztDQUNGLENBQUE7QUExRFksY0FBYztJQU4xQixTQUFTLENBQUM7UUFDVCxVQUFVLEVBQUUsSUFBSTtRQUNoQixPQUFPLEVBQUUsQ0FBQyxtQkFBbUIsRUFBRSxVQUFVLENBQUM7UUFDMUMsUUFBUSxFQUFDLCt6RUFBK3pFO1FBQ3gwRSxNQUFNLEVBQUMsRUFBRTtLQUNWLENBQUM7R0FDVyxjQUFjLENBMEQxQiIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IENoYW5nZURldGVjdG9yUmVmLCBDb21wb25lbnQsIGluamVjdCB9IGZyb20gXCJAYW5ndWxhci9jb3JlXCI7XG5pbXBvcnQge1xuICBGb3JtQ29udHJvbCxcbiAgRm9ybUdyb3VwLFxuICBSZWFjdGl2ZUZvcm1zTW9kdWxlLFxuICBWYWxpZGF0b3JzLFxufSBmcm9tIFwiQGFuZ3VsYXIvZm9ybXNcIjtcbmltcG9ydCB7IEFjdGl2YXRlZFJvdXRlLCBSb3V0ZXIsIFJvdXRlckxpbmsgfSBmcm9tIFwiQGFuZ3VsYXIvcm91dGVyXCI7XG5pbXBvcnQgeyBBdXRoU2VydmljZSB9IGZyb20gXCIuLi8uLi8uLi8uLi9jb3JlL2F1dGgvYXV0aC1zZXJ2aWNlXCI7XG5pbXBvcnQgeyBlcnJvclRleHQgfSBmcm9tIFwiLi4vLi4vLi4vLi4vY29yZS91dGlscy9odHRwLWVycm9yXCI7XG5pbXBvcnQgeyBJTklDSU9fUE9SX1JPTCB9IGZyb20gXCIuLi8uLi8uLi8uLi9jb3JlL2NvbmZpZy9wZXJtaXNvc1wiO1xuaW1wb3J0IHsgcmV0dXJuVXJsU2VndXJvIH0gZnJvbSBcIi4uLy4uLy4uLy4uL2NvcmUvdXRpbHMvcmV0dXJuLXVybFwiO1xuXG5AQ29tcG9uZW50KHtcbiAgc3RhbmRhbG9uZTogdHJ1ZSxcbiAgaW1wb3J0czogW1JlYWN0aXZlRm9ybXNNb2R1bGUsIFJvdXRlckxpbmtdLFxuICB0ZW1wbGF0ZTpcIjxtYWluIGNsYXNzPVxcXCJjb250ZW5lZG9yLWxvZ2luXFxcIj5cXG4gIDxzZWN0aW9uIGNsYXNzPVxcXCJ6b25hLWltYWdlblxcXCI+XFxuICAgIDxhIHJvdXRlckxpbms9XFxcIi9ob21lXFxcIiBjbGFzcz1cXFwiYm90b24tcmVncmVzYXJcXFwiXFxuICAgICAgPjxzcGFuIGNsYXNzPVxcXCJjaXJjdWxvLWZsZWNoYVxcXCI+4oaQPC9zcGFuPjxzcGFuPlJlZ3Jlc2FyPC9zcGFuPjwvYVxcbiAgICA+PGltZ1xcbiAgICAgIHNyYz1cXFwiL2ltZy9GT05ETyBMT0dJTi5wbmdcXFwiXFxuICAgICAgYWx0PVxcXCJDb25zdWx0b3JpbyBtw6lkaWNvXFxcIlxcbiAgICAgIGNsYXNzPVxcXCJpbWFnZW4tY29uc3VsdG9yaW9cXFwiXFxuICAgIC8+XFxuICA8L3NlY3Rpb24+XFxuICA8ZGl2IGNsYXNzPVxcXCJzZXBhcmFkb3ItYXp1bFxcXCI+PC9kaXY+XFxuICA8c2VjdGlvbiBjbGFzcz1cXFwiem9uYS1mb3JtdWxhcmlvXFxcIj5cXG4gICAgPGRpdiBjbGFzcz1cXFwiY29udGVuaWRvLWZvcm11bGFyaW9cXFwiPlxcbiAgICAgIDxpbWdcXG4gICAgICAgIHNyYz1cXFwiL2ltZy9MT0dPIEdSQU5ERS5wbmdcXFwiXFxuICAgICAgICBhbHQ9XFxcIkxvZ28gS2FyZWx5J3NcXFwiXFxuICAgICAgICBjbGFzcz1cXFwibG9nby1rYXJlbHlzXFxcIlxcbiAgICAgIC8+XFxuICAgICAgPGgxPklOSUNJQVIgU0VTScOTTjwvaDE+XFxuICAgICAgPHAgY2xhc3M9XFxcInRleHRvLWF5dWRhXFxcIj5cXG4gICAgICAgIEluZ3Jlc2Ugc3VzIGNyZWRlbmNpYWxlcyBwYXJhIGFjY2VkZXIgYWwgc2lzdGVtYVxcbiAgICAgIDwvcD5cXG4gICAgICBAaWYoYXZpc28pe1xcbiAgICAgIDxwIGNsYXNzPVxcXCJtZW5zYWplLWVycm9yXFxcIiByb2xlPVxcXCJzdGF0dXNcXFwiPnt7YXZpc299fTwvcD5cXG4gICAgICB9XFxuICAgICAgPGZvcm1cXG4gICAgICAgIGNsYXNzPVxcXCJmb3JtdWxhcmlvLWxvZ2luXFxcIlxcbiAgICAgICAgW2Zvcm1Hcm91cF09XFxcImxvZ2luRm9ybVxcXCJcXG4gICAgICAgIChuZ1N1Ym1pdCk9XFxcImxvZ2luKClcXFwiXFxuICAgICAgPlxcbiAgICAgICAgPGxhYmVsIGZvcj1cXFwibG9naW4tdXN1YXJpb1xcXCIgY2xhc3M9XFxcImV0aXF1ZXRhLWFjY2VzaWJsZVxcXCI+VXN1YXJpbzwvbGFiZWw+XFxuICAgICAgICA8aW5wdXRcXG4gICAgICAgICAgaWQ9XFxcImxvZ2luLXVzdWFyaW9cXFwiXFxuICAgICAgICAgIG5hbWU9XFxcInVzZXJuYW1lXFxcIlxcbiAgICAgICAgICBmb3JtQ29udHJvbE5hbWU9XFxcInVzZXJuYW1lXFxcIlxcbiAgICAgICAgICBwbGFjZWhvbGRlcj1cXFwiSW5ncmVzZSBzdSB1c3VhcmlvXFxcIlxcbiAgICAgICAgICByZXF1aXJlZFxcbiAgICAgICAgICBhdXRvY29tcGxldGU9XFxcInVzZXJuYW1lXFxcIlxcbiAgICAgICAgLz5cXG4gICAgICAgIDxkaXYgY2xhc3M9XFxcImNhamEtY29udHJhc2VuYVxcXCI+XFxuICAgICAgICAgIDxsYWJlbCBmb3I9XFxcImxvZ2luLWNvbnRyYXNlbmFcXFwiIGNsYXNzPVxcXCJldGlxdWV0YS1hY2Nlc2libGVcXFwiPkNvbnRyYXNlw7FhPC9sYWJlbD5cXG4gICAgICAgICAgPGlucHV0XFxuICAgICAgICAgICAgaWQ9XFxcImxvZ2luLWNvbnRyYXNlbmFcXFwiXFxuICAgICAgICAgICAgW3R5cGVdPVxcXCJtb3N0cmFyPyd0ZXh0JzoncGFzc3dvcmQnXFxcIlxcbiAgICAgICAgICAgIG5hbWU9XFxcInBhc3N3b3JkXFxcIlxcbiAgICAgICAgICAgIGZvcm1Db250cm9sTmFtZT1cXFwicGFzc3dvcmRcXFwiXFxuICAgICAgICAgICAgcGxhY2Vob2xkZXI9XFxcIkNvbnRyYXNlw7FhXFxcIlxcbiAgICAgICAgICAgIHJlcXVpcmVkXFxuICAgICAgICAgICAgYXV0b2NvbXBsZXRlPVxcXCJjdXJyZW50LXBhc3N3b3JkXFxcIlxcbiAgICAgICAgICAvPjxidXR0b25cXG4gICAgICAgICAgICB0eXBlPVxcXCJidXR0b25cXFwiXFxuICAgICAgICAgICAgY2xhc3M9XFxcImJvdG9uLW9qb1xcXCJcXG4gICAgICAgICAgICBbYXR0ci5hcmlhLWxhYmVsXT1cXFwibW9zdHJhciA/ICdPY3VsdGFyIGNvbnRyYXNlw7FhJyA6ICdNb3N0cmFyIGNvbnRyYXNlw7FhJ1xcXCJcXG4gICAgICAgICAgICAoY2xpY2spPVxcXCJtb3N0cmFyPSFtb3N0cmFyXFxcIlxcbiAgICAgICAgICA+XFxuICAgICAgICAgICAg4peJXFxuICAgICAgICAgIDwvYnV0dG9uPlxcbiAgICAgICAgPC9kaXY+XFxuICAgICAgICBAaWYoZXJyb3Ipe1xcbiAgICAgICAgPHAgY2xhc3M9XFxcIm1lbnNhamUtZXJyb3JcXFwiIHJvbGU9XFxcImFsZXJ0XFxcIj57e2Vycm9yfX08L3A+XFxuICAgICAgICB9XFxuICAgICAgICA8YnV0dG9uIGNsYXNzPVxcXCJib3Rvbi1pbmdyZXNhclxcXCIgdHlwZT1cXFwic3VibWl0XFxcIiBbZGlzYWJsZWRdPVxcXCJsb2FkaW5nXFxcIj5cXG4gICAgICAgICAge3tsb2FkaW5nPydJbmdyZXNhbmRvLi4uJzonSW5pY2lhciBTZXNpw7NuJ319XFxuICAgICAgICA8L2J1dHRvbj5cXG4gICAgICA8L2Zvcm0+XFxuICAgICAgPGEgY2xhc3M9XFxcImVubGFjZS1yZWN1cGVyYWNpb25cXFwiIHJvdXRlckxpbms9XFxcIi9yZWN1cGVyYXItcGFzc3dvcmRcXFwiXFxuICAgICAgICA+T2x2aWTDqSBtaSBjb250cmFzZcOxYTwvYVxcbiAgICAgID5cXG4gICAgPC9kaXY+XFxuICA8L3NlY3Rpb24+XFxuPC9tYWluPlxcblwiLFxuICBzdHlsZXM6W10sXG59KVxuZXhwb3J0IGNsYXNzIExvZ2luQ29tcG9uZW50IHtcbiAgcHJpdmF0ZSByZWFkb25seSBjaGFuZ2VEZXRlY3RvciA9IGluamVjdChDaGFuZ2VEZXRlY3RvclJlZik7XG5cbiAgYXV0aCA9IGluamVjdChBdXRoU2VydmljZSk7XG4gIHJvdXRlciA9IGluamVjdChSb3V0ZXIpO1xuICByb3V0ZSA9IGluamVjdChBY3RpdmF0ZWRSb3V0ZSwgeyBvcHRpb25hbDogdHJ1ZSB9KTtcbiAgYXZpc28gPVxuICAgIHRoaXMucm91dGU/LnNuYXBzaG90LnF1ZXJ5UGFyYW1NYXAuZ2V0KFwic2VzaW9uRXhwaXJhZGFcIikgPT09IFwiMVwiXG4gICAgICA/IFwiVHUgc2VzacOzbiBoYSB2ZW5jaWRvLiBJbmljaWEgc2VzacOzbiBudWV2YW1lbnRlLlwiXG4gICAgICA6IFwiXCI7XG4gIG1vc3RyYXIgPSBmYWxzZTtcbiAgZXJyb3IgPSBcIlwiO1xuICBsb2FkaW5nID0gZmFsc2U7XG4gIHJlYWRvbmx5IGxvZ2luRm9ybSA9IG5ldyBGb3JtR3JvdXAoe1xuICAgIHVzZXJuYW1lOiBuZXcgRm9ybUNvbnRyb2woXCJcIiwge1xuICAgICAgbm9uTnVsbGFibGU6IHRydWUsXG4gICAgICB2YWxpZGF0b3JzOiBbVmFsaWRhdG9ycy5yZXF1aXJlZF0sXG4gICAgfSksXG4gICAgcGFzc3dvcmQ6IG5ldyBGb3JtQ29udHJvbChcIlwiLCB7XG4gICAgICBub25OdWxsYWJsZTogdHJ1ZSxcbiAgICAgIHZhbGlkYXRvcnM6IFtWYWxpZGF0b3JzLnJlcXVpcmVkXSxcbiAgICB9KSxcbiAgfSk7XG4gIGFzeW5jIGxvZ2luKCkge1xuICAgIHRyeSB7XG4gICAgICBpZiAodGhpcy5sb2FkaW5nKSByZXR1cm47XG4gICAgICBpZiAodGhpcy5sb2dpbkZvcm0uaW52YWxpZCkge1xuICAgICAgICB0aGlzLmxvZ2luRm9ybS5tYXJrQWxsQXNUb3VjaGVkKCk7XG4gICAgICAgIHRoaXMuZXJyb3IgPSBcIkludHJvZHVjZSB0dSB1c3VhcmlvIHkgY29udHJhc2XDsWFcIjtcbiAgICAgICAgcmV0dXJuO1xuICAgICAgfVxuICAgICAgdGhpcy5lcnJvciA9IFwiXCI7XG4gICAgICB0aGlzLmxvYWRpbmcgPSB0cnVlO1xuICAgICAgdHJ5IHtcbiAgICAgICAgY29uc3QgeyB1c2VybmFtZSwgcGFzc3dvcmQgfSA9IHRoaXMubG9naW5Gb3JtLmdldFJhd1ZhbHVlKCk7XG4gICAgICAgIGNvbnN0IHMgPSBhd2FpdCB0aGlzLmF1dGgubG9naW4odXNlcm5hbWUsIHBhc3N3b3JkKTtcbiAgICAgICAgY29uc3QgZGVzdGlubyA9IHJldHVyblVybFNlZ3VybyhcbiAgICAgICAgICB0aGlzLnJvdXRlPy5zbmFwc2hvdC5xdWVyeVBhcmFtTWFwLmdldChcInJldHVyblVybFwiKSxcbiAgICAgICAgKTtcbiAgICAgICAgY29uc3QgZGVzdGlub01lZGljbyA9XG4gICAgICAgICAgZGVzdGlubyAmJlxuICAgICAgICAgIC9eXFwvZG9jdG9yKD86XFwvKD86aG9yYXJpb3N8Y29uc3VsdGFzKSk/KD86Wz8jXXwkKS8udGVzdChkZXN0aW5vKVxuICAgICAgICAgICAgPyBkZXN0aW5vXG4gICAgICAgICAgICA6IFwiL2RvY3RvclwiO1xuICAgICAgICBhd2FpdCB0aGlzLnJvdXRlci5uYXZpZ2F0ZUJ5VXJsKFxuICAgICAgICAgIHMucm9sID09PSBcIkRPQ1RPUlwiXG4gICAgICAgICAgICA/IGRlc3Rpbm9NZWRpY29cbiAgICAgICAgICAgIDogKGRlc3Rpbm8gPz8gSU5JQ0lPX1BPUl9ST0xbcy5yb2xdKSxcbiAgICAgICAgKTtcbiAgICAgIH0gY2F0Y2ggKGUpIHtcbiAgICAgICAgdGhpcy5lcnJvciA9IGVycm9yVGV4dChlKTtcbiAgICAgIH0gZmluYWxseSB7XG4gICAgICAgIHRoaXMubG9hZGluZyA9IGZhbHNlO1xuICAgICAgfVxuICAgIH0gZmluYWxseSB7XG4gICAgICB0aGlzLmNoYW5nZURldGVjdG9yLm1hcmtGb3JDaGVjaygpO1xuICAgIH1cbiAgfVxufVxuIl19

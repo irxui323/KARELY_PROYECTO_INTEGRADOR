@@ -1,3 +1,5 @@
+import { ListadoPaginado } from "../../../../core/utils/listado-paginado";
+import { Paginador } from "../../../../shared/components/paginador/paginador";
 import { ChangeDetectorRef, Component, inject, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -5,6 +7,7 @@ import { firstValueFrom } from "rxjs";
 import { AuthService } from "../../../../core/auth/auth-service";
 import { errorText } from "../../../../core/utils/http-error";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
+import { ModuleHeader } from "../../../../shared/components/module-header/module-header";
 import { Cita } from "../../../citas/models/citas.model";
 import { CitaService } from "../../../citas/services/citas-service";
 import { Doctor } from "../../../doctores/models/doctores.model";
@@ -12,11 +15,14 @@ import { DoctorService } from "../../../doctores/services/doctores-service";
 type PestanaMedica = "citas" | "horarios" | "consultas";
 @Component({
   standalone: true,
-  imports: [FormsModule, FeatureNav],
+  imports: [Paginador, FormsModule, FeatureNav, ModuleHeader],
   templateUrl: "./agenda-list.html",
   styleUrl: "./agenda-list.css",
 })
 export class AgendaList implements OnInit {
+  readonly paginacion = new ListadoPaginado<Cita>();
+  vista = "proximas";
+
   private readonly changeDetector = inject(ChangeDetectorRef);
 
   private readonly router = inject(Router);
@@ -41,16 +47,7 @@ export class AgendaList implements OnInit {
       : "Sin médico asociado";
   }
   get citasFiltradas(): Cita[] {
-    const q = this.busqueda.trim().toLowerCase();
-    return !q
-      ? this.citas
-      : this.citas.filter((c) =>
-          [c.idCita, c.fechaCita, c.nombrePaciente, c.estadoCita].some((v) =>
-            String(v ?? "")
-              .toLowerCase()
-              .includes(q),
-          ),
-        );
+    return this.citas;
   }
   ngOnInit() {
     void this.cargar();
@@ -69,12 +66,18 @@ export class AgendaList implements OnInit {
   }
   async cargar() {
     try {
-      if (this.cargando) return;
       this.cargando = true;
       this.error = "";
       try {
         [this.citas, this.doctores] = await Promise.all([
-          firstValueFrom(this.citasService.listar()),
+          this.paginacion.consultar(() =>
+            this.citasService.listarPagina(
+              this.paginacion.pagina,
+              this.paginacion.tamanio,
+              this.busqueda,
+              this.vista,
+            ),
+          ),
           firstValueFrom(this.doctoresService.listar()),
         ]);
         this.doctor = this.doctores.find(
@@ -95,4 +98,10 @@ export class AgendaList implements OnInit {
     });
   }
   doctores: Doctor[] = [];
+
+  paginar(pagina: number, tamanio = this.paginacion.tamanio) {
+    this.paginacion.pagina = pagina;
+    this.paginacion.tamanio = tamanio;
+    void this.cargar();
+  }
 }

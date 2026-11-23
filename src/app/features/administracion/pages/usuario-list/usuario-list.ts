@@ -1,9 +1,12 @@
+import { ListadoPaginado } from "../../../../core/utils/listado-paginado";
+import { Paginador } from "../../../../shared/components/paginador/paginador";
 import { ChangeDetectorRef, Component, inject, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { errorText } from "../../../../core/utils/http-error";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
+import { ModuleHeader } from "../../../../shared/components/module-header/module-header";
 import {
   AdministracionAccion,
   AdministracionRequest,
@@ -14,11 +17,14 @@ import { AdministracionService } from "../../services/administracion-service";
 
 @Component({
   standalone: true,
-  imports: [FormsModule, RouterLink, FeatureNav],
+  imports: [Paginador, FormsModule, RouterLink, FeatureNav, ModuleHeader],
   templateUrl: "./usuario-list.html",
   styleUrl: "./usuario-list.css",
 })
 export class UsuarioList implements OnInit {
+  readonly paginacion = new ListadoPaginado<Usuario>();
+  buscar = "";
+
   private readonly changeDetector = inject(ChangeDetectorRef);
   guardando = false;
   constructor() {}
@@ -37,7 +43,13 @@ export class UsuarioList implements OnInit {
     try {
       try {
         [this.usuarios, this.roles] = await Promise.all([
-          firstValueFrom(this.administracionService.usuarios()),
+          this.paginacion.consultar(() =>
+            this.administracionService.usuariosPagina(
+              this.paginacion.pagina,
+              this.paginacion.tamanio,
+              this.buscar,
+            ),
+          ),
           firstValueFrom(this.administracionService.roles()),
         ]);
       } catch (e) {
@@ -70,18 +82,24 @@ export class UsuarioList implements OnInit {
     this.cambioEstado = u.estado;
     this.cambioRol = this.roles.find((r) => r.nombre === u.rol)?.idRol || null;
   }
-  actualizarRol() {
+  async actualizarRol() {
     if (this.seleccionado)
-      this.ejecutar("usuario-rol", {
+      await this.ejecutar("usuario-rol", {
         idUsuario: this.seleccionado.idUsuario,
         idRol: this.cambioRol,
       });
   }
-  actualizarEstado() {
+  async actualizarEstado() {
     if (this.seleccionado)
-      this.ejecutar("usuario-estado", {
+      await this.ejecutar("usuario-estado", {
         idUsuario: this.seleccionado.idUsuario,
         estado: this.cambioEstado,
       });
+  }
+
+  paginar(pagina: number, tamanio = this.paginacion.tamanio) {
+    this.paginacion.pagina = pagina;
+    this.paginacion.tamanio = tamanio;
+    void this.cargar();
   }
 }

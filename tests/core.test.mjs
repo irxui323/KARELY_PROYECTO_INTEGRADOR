@@ -1,17 +1,8 @@
 import "@angular/compiler";
 import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
-import {
-  mkdtempSync,
-  readFileSync,
-  writeFileSync,
-  rmSync,
-  readdirSync,
-  mkdirSync,
-} from "node:fs";
-import { resolve, relative, dirname } from "node:path";
-import { pathToFileURL } from "node:url";
-import ts from "typescript";
+import { readFileSync } from "node:fs";
+import { sourceLoader } from "./helpers/security-loader.mjs";
 import {
   createEnvironmentInjector,
   runInInjectionContext,
@@ -38,50 +29,7 @@ import {
 } from "@angular/platform-browser/testing";
 import { JSDOM } from "jsdom";
 
-const buildDir = mkdtempSync(resolve(".test-runtime-"));
-function compileSources(directory) {
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    const path = resolve(directory, entry.name);
-    if (entry.isDirectory()) {
-      compileSources(path);
-      continue;
-    }
-    if (!entry.name.endsWith(".ts")) continue;
-    let source = readFileSync(path, "utf8");
-    source = source.replace(
-      /templateUrl:\s*(['"])(.*?)\1/g,
-      (_, quote, file) =>
-        "template:" +
-        JSON.stringify(readFileSync(resolve(dirname(path), file), "utf8")),
-    );
-    source = source.replace(/styleUrl:\s*(['"])(.*?)\1/g, "styles:[]");
-    let code = ts.transpileModule(source, {
-      compilerOptions: {
-        target: ts.ScriptTarget.ES2022,
-        module: ts.ModuleKind.ES2022,
-        experimentalDecorators: true,
-      },
-    }).outputText;
-    code = code
-      .replace(
-        /from (['"])([.][^'"]+)\1/g,
-        (_, quote, path) => `from '${path}.mjs'`,
-      )
-      .replace(
-        /import\((['"])([.][^'"]+)\1\)/g,
-        (_, quote, path) => `import('${path}.mjs')`,
-      );
-    const output = resolve(
-      buildDir,
-      relative(resolve("src"), path).replace(/\.ts$/, ".mjs"),
-    );
-    mkdirSync(dirname(output), { recursive: true });
-    writeFileSync(output, code);
-  }
-}
-compileSources(resolve("src"));
-const load = (name) =>
-  import(pathToFileURL(resolve(buildDir, "app", name + ".mjs")));
+const load = sourceLoader();
 const { AuthService } = await load("core/auth/auth-service");
 const { authInterceptor } = await load("core/interceptors/auth-interceptor");
 const { errorInterceptor } = await load("core/interceptors/error-interceptor");
@@ -104,6 +52,8 @@ const { ControlDisabled } = await load("shared/directives/control-disabled");
 const { AtencionForm: DoctorComponent } = await load(
   "features/atencion/pages/atencion-form/atencion-form",
 );
+const { AtencionService } = await load("features/atencion/services/atencion-service");
+const { LiquidacionForm } = await load("features/finanzas/pages/liquidacion-form/liquidacion-form");
 const { PacienteForm: PacientesComponent } = await load(
   "features/pacientes/pages/paciente-form/paciente-form",
 );
@@ -117,7 +67,6 @@ for (const key of ["window", "document", "Node", "Element", "HTMLElement"]) {
   });
 }
 TestBed.initTestEnvironment(BrowserTestingModule, platformBrowserTesting());
-process.on("exit", () => rmSync(buildDir, { recursive: true, force: true }));
 
 let injector, http, auth, navigations;
 
@@ -203,6 +152,40 @@ test("un control deshabilitado conserva su dato al construir el payload", () => 
   }
 });
 
+test("pago rechaza fecha fin anterior y acepta un periodo del mismo dia", async () => {
+  const component = runInInjectionContext(injector, () => new LiquidacionForm());
+  component.liqGroup.setValue({ idDoctor: 1, fechaInicio: "2026-11-23",
+    fechaFin: "2026-11-22", monto: 60, metodoPago: "EFECTIVO" });
+  assert.equal(component.liqGroup.hasError("periodoInvalido"), true);
+  await component.registrarPago();
+  assert.match(component.error, /fecha de fin/);
+  http.expectNone("/api/v1/liquidaciones");
+  component.liqGroup.controls.fechaFin.setValue("2026-11-23");
+  assert.equal(component.liqGroup.valid, true);
+  component.liqGroup.controls.fechaFin.setValue("2026-11-25");
+  assert.equal(component.liqGroup.valid, true);
+});
+
+test("calendarios de pago limitan el inicio y fin al periodo seleccionado", () => {
+  const template = readFileSync(new URL(
+    "../src/app/features/finanzas/pages/liquidacion-form/liquidacion-form.html", import.meta.url), "utf8");
+  const inputs = template.match(/<input\b[^>]*formControlName="fecha(?:Inicio|Fin)"[^>]*>/g);
+  assert.equal(inputs.length, 2);
+  TestBed.overrideTemplate(LiquidacionForm, `<form [formGroup]="liqGroup">${inputs.join("")}</form>`);
+  const fixture = mountComponent(LiquidacionForm);
+  try {
+    fixture.componentInstance.liqGroup.patchValue({ fechaInicio: "2026-11-23", fechaFin: "2026-11-25" });
+    fixture.detectChanges();
+    const inicio = fixture.nativeElement.querySelector('[formControlName="fechaInicio"]');
+    const fin = fixture.nativeElement.querySelector('[formControlName="fechaFin"]');
+    assert.equal(fin.min, "2026-11-23");
+    assert.equal(inicio.max, "2026-11-25");
+  } finally {
+    fixture.destroy();
+    TestBed.resetTestingModule();
+  }
+});
+
 function mountComponent(component) {
   TestBed.configureTestingModule({
     imports: [component],
@@ -250,6 +233,10 @@ test("el selector medico cambia una sola vez y bloquea campos de atencion cerrad
     fixture.detectChanges();
     assert.equal(cambios, 1);
     assert.equal(component.medico.idCita, 31);
+    TestBed.inject(HttpTestingController)
+      .expectOne("/api/v1/atenciones/31/recibo")
+      .flush(null, { status: 204, statusText: "No Content" });
+    await fixture.whenStable();
     assert.equal(
       fixture.nativeElement.querySelector("textarea").disabled,
       true,
@@ -273,6 +260,23 @@ test("el selector medico cambia una sola vez y bloquea campos de atencion cerrad
     fixture.destroy();
     TestBed.resetTestingModule();
   }
+});
+
+test("recibo se emite sin numero manual y se descarga como PDF", async () => {
+  const service = runInInjectionContext(injector, () => new AtencionService());
+  const emision = firstValueFrom(service.ejecutar("recibo-emitir", {
+    idCita: 31, numeroRecibo: "NO-ENVIAR",
+  }));
+  const request = http.expectOne("/api/v1/atenciones/31/recibo");
+  assert.deepEqual(request.request.body, {});
+  request.flush({ accion: "SP_EMITIR_RECIBO", id: 20, mensaje: "Emitido" });
+  assert.equal((await emision).id, 20);
+  const descarga = firstValueFrom(service.descargarRecibo(31));
+  const pdfRequest = http.expectOne("/api/v1/atenciones/31/recibo/pdf");
+  assert.equal(pdfRequest.request.responseType, "blob");
+  const pdf = new Blob(["%PDF"], { type: "application/pdf" });
+  pdfRequest.flush(pdf);
+  assert.equal((await descarga).type, "application/pdf");
 });
 
 test("editar paciente bloquea identificacion y nuevo paciente la habilita", () => {
@@ -460,6 +464,15 @@ test("errorText presenta detalle del servidor y dispone de mensaje por defecto",
     "Documento inválido",
   );
   assert.equal(errorText(null), "No se pudo completar la operación.");
+});
+
+test("los avisos no muestran direcciones HTTP, códigos de Oracle ni errores internos", () => {
+  assert.equal(errorText({status:0,message:"Http failure response for /api/v1/citas: 0 Unknown Error"}),"No se pudo conectar con el sistema. Revisa tu conexión e inténtalo de nuevo.");
+  assert.equal(errorText({status:500,error:{message:"SELECT * FROM CITA ORA-00942"}}),"No se pudo completar la operación. Inténtalo de nuevo en unos minutos.");
+  assert.equal(errorText({status:400,error:{message:"ORA-20003: Este turno ya está ocupado.\nORA-06512: SQL interno"}}),"Este turno ya está ocupado.");
+  assert.equal(errorText({error:{message:"OperaciÃ³n no permitida"}}),"Operación no permitida");
+  assert.equal(errorText({error:{validationErrors:{nombres:"Completa los nombres.",correo:"Revisa el correo."}}}),"Completa los nombres.");
+  assert.equal(errorText({status:403,error:{error:"Forbidden"}}),"Tu cuenta no tiene permiso para realizar esta acción.");
 });
 
 test("asignacion rechazada elimina el mensaje de exito anterior", async () => {

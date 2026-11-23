@@ -9,12 +9,13 @@ import { ActivatedRoute, RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { errorText } from "../../../../core/utils/http-error";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
+import { ModuleHeader } from "../../../../shared/components/module-header/module-header";
 import { CitaRequest, Reserva } from "../../models/citas.model";
 import { CitaService } from "../../services/citas-service";
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, FeatureNav, RouterLink],
+  imports: [ReactiveFormsModule, FeatureNav, RouterLink, ModuleHeader],
   templateUrl: "./cita-confirmacion.html",
   styleUrl: "./cita-confirmacion.css",
 })
@@ -80,7 +81,7 @@ export class CitaConfirmacion implements OnInit {
         const r = await firstValueFrom(
           this.citasService.ejecutar("cita-confirmar", this.pago),
         );
-        this.exito = r.mensaje;
+        this.exito = "Pago registrado y cita confirmada correctamente.";
         this.pagoGroup.controls.idPreReserva.reset(null);
         await this.cargar();
       } catch (e) {

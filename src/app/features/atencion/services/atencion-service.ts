@@ -6,6 +6,7 @@ import {
   Atencion,
   AtencionAccion,
   AtencionRequest,
+  Recibo,
 } from "../models/atencion.model";
 @Injectable({ providedIn: "root" })
 export class AtencionService {
@@ -13,6 +14,16 @@ export class AtencionService {
   private readonly url = environment.apiUrl;
   listar() {
     return this.http.get<Atencion[]>(this.url + "/atenciones");
+  }
+  recibo(idCita: number) {
+    return this.http.get<Recibo | null>(
+      `${this.url}/atenciones/${idCita}/recibo`,
+    );
+  }
+  descargarRecibo(idCita: number) {
+    return this.http.get(`${this.url}/atenciones/${idCita}/recibo/pdf`, {
+      responseType: "blob",
+    });
   }
   ejecutar(action: AtencionAccion, data: AtencionRequest) {
     const recurso = this.url + "/atenciones";
@@ -26,7 +37,6 @@ export class AtencionService {
       dosis,
       frecuencia,
       duracion,
-      numeroRecibo,
       medioEntrega,
     } = data;
     const detalle = recurso + "/" + idCita;
@@ -56,9 +66,7 @@ export class AtencionService {
           },
         );
       case "recibo-emitir":
-        return this.http.post<OperationResponse>(detalle + "/recibo", {
-          numeroRecibo,
-        });
+        return this.http.post<OperationResponse>(detalle + "/recibo", {});
       case "recibo-entregar":
         return this.http.post<OperationResponse>(detalle + "/entrega", {
           medioEntrega,

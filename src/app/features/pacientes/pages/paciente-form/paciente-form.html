@@ -1,22 +1,13 @@
 <div class="k-module k-pacientes">
-  <header class="k-module-header">
-    <div>
-      <span class="k-eyebrow">GESTIÓN CLÍNICA / PACIENTES</span>
-      <h1 class="k-title">Pacientes</h1>
-      <p class="k-subtitle">
-        Registra pacientes, consulta sus datos y confirma su llegada a las
-        citas.
-      </p>
-    </div>
-    <div class="k-header-actions">
-      <button
-        type="button"
-        class="k-button k-button-secondary"
-        (click)="cargar()"
-      >
-        ↻ Actualizar datos
-      </button>
-    </div>
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="GESTIÓN CLÍNICA / PACIENTES"
+    titulo="Pacientes"
+    descripcion="Registra pacientes, consulta sus datos y confirma su llegada a las citas."
+    textoActualizar="↻ Actualizar datos"
+    (actualizar)="cargar()"
+  >
   </header>
   <app-feature-nav feature="pacientes" />
   @if(error){

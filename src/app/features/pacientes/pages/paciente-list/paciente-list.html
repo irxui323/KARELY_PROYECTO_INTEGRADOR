@@ -1,23 +1,13 @@
 <div class="k-module k-pacientes">
-  <header class="k-module-header">
-    <div>
-      <span class="k-eyebrow">GESTIÓN CLÍNICA / PACIENTES</span>
-      <h1 class="k-title">Pacientes</h1>
-      <p class="k-subtitle">
-        Registra pacientes, consulta sus datos y confirma su llegada a las
-        citas.
-      </p>
-    </div>
-    <div class="k-header-actions">
-      <button
-        type="button"
-        class="k-button k-button-secondary"
-        (click)="cargar()"
-      >
-        ↻ Actualizar datos
-      </button>
-    </div>
-  </header>
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="GESTIÓN CLÍNICA / PACIENTES"
+    titulo="Pacientes"
+    descripcion="Registra pacientes, consulta sus datos y confirma su llegada a las citas."
+    textoActualizar="↻ Actualizar datos"
+    (actualizar)="cargar()"
+  ></header>
   <app-feature-nav feature="pacientes" />
   @if(error){
   <div class="k-error" role="alert">{{error}}</div>
@@ -30,13 +20,15 @@
         <h2>Pacientes registrados</h2>
         <p>Consulta y actualiza la información de los pacientes del centro.</p>
       </div>
-      <span class="k-count">{{filtrados().length}} resultados</span>
+      <span class="k-count">{{paginacion.totalElementos}} resultados</span>
     </div>
     <div class="k-toolbar">
       <label class="k-search"
         ><span>Buscar paciente</span
         ><input
           [(ngModel)]="buscar"
+          (ngModelChange)="paginar(0)"
+          maxlength="150"
           placeholder="DNI, nombres o apellidos"
           aria-label="Buscar paciente por nombre o DNI"
       /></label>
@@ -96,5 +88,14 @@
         </tbody>
       </table>
     </div>
+    <app-paginador
+      [pagina]="paginacion.pagina"
+      [tamanio]="paginacion.tamanio"
+      [totalElementos]="paginacion.totalElementos"
+      [totalPaginas]="paginacion.totalPaginas"
+      [cargando]="paginacion.cargando"
+      (cambioPagina)="paginar($event)"
+      (cambioTamanio)="paginar(0, $event)"
+    />
   </section>
 </div>

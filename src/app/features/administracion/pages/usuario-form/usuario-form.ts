@@ -9,6 +9,7 @@ import { RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { errorText, formErrorText } from "../../../../core/utils/http-error";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
+import { ModuleHeader } from "../../../../shared/components/module-header/module-header";
 import {
   AdministracionRequest,
   AccesoUsuario,
@@ -18,7 +19,7 @@ import { AdministracionService } from "../../services/administracion-service";
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, FeatureNav],
+  imports: [ReactiveFormsModule, RouterLink, FeatureNav, ModuleHeader],
   templateUrl: "./usuario-form.html",
   styleUrl: "./usuario-form.css",
 })

@@ -1,3 +1,4 @@
+import { Paginador } from "../../../../shared/components/paginador/paginador";
 import { ChangeDetectorRef, Component, inject, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -9,7 +10,7 @@ import { DoctorService } from "../../services/doctores-service";
 
 @Component({
   standalone: true,
-  imports: [FormsModule, FeatureNav],
+  imports: [Paginador,FormsModule, FeatureNav],
   templateUrl: "./doctor-documentos.html",
   styleUrl: "./doctor-documentos.css",
 })

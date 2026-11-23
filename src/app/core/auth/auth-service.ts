@@ -113,7 +113,7 @@ export class AuthService {
     const session = this.validar(response);
     if (!session)
       throw new Error(
-        "La respuesta de inicio de sesiÃ³n no contiene una sesiÃ³n vÃ¡lida",
+        "La respuesta de inicio de sesión no contiene una sesión válida",
       );
     sessionStorage.setItem("karely_session", JSON.stringify(session));
     this.session.set(session);

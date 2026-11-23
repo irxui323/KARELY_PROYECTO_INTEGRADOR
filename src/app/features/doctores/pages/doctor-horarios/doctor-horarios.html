@@ -93,6 +93,17 @@
         <p>Disponibilidades activas e históricas registradas.</p>
       </div>
     </div>
+    <div class="k-toolbar">
+      <label class="k-search"
+        ><span>Buscar horarios</span
+        ><input
+          type="search"
+          [(ngModel)]="buscar"
+          (ngModelChange)="paginar(0)"
+          maxlength="150"
+          placeholder="Doctor, especialidad o estado"
+      /></label>
+    </div>
     <div class="k-table-wrap">
       <table class="k-table">
         <thead>
@@ -130,12 +141,21 @@
           }@empty{
           <tr>
             <td colspan="7" class="k-empty">
-              Todavía no se registraron horarios.
+              No se encontraron horarios con los filtros actuales.
             </td>
           </tr>
           }
         </tbody>
       </table>
     </div>
+    <app-paginador
+      [pagina]="paginacion.pagina"
+      [tamanio]="paginacion.tamanio"
+      [totalElementos]="paginacion.totalElementos"
+      [totalPaginas]="paginacion.totalPaginas"
+      [cargando]="paginacion.cargando"
+      (cambioPagina)="paginar($event)"
+      (cambioTamanio)="paginar(0,$event)"
+    />
   </section>
 </div>
