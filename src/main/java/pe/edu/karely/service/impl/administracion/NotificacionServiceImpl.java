@@ -36,4 +36,13 @@ public class NotificacionServiceImpl implements NotificacionService {
         Long id = repository.encolarNotificacion(actor, actor, i.idCita(), i.tipo());
         return OperacionResponseDTO.resultado("SP_ENCOLAR_NOTIFICACION_CITA", id);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public pe.edu.karely.dto.PaginaResponseDTO<NotificacionResponseDTO> listarNotificacionesPagina(
+            int pagina, int tamanio, String filtro, long actor) {
+        pe.edu.karely.dto.PaginaResponseDTO.validar(pagina, tamanio);
+        permisos.exigir(actor, "ADMINISTRADORA", "TESORERA");
+        return repository.listarNotificacionesPagina(pagina, tamanio, filtro);
+    }
 }

@@ -66,7 +66,7 @@ class AdministradoraAccesoTest {
         new CitaServiceImpl(citas, permisos("ADMINISTRADORA")).registrarAsistencia(12, 7);
         verify(citas).registrarAsistencia(7, 7, 12L);
         var atenciones = mock(AtencionMedicaRepository.class);
-        new AtencionMedicaServiceImpl(atenciones, permisos("ADMINISTRADORA"))
+        servicioAtencion(atenciones, "ADMINISTRADORA")
                 .iniciarAtencion(12, 7);
         verify(atenciones).iniciarAtencion(7, 7, 12L);
     }
@@ -83,7 +83,7 @@ class AdministradoraAccesoTest {
         assertThrows(
                 org.springframework.security.access.AccessDeniedException.class,
                 () ->
-                        new AtencionMedicaServiceImpl(atenciones, permisos("RECEPCIONISTA"))
+                        servicioAtencion(atenciones, "RECEPCIONISTA")
                                 .iniciarAtencion(12, 7));
         verifyNoInteractions(pagos, atenciones);
     }
@@ -115,7 +115,7 @@ class AdministradoraAccesoTest {
     @Test
     void administradoraOperaTodasLasAccionesClinicas() {
         var repo = mock(AtencionMedicaRepository.class);
-        var service = new AtencionMedicaServiceImpl(repo, permisos("ADMINISTRADORA"));
+        var service = servicioAtencion(repo, "ADMINISTRADORA");
         service.registrarDiagnostico(
                 12, new DiagnosticoRequestDTO("Diagnostico", "Observacion"), 7);
         service.registrarReceta(12, new RecetaRequestDTO("Indicaciones"), 7);
@@ -124,17 +124,20 @@ class AdministradoraAccesoTest {
                 new MedicamentoRequestDTO(
                         "Medicamento", "Dosis", "Frecuencia", "Duracion", "Observacion"),
                 7);
-        service.emitirRecibo(12, new ReciboRequestDTO("RH-1"), 7);
-        service.entregarRecibo(12, new EntregaReciboRequestDTO("PRESENCIAL"), 7);
         service.cerrarAtencion(12, 7);
         verify(repo).registrarDiagnostico(7, 7, 12L, "Diagnostico", "Observacion");
         verify(repo).registrarReceta(7, 7, 12L, "Indicaciones");
         verify(repo)
                 .agregarMedicamento(
                         7, 7, 20L, "Medicamento", "Dosis", "Frecuencia", "Duracion", "Observacion");
-        verify(repo).emitirRecibo(7, 7, 12L, "RH-1");
-        verify(repo).entregarRecibo(7, 7, 12L, "PRESENCIAL");
         verify(repo).cerrarAtencion(7, 7, 12L);
+    }
+
+    private AtencionMedicaServiceImpl servicioAtencion(AtencionMedicaRepository repo, String rol) {
+        return new AtencionMedicaServiceImpl(repo, permisos(rol),
+                mock(pe.edu.karely.service.impl.atencion.ReciboPdf.class),
+                new org.springframework.beans.factory.support.StaticListableBeanFactory()
+                        .getBeanProvider(org.springframework.mail.javamail.JavaMailSender.class), "");
     }
 
     @Test

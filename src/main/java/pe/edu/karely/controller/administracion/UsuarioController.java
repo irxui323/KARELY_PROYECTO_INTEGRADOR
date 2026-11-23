@@ -25,7 +25,7 @@ public class UsuarioController {
         this.service = service;
     }
 
-    @GetMapping
+    @GetMapping(params = "!pagina")
     public List<UsuarioResponseDTO> listar(Authentication auth) {
         return service.listarUsuarios((Long) auth.getPrincipal());
     }
@@ -57,5 +57,14 @@ public class UsuarioController {
             @Valid @RequestBody EstadoUsuarioRequestDTO body,
             Authentication auth) {
         return service.cambiarEstado(id, body, (Long) auth.getPrincipal());
+    }
+
+    @GetMapping(params = "pagina")
+    public pe.edu.karely.dto.PaginaResponseDTO<UsuarioResponseDTO> pagina(
+            @RequestParam int pagina,
+            @RequestParam(defaultValue = "10") int tamanio,
+            @RequestParam(defaultValue = "") String filtro,
+            Authentication auth) {
+        return service.listarUsuariosPagina(pagina, tamanio, filtro, (Long) auth.getPrincipal());
     }
 }

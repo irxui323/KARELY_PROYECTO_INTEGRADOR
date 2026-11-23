@@ -14,4 +14,7 @@ public interface LiquidacionService {
     SaldoDoctorResponseDTO consultarSaldo(long idDoctor, LocalDate fechaCorte, long actor);
 
     OperacionResponseDTO pagarDoctor(PagoDoctorRequestDTO request, long actor);
+
+    pe.edu.karely.dto.PaginaResponseDTO<LiquidacionResponseDTO> listarLiquidacionesPagina(
+            int pagina, int tamanio, String filtro, long actor);
 }

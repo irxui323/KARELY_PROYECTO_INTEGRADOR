@@ -49,7 +49,7 @@ public class MailQueueWorker {
         try {
             job = tx.execute(status -> repo.reclamar(operator));
         } catch (Exception ex) {
-            LOG.error("No se pudo reclamar una notificaciÃ³n", ex);
+            LOG.error("No se pudo reclamar una notificación", ex);
             return;
         }
         if (job == null || job.idNotificacion() == null) {
@@ -64,15 +64,15 @@ public class MailQueueWorker {
             message.setTo(job.destinatario());
             message.setSubject("Karely's - " + job.tipo().replace('_', ' '));
             message.setText(
-                    "Su notificaciÃ³n del centro mÃ©dico Karely's estÃ¡ registrada. Referencia: "
+                    "Su notificación del centro médico Karely's está registrada. Referencia: "
                             + job.codigoEvento()
-                            + ". Si no solicitÃ³ esta operaciÃ³n, contacte a administraciÃ³n.\n\n"
+                            + ". Si no solicitó esta operación, contacte a administración.\n\n"
                             + "No responda a este correo.");
             mail.send(message);
             success = "S";
         } catch (Exception ex) {
             error = ex.getClass().getSimpleName();
-            LOG.warn("FallÃ³ el envÃ­o del evento {}", job.codigoEvento());
+            LOG.warn("Falló el envío del evento {}", job.codigoEvento());
         }
 
         String succeeded = success;
@@ -87,7 +87,7 @@ public class MailQueueWorker {
                                     succeeded,
                                     detail));
         } catch (Exception ex) {
-            LOG.error("No se pudo registrar resultado del envÃ­o {}", job.codigoEvento(), ex);
+            LOG.error("No se pudo registrar resultado del envío {}", job.codigoEvento(), ex);
         }
     }
 }

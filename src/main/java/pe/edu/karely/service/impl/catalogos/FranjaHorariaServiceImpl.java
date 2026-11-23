@@ -53,7 +53,7 @@ public class FranjaHorariaServiceImpl implements FranjaHorariaService {
         if (repository.editarTurno(id, i.horaInicio(), i.horaFin(), i.estado()) != 1) {
             throw new RecursoNoEncontradoException("Registro no encontrado");
         }
-        auditoria.registrar(actor, "FRANJA_HORARIA", id, "ACTUALIZAR", "EdiciÃ³n del catÃ¡logo");
+        auditoria.registrar(actor, "FRANJA_HORARIA", id, "ACTUALIZAR", "Edición del catálogo");
         return OperacionResponseDTO.resultado("franja-editar", id);
     }
 }

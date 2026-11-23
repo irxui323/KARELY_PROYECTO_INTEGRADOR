@@ -46,7 +46,7 @@ public class CitaController {
                 idEspecialidad, fecha, idConsultorio, (Long) auth.getPrincipal());
     }
 
-    @GetMapping
+    @GetMapping(params = "!pagina")
     public List<CitaResponseDTO> listar(Authentication auth) {
         return service.listarCitas((Long) auth.getPrincipal());
     }
@@ -97,5 +97,16 @@ public class CitaController {
     @PostMapping("/{id}/asistencia")
     public OperacionResponseDTO asistencia(@PathVariable long id, Authentication auth) {
         return service.registrarAsistencia(id, (Long) auth.getPrincipal());
+    }
+
+    @GetMapping(params = "pagina")
+    public pe.edu.karely.dto.PaginaResponseDTO<CitaResponseDTO> pagina(
+            @RequestParam int pagina,
+            @RequestParam(defaultValue = "10") int tamanio,
+            @RequestParam(defaultValue = "") String filtro,
+            @RequestParam(defaultValue = "proximas") String vista,
+            Authentication auth) {
+        return service.listarCitasPagina(
+                pagina, tamanio, filtro, vista, (Long) auth.getPrincipal());
     }
 }

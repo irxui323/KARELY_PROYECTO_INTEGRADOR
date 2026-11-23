@@ -27,7 +27,7 @@ public class BootstrapAdmin {
             }
             if (username.isBlank() || email.isBlank() || password.length() < 12) {
                 throw new IllegalArgumentException(
-                        "Bootstrap: usuario/correo/contraseÃ±a segura (12 caracteres mÃ­nimo)"
+                        "Bootstrap: usuario/correo/contraseña segura (12 caracteres mínimo)"
                             + " obligatorios");
             }
             if (usuarios.contarAdministradorasActivas().total() > 0) {

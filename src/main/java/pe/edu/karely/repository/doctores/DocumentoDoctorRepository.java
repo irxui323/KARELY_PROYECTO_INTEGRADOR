@@ -6,7 +6,9 @@ import org.springframework.stereotype.Repository;
 
 import pe.edu.karely.dto.doctor.DocumentoDoctorResponseDTO;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 public class DocumentoDoctorRepository {
@@ -62,5 +64,23 @@ public class DocumentoDoctorRepository {
                 id);
     }
 
-    public record Documento(String nombre, String mime, byte[] bytes) {}
+    public record Documento(String nombre, String mime, byte[] bytes) {
+        @Override
+        public boolean equals(Object otro) {
+            return otro instanceof Documento documento
+                    && Objects.equals(nombre, documento.nombre)
+                    && Objects.equals(mime, documento.mime)
+                    && Arrays.equals(bytes, documento.bytes);
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * Objects.hash(nombre, mime) + Arrays.hashCode(bytes);
+        }
+
+        @Override
+        public String toString() {
+            return "Documento[mime=" + mime + ", tamaño=" + (bytes == null ? 0 : bytes.length) + "]";
+        }
+    }
 }

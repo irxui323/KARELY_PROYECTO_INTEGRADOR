@@ -14,6 +14,16 @@ import java.util.List;
 
 @Service
 public class DisponibilidadServiceImpl implements DisponibilidadService {
+    @Override
+    @Transactional(readOnly = true)
+    public pe.edu.karely.dto.PaginaResponseDTO<DisponibilidadResponseDTO> listarHorariosPagina(
+            int pagina, int tamanio, String filtro, long actor) {
+        pe.edu.karely.dto.PaginaResponseDTO.validar(pagina, tamanio);
+        permisos.exigir(actor, "ADMINISTRADORA", "RECEPCIONISTA", "DOCTOR");
+        return repository.listarHorariosPagina(
+                pagina, tamanio, filtro, permisos.rol(actor).equals("DOCTOR") ? actor : null);
+    }
+
     private final DisponibilidadDoctorRepository repository;
     private final PermisosUsuario permisos;
 

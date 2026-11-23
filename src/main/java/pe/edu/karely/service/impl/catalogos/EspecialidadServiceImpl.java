@@ -54,7 +54,7 @@ public class EspecialidadServiceImpl implements EspecialidadService {
         if (repository.editarEspecialidad(id, i.nombre(), i.precioConsulta(), i.estado()) != 1) {
             throw new RecursoNoEncontradoException("Registro no encontrado");
         }
-        auditoria.registrar(actor, "ESPECIALIDAD", id, "ACTUALIZAR", "EdiciÃ³n del catÃ¡logo");
+        auditoria.registrar(actor, "ESPECIALIDAD", id, "ACTUALIZAR", "Edición del catálogo");
         return OperacionResponseDTO.resultado("especialidad-editar", id);
     }
 }

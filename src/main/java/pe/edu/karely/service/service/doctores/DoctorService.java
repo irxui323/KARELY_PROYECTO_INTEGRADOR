@@ -38,4 +38,7 @@ public interface DoctorService {
     List<DoctorResponseDTO> listarConDocumentacionCompleta(long actor);
 
     DoctorResponseDTO buscarPorId(long id, long actor);
+
+    pe.edu.karely.dto.PaginaResponseDTO<DoctorResponseDTO> listarDoctoresPagina(
+            int pagina, int tamanio, String filtro, long actor);
 }

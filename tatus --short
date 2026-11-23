@@ -1,0 +1,117 @@
+ pom.xml                                            |   2 [32m+[m[31m-[m
+ .../java/pe/edu/karely/config/BootstrapAdmin.java  |   4 [32m+[m[31m-[m
+ .../java/pe/edu/karely/config/SchemaCheck.java     |   2 [32m+[m[31m-[m
+ .../java/pe/edu/karely/config/SecurityConfig.java  |  12 [32m++[m[31m-[m
+ .../{ => administracion}/AuditoriaController.java  |   4 [32m+[m[31m-[m
+ .../NotificacionController.java                    |   4 [32m+[m[31m-[m
+ .../ParametroSistemaController.java                |   4 [32m+[m[31m-[m
+ .../{ => administracion}/UsuarioController.java    |   4 [32m+[m[31m-[m
+ .../{ => atencion}/AtencionMedicaController.java   |   4 [32m+[m[31m-[m
+ .../controller/{ => auth}/AuthController.java      |  10 [32m+[m[31m-[m
+ .../catalogos/ConsultaDniController.java           |  29 [32m++++++[m
+ .../{ => catalogos}/ConsultorioController.java     |   4 [32m+[m[31m-[m
+ .../{ => catalogos}/EspecialidadController.java    |   4 [32m+[m[31m-[m
+ .../{ => catalogos}/FranjaHorariaController.java   |   4 [32m+[m[31m-[m
+ .../controller/{ => citas}/CitaController.java     |   4 [32m+[m[31m-[m
+ .../{ => doctores}/DoctorController.java           |   8 [32m+[m[31m-[m
+ .../{ => finanzas}/LiquidacionController.java      |   4 [32m+[m[31m-[m
+ .../{ => pacientes}/PacienteController.java        |   4 [32m+[m[31m-[m
+ .../{ => reportes}/ReporteController.java          |   4 [32m+[m[31m-[m
+ .../controller/{ => sistema}/HealthController.java |   2 [32m+[m[31m-[m
+ .../java/pe/edu/karely/dto/ErrorResponseDTO.java   |  11 [32m++[m[31m-[m
+ .../pe/edu/karely/dto/OperacionResponseDTO.java    |   2 [32m+[m[31m-[m
+ .../dto/administracion/UsuarioRequestDTO.java      |   8 [32m+[m[31m-[m
+ .../dto/catalogo/ConsultaDniResponseDTO.java       |   4 [32m+[m
+ .../pe/edu/karely/dto/doctor/DoctorRequestDTO.java |  14 [32m+[m[31m--[m
+ .../karely/dto/paciente/PacienteRequestDTO.java    |  18 [32m++[m[31m--[m
+ .../karely/exception/GlobalExceptionHandler.java   |  36 [32m++++[m[31m---[m
+ .../{ => administracion}/AuditoriaRepository.java  |   4 [32m+[m[31m-[m
+ .../NotificacionRepository.java                    |   4 [32m+[m[31m-[m
+ .../ParametroSistemaRepository.java                |   4 [32m+[m[31m-[m
+ .../{ => administracion}/UsuarioRepository.java    |   4 [32m+[m[31m-[m
+ .../{ => atencion}/AtencionMedicaRepository.java   |   4 [32m+[m[31m-[m
+ .../repository/{ => auth}/SesionRepository.java    |   4 [32m+[m[31m-[m
+ .../{ => auth}/TokenRecuperacionRepository.java    |   4 [32m+[m[31m-[m
+ .../{ => catalogos}/ConsultorioRepository.java     |   2 [32m+[m[31m-[m
+ .../{ => catalogos}/EspecialidadRepository.java    |   2 [32m+[m[31m-[m
+ .../{ => catalogos}/FranjaHorariaRepository.java   |   2 [32m+[m[31m-[m
+ .../repository/{ => citas}/CitaRepository.java     |   4 [32m+[m[31m-[m
+ .../DisponibilidadDoctorRepository.java            |   4 [32m+[m[31m-[m
+ .../{ => doctores}/DoctorRepository.java           |   4 [32m+[m[31m-[m
+ .../{ => doctores}/DocumentoDoctorRepository.java  |   4 [32m+[m[31m-[m
+ .../{ => finanzas}/IngresoRepository.java          |   4 [32m+[m[31m-[m
+ .../{ => finanzas}/LiquidacionRepository.java      |   4 [32m+[m[31m-[m
+ .../{ => pacientes}/PacienteRepository.java        |   2 [32m+[m[31m-[m
+ .../{ => reportes}/ReporteRepository.java          |   4 [32m+[m[31m-[m
+ .../java/pe/edu/karely/security/AuthFilter.java    |   2 [32m+[m[31m-[m
+ .../java/pe/edu/karely/security/JwtService.java    |   2 [32m+[m[31m-[m
+ .../pe/edu/karely/security/PermisosUsuario.java    |   4 [32m+[m[31m-[m
+ .../{ => administracion}/AuditoriaServiceImpl.java |   6 [32m+[m[31m-[m
+ .../NotificacionServiceImpl.java                   |   6 [32m+[m[31m-[m
+ .../ParametroSistemaServiceImpl.java               |   6 [32m+[m[31m-[m
+ .../{ => administracion}/UsuarioServiceImpl.java   |  10 [32m+[m[31m-[m
+ .../{ => atencion}/AtencionMedicaServiceImpl.java  |   6 [32m+[m[31m-[m
+ .../service/impl/{ => auth}/AuthServiceImpl.java   |  12 [32m+[m[31m--[m
+ .../impl/{ => auth}/LoginAttemptService.java       |   4 [32m+[m[31m-[m
+ .../service/impl/{ => auth}/MailQueueWorker.java   |  14 [32m+[m[31m--[m
+ .../impl/{ => auth}/RecuperacionServiceImpl.java   |  34 [32m+++[m[31m----[m
+ .../impl/catalogos/ConsultaDniServiceImpl.java     | 103 [32m+++++++++++++++++++++[m
+ .../{ => catalogos}/ConsultorioServiceImpl.java    |  10 [32m+[m[31m-[m
+ .../{ => catalogos}/EspecialidadServiceImpl.java   |  10 [32m+[m[31m-[m
+ .../{ => catalogos}/FranjaHorariaServiceImpl.java  |  10 [32m+[m[31m-[m
+ .../service/impl/{ => citas}/CitaServiceImpl.java  |  12 [32m+[m[31m--[m
+ .../{ => doctores}/DisponibilidadServiceImpl.java  |   6 [32m+[m[31m-[m
+ .../impl/{ => doctores}/DoctorServiceImpl.java     |  30 [32m+++[m[31m---[m
+ .../{ => doctores}/DocumentoDoctorServiceImpl.java |  14 [32m+[m[31m--[m
+ .../{ => finanzas}/LiquidacionServiceImpl.java     |  10 [32m+[m[31m-[m
+ .../impl/{ => pacientes}/PacienteServiceImpl.java  |   8 [32m+[m[31m-[m
+ .../impl/{ => reportes}/ReporteServiceImpl.java    |  10 [32m+[m[31m-[m
+ .../{ => administracion}/AuditoriaService.java     |   2 [32m+[m[31m-[m
+ .../{ => administracion}/NotificacionService.java  |   2 [32m+[m[31m-[m
+ .../ParametroSistemaService.java                   |   2 [32m+[m[31m-[m
+ .../{ => administracion}/UsuarioService.java       |   2 [32m+[m[31m-[m
+ .../{ => atencion}/AtencionMedicaService.java      |   2 [32m+[m[31m-[m
+ .../service/service/{ => auth}/AuthService.java    |   2 [32m+[m[31m-[m
+ .../service/{ => auth}/RecuperacionService.java    |   2 [32m+[m[31m-[m
+ .../service/catalogos/ConsultaDniService.java      |   7 [32m++[m
+ .../{ => catalogos}/ConsultorioService.java        |   2 [32m+[m[31m-[m
+ .../{ => catalogos}/EspecialidadService.java       |   2 [32m+[m[31m-[m
+ .../{ => catalogos}/FranjaHorariaService.java      |   2 [32m+[m[31m-[m
+ .../service/service/{ => citas}/CitaService.java   |   2 [32m+[m[31m-[m
+ .../{ => doctores}/DisponibilidadService.java      |   2 [32m+[m[31m-[m
+ .../service/{ => doctores}/DoctorService.java      |   2 [32m+[m[31m-[m
+ .../{ => doctores}/DocumentoDoctorService.java     |   4 [32m+[m[31m-[m
+ .../service/{ => finanzas}/LiquidacionService.java |   2 [32m+[m[31m-[m
+ .../service/{ => pacientes}/PacienteService.java   |   2 [32m+[m[31m-[m
+ .../service/{ => reportes}/ReporteService.java     |   2 [32m+[m[31m-[m
+ src/main/resources/application.yaml                |   4 [32m+[m
+ .../pe/edu/karely/AdministradoraAccesoTest.java    |  20 [32m+++[m[31m-[m
+ src/test/java/pe/edu/karely/AuthInfraTest.java     |   6 [32m+[m[31m-[m
+ .../edu/karely/CitaDisponibilidadServicioTest.java |   8 [32m+[m[31m-[m
+ .../java/pe/edu/karely/CitaDisponibilidadTest.java |  12 [32m++[m[31m-[m
+ src/test/java/pe/edu/karely/CitaFlujoTest.java     |   6 [32m+[m[31m-[m
+ .../java/pe/edu/karely/CobroAutomaticoTest.java    |   4 [32m+[m[31m-[m
+ .../pe/edu/karely/ConsultaDniControllerTest.java   |  29 [32m++++++[m
+ .../pe/edu/karely/DisponibilidadFechaTest.java     |   4 [32m+[m[31m-[m
+ src/test/java/pe/edu/karely/DoctorAccesoTest.java  |  16 [32m+++[m[31m-[m
+ .../pe/edu/karely/DoctorAdministracionTest.java    |  30 [32m++++[m[31m--[m
+ .../pe/edu/karely/DoctorEspecialidadHttpTest.java  |  12 [32m++[m[31m-[m
+ .../karely/DoctorEspecialidadPersistenciaTest.java |   2 [32m+[m[31m-[m
+ .../pe/edu/karely/DoctorEspecialidadUsoTest.java   |   2 [32m+[m[31m-[m
+ .../pe/edu/karely/DoctorEspecialidadesTest.java    |  12 [32m++[m[31m-[m
+ .../java/pe/edu/karely/DoctorFlujoManualTest.java  |  12 [32m++[m[31m-[m
+ src/test/java/pe/edu/karely/ErrorFormatoTest.java  |  40 [32m++++++++[m
+ .../pe/edu/karely/NuevaArquitecturaHttpTest.java   |   8 [32m+[m[31m-[m
+ .../java/pe/edu/karely/PagoAutomaticoTest.java     |   4 [32m+[m[31m-[m
+ .../java/pe/edu/karely/RecetaConsultaTest.java     |  12 [32m++[m[31m-[m
+ .../java/pe/edu/karely/RecuperacionHttpTest.java   |  14 [32m+[m[31m--[m
+ .../edu/karely/RecuperacionSeguridadHttpTest.java  |   8 [32m+[m[31m-[m
+ .../java/pe/edu/karely/RevisionAmpliadaTest.java   |   8 [32m+[m[31m-[m
+ .../java/pe/edu/karely/SesionRevisionTest.java     |   8 [32m+[m[31m-[m
+ .../java/pe/edu/karely/TrabajadorAccesoTest.java   |   6 [32m+[m[31m-[m
+ .../pe/edu/karely/ValidacionFormulariosTest.java   |  46 [32m+++++++++[m
+ .../pe/edu/karely/modelo/ModeloOracleTest.java     |   4 [32m+[m[31m-[m
+ .../RecuperacionLoginConcurrenteTest.java          |  29 [32m++++[m[31m--[m
+ .../recuperacion/RecuperacionServiceTest.java      |   4 [32m+[m[31m-[m
+ .../recuperacion/RecuperacionTransaccionTest.java  |   4 [32m+[m[31m-[m
+ 116 files changed, 718 insertions(+), 302 deletions(-)

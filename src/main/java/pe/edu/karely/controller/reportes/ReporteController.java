@@ -35,7 +35,7 @@ public class ReporteController {
         return service.generarReporte(desde, hasta, estado, (Long) auth.getPrincipal());
     }
 
-    @GetMapping("/ingresos")
+    @GetMapping(value = "/ingresos", params = "!pagina")
     public List<IngresoResponseDTO> ingresos(Authentication auth) {
         return service.listarIngresos((Long) auth.getPrincipal());
     }
@@ -43,5 +43,14 @@ public class ReporteController {
     @GetMapping("/ingresos/doctores/{id}/total")
     public List<TotalIngresoResponseDTO> total(@PathVariable long id, Authentication auth) {
         return service.sumarIngresos(id, (Long) auth.getPrincipal());
+    }
+
+    @GetMapping(value = "/ingresos", params = "pagina")
+    public pe.edu.karely.dto.PaginaResponseDTO<IngresoResponseDTO> paginaIngresos(
+            @RequestParam int pagina,
+            @RequestParam(defaultValue = "10") int tamanio,
+            @RequestParam(defaultValue = "") String filtro,
+            Authentication auth) {
+        return service.listarIngresosPagina(pagina, tamanio, filtro, (Long) auth.getPrincipal());
     }
 }

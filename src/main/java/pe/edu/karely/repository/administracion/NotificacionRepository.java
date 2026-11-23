@@ -1,11 +1,10 @@
 package pe.edu.karely.repository.administracion;
 
-import pe.edu.karely.repository.OracleJdbc;
-
 import org.springframework.stereotype.Repository;
 
 import pe.edu.karely.dto.administracion.NotificacionEnvioDTO;
 import pe.edu.karely.dto.administracion.NotificacionResponseDTO;
+import pe.edu.karely.repository.OracleJdbc;
 
 import java.util.List;
 
@@ -59,5 +58,19 @@ public class NotificacionRepository {
     public void registrarResultado(
             long operador, long id, int intento, String exito, String detalle) {
         jdbc.call("SP_REGISTRAR_RESULTADO_ENVIO", operador, operador, id, intento, exito, detalle);
+    }
+
+    public pe.edu.karely.dto.PaginaResponseDTO<NotificacionResponseDTO> listarNotificacionesPagina(
+            int pagina, int tamanio, String filtro) {
+        return jdbc.pagina(
+                NotificacionResponseDTO.class,
+                "SELECT"
+                    + " ID_NOTIFICACION,CODIGO_EVENTO,TIPO,CANAL,ESTADO,INTENTOS,FECHA_CREACION,FECHA_PROXIMO_INTENTO,FECHA_ENVIO,ID_CITA,ID_LIQUIDACION"
+                    + " FROM VW_CONTROL_NOTIFICACIONES",
+                "FECHA_CREACION DESC, ID_NOTIFICACION DESC",
+                List.of("CODIGO_EVENTO", "TIPO", "CANAL", "ESTADO"),
+                pagina,
+                tamanio,
+                filtro);
     }
 }

@@ -117,7 +117,7 @@ public class SchemaCheck {
                 faltantes.removeAll(presentes);
                 if (!faltantes.isEmpty()) {
                     throw new IllegalStateException(
-                            "Objetos faltantes o invÃ¡lidos en el esquema Oracle ("
+                            "Objetos faltantes o inválidos en el esquema Oracle ("
                                     + grupo.getKey()
                                     + "): "
                                     + String.join(", ", faltantes.stream().sorted().toList()));

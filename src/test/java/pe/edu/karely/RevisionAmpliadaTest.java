@@ -87,7 +87,7 @@ class RevisionAmpliadaTest {
     void normalizaTextoYOpcionales() {
         var entrada =
                 new PacienteRequestDTO(
-                        " DNI ", " 12345678 ", " Ana ", " PÃ©rez ", null, null, null, null, null);
+                        " DNI ", " 12345678 ", " Ana ", " Pérez ", null, null, null, null, null);
         assertEquals("Ana", entrada.nombres());
         assertEquals("12345678", entrada.numeroDocumento());
         assertNull(entrada.correo());
@@ -107,6 +107,14 @@ class RevisionAmpliadaTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new OracleJdbc(null, null).call("SP_X; DROP TABLE USUARIO", 1));
+    }
+
+    @Test
+    void rechazaProcedimientoFueraDelCatalogoAntesDeConectar() {
+        var error = assertThrows(
+                IllegalArgumentException.class,
+                () -> new OracleJdbc(null, null).call("SP_NO_REGISTRADO", 1));
+        assertEquals("Procedimiento no permitido", error.getMessage());
     }
 
     @Test

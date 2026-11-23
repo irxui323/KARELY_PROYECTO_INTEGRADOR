@@ -17,8 +17,17 @@ public class AuditoriaController {
         this.service = service;
     }
 
-    @GetMapping
+    @GetMapping(params = "!pagina")
     public List<AuditoriaResponseDTO> listar(Authentication auth) {
         return service.listarAuditoria((Long) auth.getPrincipal());
+    }
+
+    @GetMapping(params = "pagina")
+    public pe.edu.karely.dto.PaginaResponseDTO<AuditoriaResponseDTO> pagina(
+            @RequestParam int pagina,
+            @RequestParam(defaultValue = "10") int tamanio,
+            @RequestParam(defaultValue = "") String filtro,
+            Authentication auth) {
+        return service.listarAuditoriaPagina(pagina, tamanio, filtro, (Long) auth.getPrincipal());
     }
 }

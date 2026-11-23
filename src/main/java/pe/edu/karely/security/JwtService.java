@@ -92,7 +92,7 @@ public class JwtService {
                     ((Number) payload.get("sid")).longValue(),
                     (String) payload.get("role"));
         } catch (Exception e) {
-            throw new IllegalArgumentException("SesiÃ³n no vÃ¡lida", e);
+            throw new IllegalArgumentException("Sesión no válida", e);
         }
     }
 

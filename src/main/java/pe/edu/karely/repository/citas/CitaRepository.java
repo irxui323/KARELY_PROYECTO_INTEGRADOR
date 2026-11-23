@@ -1,16 +1,51 @@
 package pe.edu.karely.repository.citas;
 
-import pe.edu.karely.repository.OracleJdbc;
-
 import org.springframework.stereotype.Repository;
 
 import pe.edu.karely.dto.cita.CitaResponseDTO;
 import pe.edu.karely.dto.cita.ReservaResponseDTO;
+import pe.edu.karely.repository.OracleJdbc;
 
 import java.util.List;
 
 @Repository
 public class CitaRepository {
+    public pe.edu.karely.dto.PaginaResponseDTO<CitaResponseDTO> listarCitasPagina(
+            int pagina, int tamanio, String filtro, Long usuario, String vista) {
+        String proximas =
+                "FECHA_CITA>=TRUNC(SYSDATE) AND ESTADO_CITA IN"
+                    + " ('PROGRAMADA','REPROGRAMADA','EN_ATENCION')";
+        String sql =
+                "SELECT"
+                    + " ID_CITA,FECHA_CITA,HORA_INICIO,HORA_FIN,ID_DOCTOR,NOMBRE_DOCTOR,ID_PACIENTE,NOMBRE_PACIENTE,ID_ESPECIALIDAD,ESPECIALIDAD,ID_CONSULTORIO,CONSULTORIO,ESTADO_CITA,REPROGRAMACIONES,ASISTENCIA_REGISTRADA,MONTO_TOTAL"
+                    + " FROM VW_AGENDA_CITAS WHERE 1=1";
+        if (vista.equals("proximas")) sql += " AND (" + proximas + ")";
+        if (vista.equals("historial")) sql += " AND NOT (" + proximas + ")";
+        if (usuario != null)
+            sql += " AND ID_DOCTOR IN (SELECT ID_DOCTOR FROM DOCTOR WHERE ID_USUARIO=?)";
+        String orden =
+                vista.equals("proximas")
+                        ? "FECHA_CITA ASC,HORA_INICIO ASC,ID_CITA ASC"
+                        : vista.equals("historial")
+                                ? "FECHA_CITA DESC,HORA_INICIO DESC,ID_CITA DESC"
+                                : "CASE WHEN "
+                                        + proximas
+                                        + " THEN 0 ELSE 1 END, CASE WHEN "
+                                        + proximas
+                                        + " THEN FECHA_CITA END ASC, CASE WHEN "
+                                        + proximas
+                                        + " THEN HORA_INICIO END ASC,FECHA_CITA DESC,ID_CITA DESC";
+        return jdbc.pagina(
+                CitaResponseDTO.class,
+                sql,
+                orden,
+                List.of("NOMBRE_PACIENTE", "NOMBRE_DOCTOR", "ESTADO_CITA", "ESPECIALIDAD"),
+                pagina,
+                tamanio,
+                filtro,
+                usuario == null ? new Object[] {} : new Object[] {usuario});
+    }
+
     private final OracleJdbc jdbc;
 
     public CitaRepository(OracleJdbc jdbc) {
@@ -73,7 +108,7 @@ public class CitaRepository {
         if (consultorio != null)
             sql +=
                     " AND EXISTS (SELECT 1 FROM CONSULTORIO co WHERE co.ID_CONSULTORIO=? AND"
-                        + " co.ESTADO='ACTIVO')";
+                            + " co.ESTADO='ACTIVO')";
         sql += " ORDER BY a.FECHA_TURNO,d.ID_DOCTOR,f.HORA_INICIO,f.HORA_FIN";
         return consultorio == null
                 ? jdbc.list(
@@ -99,12 +134,12 @@ public class CitaRepository {
         return jdbc.list(
                 CitaResponseDTO.class,
                 "SELECT A.ID_CITA, A.FECHA_CITA, A.HORA_INICIO, A.HORA_FIN, A.ID_DOCTOR,"
-                    + " A.NOMBRE_DOCTOR, A.ID_PACIENTE, A.NOMBRE_PACIENTE, A.ID_ESPECIALIDAD,"
-                    + " A.ESPECIALIDAD, A.ID_CONSULTORIO, A.CONSULTORIO, A.ESTADO_CITA,"
-                    + " A.REPROGRAMACIONES, A.ASISTENCIA_REGISTRADA, A.MONTO_TOTAL FROM"
-                    + " VW_AGENDA_CITAS A JOIN DOCTOR D ON A.ID_DOCTOR=D.ID_DOCTOR WHERE"
-                    + " D.ID_USUARIO=? ORDER BY A.FECHA_CITA DESC,A.HORA_INICIO FETCH FIRST 200"
-                    + " ROWS ONLY",
+                        + " A.NOMBRE_DOCTOR, A.ID_PACIENTE, A.NOMBRE_PACIENTE, A.ID_ESPECIALIDAD,"
+                        + " A.ESPECIALIDAD, A.ID_CONSULTORIO, A.CONSULTORIO, A.ESTADO_CITA,"
+                        + " A.REPROGRAMACIONES, A.ASISTENCIA_REGISTRADA, A.MONTO_TOTAL FROM"
+                        + " VW_AGENDA_CITAS A JOIN DOCTOR D ON A.ID_DOCTOR=D.ID_DOCTOR WHERE"
+                        + " D.ID_USUARIO=? ORDER BY A.FECHA_CITA DESC,A.HORA_INICIO FETCH FIRST 200"
+                        + " ROWS ONLY",
                 usuario);
     }
 

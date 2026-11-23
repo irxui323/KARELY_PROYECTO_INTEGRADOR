@@ -56,7 +56,7 @@ public class AtencionMedicaController {
     @PostMapping("/{idCita}/recibo")
     public OperacionResponseDTO emitirRecibo(
             @PathVariable long idCita,
-            @Valid @RequestBody ReciboRequestDTO body,
+            @Valid @RequestBody(required = false) ReciboRequestDTO body,
             Authentication auth) {
         return service.emitirRecibo(idCita, body, (Long) auth.getPrincipal());
     }
@@ -67,6 +67,29 @@ public class AtencionMedicaController {
             @Valid @RequestBody EntregaReciboRequestDTO body,
             Authentication auth) {
         return service.entregarRecibo(idCita, body, (Long) auth.getPrincipal());
+    }
+
+    @GetMapping("/{idCita}/recibo")
+    public org.springframework.http.ResponseEntity<pe.edu.karely.dto.atencion.ReciboResponseDTO>
+            consultarRecibo(@PathVariable long idCita, Authentication auth) {
+        var recibo = service.consultarRecibo(idCita, (Long) auth.getPrincipal());
+        return recibo == null
+                ? org.springframework.http.ResponseEntity.noContent().build()
+                : org.springframework.http.ResponseEntity.ok()
+                        .cacheControl(org.springframework.http.CacheControl.noStore())
+                        .body(recibo);
+    }
+
+    @GetMapping(value = "/{idCita}/recibo/pdf", produces = "application/pdf")
+    public org.springframework.http.ResponseEntity<byte[]> descargarRecibo(
+            @PathVariable long idCita, Authentication auth) {
+        return org.springframework.http.ResponseEntity.ok()
+                .cacheControl(org.springframework.http.CacheControl.noStore())
+                .header(
+                        "Content-Disposition",
+                        "attachment; filename=recibo-cita-" + idCita + ".pdf")
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                .body(service.descargarRecibo(idCita, (Long) auth.getPrincipal()));
     }
 
     @PostMapping("/recetas/{idReceta}/medicamentos")

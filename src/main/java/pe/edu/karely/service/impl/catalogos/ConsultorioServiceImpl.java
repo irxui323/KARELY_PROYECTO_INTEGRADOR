@@ -54,7 +54,7 @@ public class ConsultorioServiceImpl implements ConsultorioService {
         if (repository.editarConsultorio(id, i.nombre(), i.ubicacion(), i.estado()) != 1) {
             throw new RecursoNoEncontradoException("Registro no encontrado");
         }
-        auditoria.registrar(actor, "CONSULTORIO", id, "ACTUALIZAR", "EdiciÃ³n del catÃ¡logo");
+        auditoria.registrar(actor, "CONSULTORIO", id, "ACTUALIZAR", "Edición del catálogo");
         return OperacionResponseDTO.resultado("consultorio-editar", id);
     }
 }

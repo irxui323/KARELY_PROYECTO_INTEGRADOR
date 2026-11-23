@@ -49,7 +49,7 @@ public class ReporteServiceImpl implements ReporteService {
             java.time.LocalDate desde, java.time.LocalDate hasta, String estado, long actor) {
         permisos.exigir(actor, "ADMINISTRADORA", "RECEPCIONISTA", "TESORERA");
         if (hasta.isBefore(desde)) {
-            throw new IllegalArgumentException("Rango de fechas invÃ¡lido");
+            throw new IllegalArgumentException("Rango de fechas inválido");
         }
         long inicio = System.nanoTime();
         LOG.info("Inicio consulta generarReporte");
@@ -87,5 +87,14 @@ public class ReporteServiceImpl implements ReporteService {
                 resultado.size(),
                 (System.nanoTime() - inicio) / 1_000_000);
         return resultado;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public pe.edu.karely.dto.PaginaResponseDTO<IngresoResponseDTO> listarIngresosPagina(
+            int pagina, int tamanio, String filtro, long actor) {
+        pe.edu.karely.dto.PaginaResponseDTO.validar(pagina, tamanio);
+        permisos.exigir(actor, "ADMINISTRADORA", "TESORERA");
+        return ingresos.listarIngresosPagina(pagina, tamanio, filtro);
     }
 }

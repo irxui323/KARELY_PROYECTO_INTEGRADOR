@@ -33,8 +33,8 @@ class RecuperacionHttpTest {
                 .andExpect(
                         jsonPath("$.mensaje")
                                 .value(
-                                        "Si el correo corresponde a una cuenta, recibirÃ¡s"
-                                            + " instrucciones para restablecer tu contraseÃ±a"));
+                                        "Si el correo corresponde a una cuenta, recibirás"
+                                            + " instrucciones para restablecer tu contraseña"));
     }
 
     @Test
@@ -59,7 +59,7 @@ class RecuperacionHttpTest {
         var service = mock(RecuperacionService.class);
         when(service.restablecer(any()))
                 .thenReturn(
-                        new MensajeResponseDTO("ContraseÃ±a actualizada. Vuelve a iniciar sesiÃ³n"));
+                        new MensajeResponseDTO("Contraseña actualizada. Vuelve a iniciar sesión"));
         var mvc =
                 MockMvcBuilders.standaloneSetup(new AuthController(auth, service))
                         .setControllerAdvice(new GlobalExceptionHandler())

@@ -72,9 +72,9 @@ class DoctorAccesoTest {
         var acceso = service.crearAcceso(1, new CrearAccesoRequestDTO(" Ana "), 7);
         assertEquals("ana", acceso.username());
         assertEquals(20, acceso.passwordTemporal().length());
-        assertTrue(acceso.passwordTemporal().matches(".*[A-Z].*"));
-        assertTrue(acceso.passwordTemporal().matches(".*[a-z].*"));
-        assertTrue(acceso.passwordTemporal().matches(".*[0-9].*"));
+        assertTrue(acceso.passwordTemporal().chars().anyMatch(c -> c >= 'A' && c <= 'Z'));
+        assertTrue(acceso.passwordTemporal().chars().anyMatch(c -> c >= 'a' && c <= 'z'));
+        assertTrue(acceso.passwordTemporal().chars().anyMatch(c -> c >= '0' && c <= '9'));
         var hash = org.mockito.ArgumentCaptor.forClass(String.class);
         verify(usuarios)
                 .crearUsuario(eq(7L), eq(3L), eq("ana"), eq("ana@example.com"), hash.capture());
@@ -195,7 +195,7 @@ class DoctorAccesoTest {
                                         null)));
         when(documentos.rechazar(1, 10, 7)).thenReturn(1);
         service.rechazarDocumento(
-                1, 10, new RechazarDocumentoRequestDTO("El nÃºmero no coincide"), 7);
+                1, 10, new RechazarDocumentoRequestDTO("El número no coincide"), 7);
         verify(documentos).rechazar(1, 10, 7);
         verify(doctores).rechazarDocumentacion(1);
     }

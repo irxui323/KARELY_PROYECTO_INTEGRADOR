@@ -16,4 +16,7 @@ public interface PacienteService {
     List<PacienteResponseDTO> buscarPaciente(String tipo, String documento, long actor);
 
     PacienteResponseDTO buscarPorId(long id, long actor);
+
+    pe.edu.karely.dto.PaginaResponseDTO<PacienteResponseDTO> listarPacientesPagina(
+            int pagina, int tamanio, String filtro, long actor);
 }

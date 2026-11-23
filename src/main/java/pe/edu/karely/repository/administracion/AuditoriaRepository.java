@@ -1,10 +1,9 @@
 package pe.edu.karely.repository.administracion;
 
-import pe.edu.karely.repository.OracleJdbc;
-
 import org.springframework.stereotype.Repository;
 
 import pe.edu.karely.dto.administracion.AuditoriaResponseDTO;
+import pe.edu.karely.repository.OracleJdbc;
 
 import java.util.List;
 
@@ -27,12 +26,26 @@ public class AuditoriaRepository {
     public void registrar(long actor, String tabla, Object id, String accion, String detalle) {
         jdbc.update(
                 "INSERT INTO AUDITORIA"
-                    + " (ID_USUARIO,TABLA_AFECTADA,ID_REGISTRO,ACCION,DETALLE,ORIGEN) VALUES"
-                    + " (?,?,?,?,?,'USUARIO')",
+                        + " (ID_USUARIO,TABLA_AFECTADA,ID_REGISTRO,ACCION,DETALLE,ORIGEN) VALUES"
+                        + " (?,?,?,?,?,'USUARIO')",
                 actor,
                 tabla,
                 id,
                 accion,
                 detalle);
+    }
+
+    public pe.edu.karely.dto.PaginaResponseDTO<AuditoriaResponseDTO> listarAuditoriaPagina(
+            int pagina, int tamanio, String filtro) {
+        return jdbc.pagina(
+                AuditoriaResponseDTO.class,
+                "SELECT"
+                    + " ID_AUDITORIA,ID_USUARIO,TABLA_AFECTADA,ID_REGISTRO,ACCION,DETALLE,FECHA_OPERACION,ORIGEN,ESTADO_ANTERIOR,ESTADO_NUEVO"
+                    + " FROM AUDITORIA",
+                "FECHA_OPERACION DESC, ID_AUDITORIA DESC",
+                List.of("TABLA_AFECTADA", "ACCION", "DETALLE", "ORIGEN"),
+                pagina,
+                tamanio,
+                filtro);
     }
 }

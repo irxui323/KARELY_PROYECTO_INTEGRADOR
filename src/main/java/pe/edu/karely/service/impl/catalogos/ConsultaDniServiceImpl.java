@@ -56,7 +56,11 @@ public class ConsultaDniServiceImpl implements ConsultaDniService {
         this.permisos = permisos;
         this.mapper = mapper;
         this.enabled = enabled;
-        this.endpoint = endpoint;
+        int fin = endpoint.length();
+        while (fin > 0 && endpoint.charAt(fin - 1) == '/') {
+            fin--;
+        }
+        this.endpoint = endpoint.substring(0, fin);
         this.token = token;
     }
 
@@ -71,7 +75,7 @@ public class ConsultaDniServiceImpl implements ConsultaDniService {
         }
         try {
             var request =
-                    HttpRequest.newBuilder(URI.create(endpoint.replaceAll("/+$", "") + "/" + dni))
+                    HttpRequest.newBuilder(URI.create(endpoint + "/" + dni))
                             .header("Authorization", "Bearer " + token)
                             .header("Accept", "application/json")
                             .timeout(Duration.ofSeconds(8))

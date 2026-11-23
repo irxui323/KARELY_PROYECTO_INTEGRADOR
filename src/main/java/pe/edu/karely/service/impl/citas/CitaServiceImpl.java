@@ -36,7 +36,7 @@ public class CitaServiceImpl implements CitaService {
                 || mes.getDayOfMonth() != 1
                 || (consultorio != null && consultorio <= 0))
             throw new IllegalArgumentException(
-                    "Selecciona un mes, especialidad y consultorio vÃ¡lidos");
+                    "Selecciona un mes, especialidad y consultorio válidos");
         var grupos =
                 repository.turnosDelMes(especialidad, mes, mes.plusMonths(1), consultorio).stream()
                         .collect(
@@ -61,7 +61,7 @@ public class CitaServiceImpl implements CitaService {
         permisos.exigir(actor, "ADMINISTRADORA", "RECEPCIONISTA");
         if (especialidad <= 0 || (consultorio != null && consultorio <= 0))
             throw new IllegalArgumentException(
-                    "Selecciona una especialidad y un consultorio vÃ¡lidos");
+                    "Selecciona una especialidad y un consultorio válidos");
         if (fecha != null
                 && fecha.isBefore(java.time.LocalDate.now(java.time.ZoneId.of("America/Bogota"))))
             throw new IllegalArgumentException("La fecha de la cita no puede ser anterior a hoy");
@@ -121,7 +121,7 @@ public class CitaServiceImpl implements CitaService {
     public OperacionResponseDTO registrarCita(ConfirmarCitaRequestDTO i, long actor) {
         permisos.exigir(actor, "ADMINISTRADORA", "RECEPCIONISTA", "CAJERA");
         if (i.idPreReserva() == null || i.idPreReserva() <= 0)
-            throw new IllegalArgumentException("Selecciona una pre-reserva vÃ¡lida");
+            throw new IllegalArgumentException("Selecciona una pre-reserva válida");
         String referencia =
                 "COBRO-" + String.format(java.util.Locale.ROOT, "%06d", i.idPreReserva());
         Long id =
@@ -189,5 +189,21 @@ public class CitaServiceImpl implements CitaService {
         permisos.exigir(actor, "ADMINISTRADORA");
         repository.cancelarReprogramada(actor, actor, idCita, request.motivo());
         return OperacionResponseDTO.resultado("cita-cancelar", idCita);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public pe.edu.karely.dto.PaginaResponseDTO<CitaResponseDTO> listarCitasPagina(
+            int pagina, int tamanio, String filtro, String vista, long actor) {
+        pe.edu.karely.dto.PaginaResponseDTO.validar(pagina, tamanio);
+        permisos.exigir(actor, "ADMINISTRADORA", "RECEPCIONISTA", "CAJERA", "DOCTOR");
+        if (!java.util.Set.of("proximas", "historial", "todas").contains(vista))
+            throw new IllegalArgumentException("Vista de agenda inválida");
+        return repository.listarCitasPagina(
+                pagina,
+                tamanio,
+                filtro,
+                permisos.rol(actor).equals("DOCTOR") ? actor : null,
+                vista);
     }
 }

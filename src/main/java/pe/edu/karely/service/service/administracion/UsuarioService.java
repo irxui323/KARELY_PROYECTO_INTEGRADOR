@@ -20,4 +20,7 @@ public interface UsuarioService {
     OperacionResponseDTO cambiarEstado(long idUsuario, EstadoUsuarioRequestDTO i, long actor);
 
     AccesoUsuarioResponseDTO registrarUsuario(UsuarioRequestDTO i, long actor);
+
+    pe.edu.karely.dto.PaginaResponseDTO<UsuarioResponseDTO> listarUsuariosPagina(
+            int pagina, int tamanio, String filtro, long actor);
 }

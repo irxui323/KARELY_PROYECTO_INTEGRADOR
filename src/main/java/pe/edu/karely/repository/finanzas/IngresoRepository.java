@@ -1,11 +1,10 @@
 package pe.edu.karely.repository.finanzas;
 
-import pe.edu.karely.repository.OracleJdbc;
-
 import org.springframework.stereotype.Repository;
 
 import pe.edu.karely.dto.reporte.IngresoResponseDTO;
 import pe.edu.karely.dto.reporte.TotalIngresoResponseDTO;
+import pe.edu.karely.repository.OracleJdbc;
 
 import java.util.List;
 
@@ -32,5 +31,18 @@ public class IngresoRepository {
                 FROM VW_INGRESOS_GESTORA WHERE ID_DOCTOR = ?
                 """,
                 doctor);
+    }
+
+    public pe.edu.karely.dto.PaginaResponseDTO<IngresoResponseDTO> listarIngresosPagina(
+            int pagina, int tamanio, String filtro) {
+        return jdbc.pagina(
+                IngresoResponseDTO.class,
+                "SELECT ID_CITA,ID_DOCTOR,FECHA_CITA,CONCEPTO,MONTO_INGRESO FROM"
+                    + " VW_INGRESOS_GESTORA",
+                "FECHA_CITA DESC,ID_CITA DESC",
+                List.of("CONCEPTO", "ID_DOCTOR"),
+                pagina,
+                tamanio,
+                filtro);
     }
 }

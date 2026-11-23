@@ -92,4 +92,14 @@ public class PacienteServiceImpl implements PacienteService {
 
         return registro;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public pe.edu.karely.dto.PaginaResponseDTO<PacienteResponseDTO> listarPacientesPagina(
+            int pagina, int tamanio, String filtro, long actor) {
+        pe.edu.karely.dto.PaginaResponseDTO.validar(pagina, tamanio);
+        permisos.exigir(actor, "ADMINISTRADORA", "RECEPCIONISTA");
+
+        return repository.listarPacientesPagina(pagina, tamanio, filtro);
+    }
 }

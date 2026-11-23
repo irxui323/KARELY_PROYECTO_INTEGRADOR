@@ -40,8 +40,8 @@ public class AuthController {
                 .cacheControl(CacheControl.noStore())
                 .body(
                         new MensajeResponseDTO(
-                                "Si el correo corresponde a una cuenta, recibirÃ¡s instrucciones"
-                                    + " para restablecer tu contraseÃ±a"));
+                                "Si el correo corresponde a una cuenta, recibirás instrucciones"
+                                    + " para restablecer tu contraseña"));
     }
 
     @PostMapping("/restablecer-password")

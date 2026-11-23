@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ErrorResponseDTO> uploadTooLarge(MaxUploadSizeExceededException e) {
-        return error(413, "El archivo supera el mÃ¡ximo permitido de 10 MB");
+        return error(413, "El archivo supera el máximo permitido de 10 MB");
     }
 
     @ExceptionHandler({
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
         HandlerMethodValidationException.class
     })
     public ResponseEntity<ErrorResponseDTO> malformedRequest(Exception e) {
-        return error(400, "Formato de solicitud invÃ¡lido");
+        return error(400, "Formato de solicitud inválido");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -62,7 +62,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({IllegalArgumentException.class, ReglaNegocioException.class})
     public ResponseEntity<ErrorResponseDTO> invalid(RuntimeException e) {
-        return error(400, e.getMessage() == null ? "Datos invÃ¡lidos" : e.getMessage());
+        return error(400, e.getMessage() == null ? "Datos inválidos" : e.getMessage());
     }
 
     @ExceptionHandler(RecursoNoEncontradoException.class)
@@ -107,17 +107,17 @@ public class GlobalExceptionHandler {
                         MENSAJE_ORACLE.matcher(sql.getMessage() == null ? "" : sql.getMessage());
                 return error(
                         400,
-                        message.find() ? message.group(1).strip() : "Regla de negocio no cumplida");
+                        message.find() ? message.group(1).replaceFirst("^ORA-20\\d{3}:\\s*", "").strip() : "No se pudo completar la operación. Revisa los datos ingresados.");
             }
         }
         LOG.error("Fallo interno de base de datos", e);
-        return error(500, "Error en la operaciÃ³n. Consulte el registro del servidor.");
+        return error(500, "No se pudo completar la operación. Inténtalo de nuevo en unos minutos.");
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> other(Exception e) {
         LOG.error("Fallo del servidor", e);
-        return error(500, "Error interno del servidor");
+        return error(500, "No se pudo completar la operación. Inténtalo de nuevo en unos minutos.");
     }
 
     private ResponseEntity<ErrorResponseDTO> error(int status, String detail) {

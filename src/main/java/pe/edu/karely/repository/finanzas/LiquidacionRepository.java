@@ -1,11 +1,10 @@
 package pe.edu.karely.repository.finanzas;
 
-import pe.edu.karely.repository.OracleJdbc;
-
 import org.springframework.stereotype.Repository;
 
 import pe.edu.karely.dto.finanzas.LiquidacionResponseDTO;
 import pe.edu.karely.dto.finanzas.SaldoDoctorResponseDTO;
+import pe.edu.karely.repository.OracleJdbc;
 
 import java.util.List;
 
@@ -54,10 +53,24 @@ public class LiquidacionRepository {
         return jdbc.one(
                 SaldoDoctorResponseDTO.class,
                 "SELECT ? AS ID_DOCTOR, ? AS FECHA_CORTE, FN_SALDO_DOCTOR(?, ?) AS SALDO_PENDIENTE"
-                    + " FROM DUAL",
+                        + " FROM DUAL",
                 idDoctor,
                 fechaCorte,
                 idDoctor,
                 fechaCorte);
+    }
+
+    public pe.edu.karely.dto.PaginaResponseDTO<LiquidacionResponseDTO> listarLiquidacionesPagina(
+            int pagina, int tamanio, String filtro) {
+        return jdbc.pagina(
+                LiquidacionResponseDTO.class,
+                "SELECT"
+                    + " ID_LIQUIDACION,ID_DOCTOR,NOMBRE_DOCTOR,PERIODO_INICIO,PERIODO_FIN,MONTO_PAGADO,METODO_PAGO,NUMERO_OPERACION,NUMERO_BOLETA,FECHA_PAGO,SALDO_PENDIENTE"
+                    + " FROM VW_SALDOS_LIQUIDACIONES",
+                "FECHA_PAGO DESC, ID_LIQUIDACION DESC",
+                List.of("NOMBRE_DOCTOR", "METODO_PAGO", "NUMERO_OPERACION", "NUMERO_BOLETA"),
+                pagina,
+                tamanio,
+                filtro);
     }
 }

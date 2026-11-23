@@ -121,7 +121,7 @@ class RecuperacionLoginConcurrenteTest {
                             snapshotRead.countDown();
                             try {
                                 if (!resetCommitted.await(15, TimeUnit.SECONDS))
-                                    throw new IllegalStateException("Reset no terminÃ³");
+                                    throw new IllegalStateException("Reset no terminó");
                             } catch (InterruptedException ex) {
                                 Thread.currentThread().interrupt();
                                 throw new IllegalStateException(ex);

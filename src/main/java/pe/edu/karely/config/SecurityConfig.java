@@ -45,7 +45,7 @@ public class SecurityConfig {
                         .filter(origin -> !origin.isEmpty())
                         .toList());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-XSRF-TOKEN"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
@@ -55,7 +55,7 @@ public class SecurityConfig {
     SecurityFilterChain chain(
             HttpSecurity http, JwtService jwt, SesionRepository sesiones, ObjectMapper mapper)
             throws Exception {
-        http.csrf(csrf -> csrf.disable())
+        http.csrf(csrf -> csrf.spa())
                 .cors(cors -> {})
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -81,7 +81,7 @@ public class SecurityConfig {
                                                                 response,
                                                                 mapper,
                                                                 401,
-                                                                "SesiÃ³n no vÃ¡lida"))
+                                                                "Sesión no válida"))
                                         .accessDeniedHandler(
                                                 (request, response, ex) ->
                                                         writeError(

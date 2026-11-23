@@ -43,7 +43,7 @@ public class LiquidacionServiceImpl implements LiquidacionService {
     public OperacionResponseDTO pagarDoctor(PagoDoctorRequestDTO i, long actor) {
         permisos.exigir(actor, "TESORERA", "ADMINISTRADORA");
         if (i.fechaFin().isBefore(i.fechaInicio()))
-            throw new IllegalArgumentException("Rango de fechas invÃ¡lido");
+            throw new IllegalArgumentException("Rango de fechas inválido");
         String referencia =
                 java.util
                         .UUID
@@ -67,6 +67,15 @@ public class LiquidacionServiceImpl implements LiquidacionService {
         return new OperacionResponseDTO(
                 "doctor-pagar",
                 id,
-                "Pago registrado. OperaciÃ³n: " + operacion + ". Boleta: " + boleta + ".");
+                "Pago registrado. Operación: " + operacion + ". Boleta: " + boleta + ".");
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public pe.edu.karely.dto.PaginaResponseDTO<LiquidacionResponseDTO> listarLiquidacionesPagina(
+            int pagina, int tamanio, String filtro, long actor) {
+        pe.edu.karely.dto.PaginaResponseDTO.validar(pagina, tamanio);
+        permisos.exigir(actor, "TESORERA", "ADMINISTRADORA");
+        return repository.listarLiquidacionesPagina(pagina, tamanio, filtro);
     }
 }

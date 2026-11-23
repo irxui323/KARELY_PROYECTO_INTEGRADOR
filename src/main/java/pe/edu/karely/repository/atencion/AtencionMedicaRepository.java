@@ -1,11 +1,12 @@
 package pe.edu.karely.repository.atencion;
 
-import pe.edu.karely.repository.OracleJdbc;
-
 import org.springframework.stereotype.Repository;
 
 import pe.edu.karely.dto.atencion.AtencionResponseDTO;
+import pe.edu.karely.dto.atencion.ReciboResponseDTO;
+import pe.edu.karely.repository.OracleJdbc;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Repository
@@ -84,5 +85,71 @@ public class AtencionMedicaRepository {
 
     public void cerrarAtencion(long actor, long usuario, Long idCita) {
         jdbc.call("SP_CERRAR_ATENCION", actor, usuario, idCita);
+    }
+
+    public record CitaRecibo(Long idCita) {}
+
+    public CitaRecibo bloquearCitaParaRecibo(long idCita, long actor, String rol) {
+        return jdbc.one(
+                CitaRecibo.class,
+                "SELECT C.ID_CITA FROM CITA C JOIN DOCTOR D ON D.ID_DOCTOR=C.ID_DOCTOR"
+                        + " WHERE C.ID_CITA=? AND (D.ID_USUARIO=? OR ?='ADMINISTRADORA')"
+                        + " FOR UPDATE OF C.ID_CITA",
+                idCita,
+                actor,
+                rol);
+    }
+
+    public ReciboResponseDTO buscarRecibo(long idCita) {
+        return jdbc.one(
+                ReciboResponseDTO.class,
+                "SELECT R.ID_RECIBO,R.ID_CITA,R.NUMERO_RECIBO,R.MONTO,R.FECHA_EMISION, P.NOMBRES||'"
+                    + " '||P.APELLIDOS AS PACIENTE,P.NUMERO_DOCUMENTO AS DOCUMENTO,"
+                    + " P.CORREO,D.NOMBRES||' '||D.APELLIDOS AS DOCTOR,E.NOMBRE AS ESPECIALIDAD,"
+                    + " C.FECHA_CITA,F.HORA_INICIO,PC.METODO_PAGO,R.FECHA_ENTREGA,R.MEDIO_ENTREGA"
+                    + " FROM RECIBO_HONORARIO R JOIN CITA C ON C.ID_CITA=R.ID_CITA JOIN PACIENTE P"
+                    + " ON P.ID_PACIENTE=C.ID_PACIENTE JOIN DOCTOR D ON D.ID_DOCTOR=C.ID_DOCTOR"
+                    + " JOIN ESPECIALIDAD E ON E.ID_ESPECIALIDAD=C.ID_ESPECIALIDAD JOIN"
+                    + " FRANJA_HORARIA F ON F.ID_FRANJA=C.ID_FRANJA JOIN PAGO_CITA PC ON"
+                    + " PC.ID_PAGO=C.ID_PAGO WHERE R.ID_CITA=?",
+                idCita);
+    }
+
+    public record ArchivoRecibo(byte[] archivoPdf) {
+        @Override
+        public boolean equals(Object objeto) {
+            return objeto instanceof ArchivoRecibo otro
+                    && Arrays.equals(archivoPdf, otro.archivoPdf);
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(archivoPdf);
+        }
+
+        @Override
+        public String toString() {
+            return "ArchivoRecibo[archivoPdf=" + Arrays.toString(archivoPdf) + "]";
+        }
+    }
+
+    public byte[] buscarPdf(long idCita) {
+        var archivo =
+                jdbc.one(
+                        ArchivoRecibo.class,
+                        "SELECT ARCHIVO_PDF FROM RECIBO_HONORARIO WHERE ID_CITA=?",
+                        idCita);
+        return archivo == null ? null : archivo.archivoPdf();
+    }
+
+    public void guardarPdf(long idCita, byte[] pdf) {
+        jdbc.update(
+                "UPDATE RECIBO_HONORARIO SET ARCHIVO_PDF=? WHERE ID_CITA=? AND ARCHIVO_PDF IS NULL",
+                pdf,
+                idCita);
+    }
+
+    public void guardarCorreoRecibo(long idCita, String correo) {
+        jdbc.update("UPDATE RECIBO_HONORARIO SET CORREO_ENVIO=? WHERE ID_CITA=?", correo, idCita);
     }
 }

@@ -21,7 +21,7 @@ public class NotificacionController {
         this.service = service;
     }
 
-    @GetMapping
+    @GetMapping(params = "!pagina")
     public List<NotificacionResponseDTO> listar(Authentication auth) {
         return service.listarNotificaciones((Long) auth.getPrincipal());
     }
@@ -30,5 +30,15 @@ public class NotificacionController {
     public OperacionResponseDTO encolar(
             @Valid @RequestBody NotificacionRequestDTO body, Authentication auth) {
         return service.encolarNotificacion(body, (Long) auth.getPrincipal());
+    }
+
+    @GetMapping(params = "pagina")
+    public pe.edu.karely.dto.PaginaResponseDTO<NotificacionResponseDTO> pagina(
+            @RequestParam int pagina,
+            @RequestParam(defaultValue = "10") int tamanio,
+            @RequestParam(defaultValue = "") String filtro,
+            Authentication auth) {
+        return service.listarNotificacionesPagina(
+                pagina, tamanio, filtro, (Long) auth.getPrincipal());
     }
 }

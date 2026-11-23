@@ -14,6 +14,43 @@ import java.util.List;
 @Repository
 @Transactional
 public class PacienteRepository {
+    private static final String CONSULTA_CONTAR_PACIENTES =
+            "SELECT COUNT(e) FROM Paciente e WHERE LOWER(CONCAT(CONCAT(CONCAT(CONCAT("
+                    + "e.numeroDocumento,' '),e.nombres),' '),e.apellidos)) LIKE :q ESCAPE '!'";
+
+    private static final String CONSULTA_LISTAR_PACIENTES =
+            "SELECT e FROM Paciente e WHERE LOWER(CONCAT(CONCAT(CONCAT(CONCAT("
+                    + "e.numeroDocumento,' '),e.nombres),' '),e.apellidos)) LIKE :q ESCAPE '!' "
+                    + "ORDER BY e.idPaciente ASC";
+
+    public pe.edu.karely.dto.PaginaResponseDTO<PacienteResponseDTO> listarPacientesPagina(
+            int pagina, int tamanio, String filtro) {
+        pe.edu.karely.dto.PaginaResponseDTO.validar(pagina, tamanio);
+        String q = filtro == null ? "" : filtro.trim().toLowerCase(java.util.Locale.ROOT);
+        if (q.length() > 150)
+            throw new IllegalArgumentException("La búsqueda admite hasta 150 caracteres");
+        q = "%" + q.replace("!", "!!").replace("%", "!%").replace("_", "!_") + "%";
+        Long total =
+                entidades
+                        .createQuery(CONSULTA_CONTAR_PACIENTES, Long.class)
+                        .setParameter("q", q)
+                        .getSingleResult();
+        long offset = (long) pagina * tamanio;
+        var contenido =
+                offset >= total
+                        ? java.util.List.<PacienteResponseDTO>of()
+                        : entidades
+                                .createQuery(CONSULTA_LISTAR_PACIENTES, Paciente.class)
+                                .setParameter("q", q)
+                                .setFirstResult(Math.toIntExact(offset))
+                                .setMaxResults(tamanio)
+                                .getResultList()
+                                .stream()
+                                .map(PacienteMapper::respuesta)
+                                .toList();
+        return pe.edu.karely.dto.PaginaResponseDTO.crear(contenido, pagina, tamanio, total);
+    }
+
     private final EntityManager entidades;
 
     public PacienteRepository(EntityManager entidades) {
@@ -22,7 +59,7 @@ public class PacienteRepository {
 
     public List<PacienteResponseDTO> listarPacientes() {
         return entidades
-                .createQuery("SELECT e FROM Paciente e ORDER BY e.idPaciente DESC", Paciente.class)
+                .createQuery("SELECT e FROM Paciente e ORDER BY e.idPaciente ASC", Paciente.class)
                 .setMaxResults(200)
                 .getResultList()
                 .stream()
@@ -75,7 +112,7 @@ public class PacienteRepository {
         return entidades
                 .createQuery(
                         "SELECT e FROM Paciente e WHERE e.tipoDocumento = :tipo AND"
-                            + " e.numeroDocumento = :documento",
+                                + " e.numeroDocumento = :documento",
                         Paciente.class)
                 .setParameter("tipo", tipo.trim().toUpperCase(java.util.Locale.ROOT))
                 .setParameter("documento", documento.trim())

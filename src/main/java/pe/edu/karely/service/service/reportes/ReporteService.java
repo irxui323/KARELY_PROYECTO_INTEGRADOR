@@ -16,4 +16,7 @@ public interface ReporteService {
     List<IngresoResponseDTO> listarIngresos(long actor);
 
     List<TotalIngresoResponseDTO> sumarIngresos(long idDoctor, long actor);
+
+    pe.edu.karely.dto.PaginaResponseDTO<IngresoResponseDTO> listarIngresosPagina(
+            int pagina, int tamanio, String filtro, long actor);
 }

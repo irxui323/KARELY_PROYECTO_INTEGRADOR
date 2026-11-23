@@ -1,7 +1,5 @@
 package pe.edu.karely.repository.administracion;
 
-import pe.edu.karely.repository.OracleJdbc;
-
 import org.springframework.stereotype.Repository;
 
 import pe.edu.karely.dto.administracion.RolResponseDTO;
@@ -11,6 +9,7 @@ import pe.edu.karely.dto.auth.CredencialesDTO;
 import pe.edu.karely.dto.auth.IdRolDTO;
 import pe.edu.karely.dto.auth.IdUsuarioDTO;
 import pe.edu.karely.dto.auth.RolActivoDTO;
+import pe.edu.karely.repository.OracleJdbc;
 
 import java.util.List;
 
@@ -52,7 +51,7 @@ public class UsuarioRepository {
         return jdbc.one(
                 RolActivoDTO.class,
                 "SELECT R.NOMBRE AS ROL FROM USUARIO U JOIN ROL R ON R.ID_ROL=U.ID_ROL WHERE"
-                    + " U.ID_USUARIO=? AND U.ESTADO='ACTIVO' AND R.ESTADO='ACTIVO'",
+                        + " U.ID_USUARIO=? AND U.ESTADO='ACTIVO' AND R.ESTADO='ACTIVO'",
                 actor);
     }
 
@@ -60,7 +59,7 @@ public class UsuarioRepository {
         return jdbc.one(
                 IdUsuarioDTO.class,
                 "SELECT U.ID_USUARIO FROM USUARIO U JOIN ROL R ON R.ID_ROL=U.ID_ROL WHERE"
-                    + " U.ID_USUARIO=? AND U.ESTADO='ACTIVO' AND R.NOMBRE='DOCTOR'",
+                        + " U.ID_USUARIO=? AND U.ESTADO='ACTIVO' AND R.NOMBRE='DOCTOR'",
                 usuario);
     }
 
@@ -68,8 +67,8 @@ public class UsuarioRepository {
         return jdbc.one(
                 CredencialesDTO.class,
                 "SELECT U.ID_USUARIO,U.PASSWORD_HASH,U.ESTADO,U.INTENTOS_FALLIDOS,R.NOMBRE AS ROL"
-                    + " FROM USUARIO U JOIN ROL R ON R.ID_ROL=U.ID_ROL WHERE U.USERNAME=? AND"
-                    + " R.ESTADO='ACTIVO'",
+                        + " FROM USUARIO U JOIN ROL R ON R.ID_ROL=U.ID_ROL WHERE U.USERNAME=? AND"
+                        + " R.ESTADO='ACTIVO'",
                 username);
     }
 
@@ -83,14 +82,14 @@ public class UsuarioRepository {
         return jdbc.one(
                 CredencialesDTO.class,
                 "SELECT U.ID_USUARIO,U.PASSWORD_HASH,U.ESTADO,R.NOMBRE AS ROL FROM USUARIO U JOIN"
-                    + " ROL R ON R.ID_ROL=U.ID_ROL WHERE U.ID_USUARIO=? AND R.ESTADO='ACTIVO'",
+                        + " ROL R ON R.ID_ROL=U.ID_ROL WHERE U.ID_USUARIO=? AND R.ESTADO='ACTIVO'",
                 id);
     }
 
     public void registrarAcceso(long id) {
         jdbc.update(
                 "UPDATE USUARIO SET INTENTOS_FALLIDOS=0,ULTIMO_ACCESO=SYSTIMESTAMP WHERE"
-                    + " ID_USUARIO=?",
+                        + " ID_USUARIO=?",
                 id);
     }
 
@@ -98,7 +97,7 @@ public class UsuarioRepository {
         return jdbc.one(
                 UsuarioResponseDTO.class,
                 "SELECT U.ID_USUARIO,U.USERNAME,U.CORREO,U.ESTADO,U.ULTIMO_ACCESO,R.NOMBRE AS ROL"
-                    + " FROM USUARIO U JOIN ROL R ON R.ID_ROL=U.ID_ROL WHERE U.ID_USUARIO=?",
+                        + " FROM USUARIO U JOIN ROL R ON R.ID_ROL=U.ID_ROL WHERE U.ID_USUARIO=?",
                 id);
     }
 
@@ -114,7 +113,7 @@ public class UsuarioRepository {
         return jdbc.one(
                 ConteoDTO.class,
                 "SELECT COUNT(*) AS TOTAL FROM USUARIO U JOIN ROL R ON R.ID_ROL=U.ID_ROL WHERE"
-                    + " R.NOMBRE='ADMINISTRADORA' AND U.ESTADO='ACTIVO'");
+                        + " R.NOMBRE='ADMINISTRADORA' AND U.ESTADO='ACTIVO'");
     }
 
     public IdRolDTO buscarRolAdministradora() {
@@ -126,7 +125,7 @@ public class UsuarioRepository {
     public Long crearAdministradoraInicial(Long rol, String usuario, String correo, String hash) {
         return jdbc.insertReturning(
                 "begin insert into USUARIO(ID_ROL,USERNAME,CORREO,PASSWORD_HASH) values(?,?,?,?)"
-                    + " returning ID_USUARIO into ?; end;",
+                        + " returning ID_USUARIO into ?; end;",
                 rol,
                 usuario,
                 correo,
@@ -143,5 +142,18 @@ public class UsuarioRepository {
                 correo,
                 hash,
                 OracleJdbc.outNumber());
+    }
+
+    public pe.edu.karely.dto.PaginaResponseDTO<UsuarioResponseDTO> listarUsuariosPagina(
+            int pagina, int tamanio, String filtro) {
+        return jdbc.pagina(
+                UsuarioResponseDTO.class,
+                "SELECT U.ID_USUARIO,U.USERNAME,U.CORREO,U.ESTADO,U.ULTIMO_ACCESO,R.NOMBRE AS ROL"
+                    + " FROM USUARIO U JOIN ROL R ON R.ID_ROL=U.ID_ROL",
+                "ID_USUARIO DESC",
+                List.of("USERNAME", "CORREO", "ESTADO", "ROL"),
+                pagina,
+                tamanio,
+                filtro);
     }
 }

@@ -23,7 +23,7 @@ public class LiquidacionController {
         this.service = service;
     }
 
-    @GetMapping
+    @GetMapping(params = "!pagina")
     public List<LiquidacionResponseDTO> listar(Authentication auth) {
         return service.listarLiquidaciones((Long) auth.getPrincipal());
     }
@@ -38,5 +38,15 @@ public class LiquidacionController {
     public SaldoDoctorResponseDTO saldo(
             @RequestParam long idDoctor, @RequestParam LocalDate fechaCorte, Authentication auth) {
         return service.consultarSaldo(idDoctor, fechaCorte, (Long) auth.getPrincipal());
+    }
+
+    @GetMapping(params = "pagina")
+    public pe.edu.karely.dto.PaginaResponseDTO<LiquidacionResponseDTO> pagina(
+            @RequestParam int pagina,
+            @RequestParam(defaultValue = "10") int tamanio,
+            @RequestParam(defaultValue = "") String filtro,
+            Authentication auth) {
+        return service.listarLiquidacionesPagina(
+                pagina, tamanio, filtro, (Long) auth.getPrincipal());
     }
 }

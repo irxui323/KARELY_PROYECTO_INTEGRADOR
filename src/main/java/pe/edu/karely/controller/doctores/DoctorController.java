@@ -35,7 +35,7 @@ public class DoctorController {
         this.disponibilidad = disponibilidad;
     }
 
-    @GetMapping
+    @GetMapping(params = "!pagina")
     public List<DoctorResponseDTO> listar(Authentication auth) {
         return service.listarDoctores((Long) auth.getPrincipal());
     }
@@ -120,9 +120,19 @@ public class DoctorController {
         return service.buscarPorDocumento(documento, (Long) auth.getPrincipal());
     }
 
-    @GetMapping("/disponibilidades")
+    @GetMapping(value = "/disponibilidades", params = "!pagina")
     public List<DisponibilidadResponseDTO> horarios(Authentication auth) {
         return disponibilidad.listarHorarios((Long) auth.getPrincipal());
+    }
+
+    @GetMapping(value = "/disponibilidades", params = "pagina")
+    public pe.edu.karely.dto.PaginaResponseDTO<DisponibilidadResponseDTO> paginaHorarios(
+            @RequestParam int pagina,
+            @RequestParam(defaultValue = "10") int tamanio,
+            @RequestParam(defaultValue = "") String filtro,
+            Authentication auth) {
+        return disponibilidad.listarHorariosPagina(
+                pagina, tamanio, filtro, (Long) auth.getPrincipal());
     }
 
     @PostMapping("/{id}/disponibilidades")
@@ -163,5 +173,14 @@ public class DoctorController {
                                 + "\"")
                 .contentType(org.springframework.http.MediaType.parseMediaType(archivo.mime()))
                 .body(archivo.bytes());
+    }
+
+    @GetMapping(params = "pagina")
+    public pe.edu.karely.dto.PaginaResponseDTO<DoctorResponseDTO> pagina(
+            @RequestParam int pagina,
+            @RequestParam(defaultValue = "10") int tamanio,
+            @RequestParam(defaultValue = "") String filtro,
+            Authentication auth) {
+        return service.listarDoctoresPagina(pagina, tamanio, filtro, (Long) auth.getPrincipal());
     }
 }

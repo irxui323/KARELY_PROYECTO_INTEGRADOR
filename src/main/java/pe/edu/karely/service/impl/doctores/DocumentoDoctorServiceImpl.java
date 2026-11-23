@@ -33,7 +33,7 @@ public class DocumentoDoctorServiceImpl implements DocumentoDoctorService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = IOException.class)
     public OperacionResponseDTO subir(long idDoctor, String tipo, MultipartFile archivo, long actor)
             throws IOException {
         permisos.exigir(actor, "ADMINISTRADORA");
@@ -42,11 +42,11 @@ public class DocumentoDoctorServiceImpl implements DocumentoDoctorService {
             throw new IllegalArgumentException("Tipo no permitido");
         }
         if (archivo.isEmpty() || archivo.getSize() > 10 * 1024 * 1024) {
-            throw new IllegalArgumentException("Archivo obligatorio, mÃ¡ximo 10 MB");
+            throw new IllegalArgumentException("Archivo obligatorio, máximo 10 MB");
         }
         String mime = Objects.toString(archivo.getContentType(), "");
         if (!Set.of("application/pdf", "image/png", "image/jpeg").contains(mime)) {
-            throw new IllegalArgumentException("Archivo PDF, PNG o JPEG Ãºnicamente");
+            throw new IllegalArgumentException("Archivo PDF, PNG o JPEG únicamente");
         }
         String nombre =
                 Objects.toString(archivo.getOriginalFilename(), "documento")

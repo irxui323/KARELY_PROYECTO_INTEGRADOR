@@ -21,7 +21,7 @@ public class PacienteController {
         this.service = service;
     }
 
-    @GetMapping
+    @GetMapping(params = "!pagina")
     public List<PacienteResponseDTO> listar(Authentication auth) {
         return service.listarPacientes((Long) auth.getPrincipal());
     }
@@ -49,5 +49,14 @@ public class PacienteController {
     public List<PacienteResponseDTO> buscarDocumento(
             @RequestParam String tipo, @RequestParam String documento, Authentication auth) {
         return service.buscarPaciente(tipo, documento, (Long) auth.getPrincipal());
+    }
+
+    @GetMapping(params = "pagina")
+    public pe.edu.karely.dto.PaginaResponseDTO<PacienteResponseDTO> pagina(
+            @RequestParam int pagina,
+            @RequestParam(defaultValue = "10") int tamanio,
+            @RequestParam(defaultValue = "") String filtro,
+            Authentication auth) {
+        return service.listarPacientesPagina(pagina, tamanio, filtro, (Long) auth.getPrincipal());
     }
 }

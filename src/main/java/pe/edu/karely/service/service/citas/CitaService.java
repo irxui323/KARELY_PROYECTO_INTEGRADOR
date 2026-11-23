@@ -35,4 +35,7 @@ public interface CitaService {
 
     OperacionResponseDTO cancelarReprogramada(
             long idCita, CancelarCitaRequestDTO request, long actor);
+
+    pe.edu.karely.dto.PaginaResponseDTO<CitaResponseDTO> listarCitasPagina(
+            int pagina, int tamanio, String filtro, String vista, long actor);
 }

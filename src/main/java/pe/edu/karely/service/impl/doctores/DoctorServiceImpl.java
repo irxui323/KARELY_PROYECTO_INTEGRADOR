@@ -13,8 +13,8 @@ import pe.edu.karely.dto.doctor.RechazarDocumentoRequestDTO;
 import pe.edu.karely.dto.doctor.ValidarDocumentacionRequestDTO;
 import pe.edu.karely.exception.RecursoNoEncontradoException;
 import pe.edu.karely.repository.administracion.AuditoriaRepository;
-import pe.edu.karely.repository.doctores.DoctorRepository;
 import pe.edu.karely.repository.administracion.UsuarioRepository;
+import pe.edu.karely.repository.doctores.DoctorRepository;
 import pe.edu.karely.security.PermisosUsuario;
 import pe.edu.karely.service.service.doctores.DoctorService;
 
@@ -22,6 +22,7 @@ import java.util.List;
 
 @Service
 public class DoctorServiceImpl implements DoctorService {
+    private static final java.security.SecureRandom RANDOM = new java.security.SecureRandom();
     private final DoctorRepository repository;
     private final PermisosUsuario permisos;
     private final AuditoriaRepository auditoria;
@@ -99,21 +100,20 @@ public class DoctorServiceImpl implements DoctorService {
         if (!"COMPLETO".equals(doctor.estadoDocumentacion())
                 || !repository.tieneEspecialidad(idDoctor))
             throw new IllegalArgumentException(
-                    "Asigna una especialidad y aprueba el DNI y el tÃ­tulo antes de crear el"
+                    "Asigna una especialidad y aprueba el DNI y el título antes de crear el"
                             + " acceso");
         if (doctor.correo() == null || doctor.correo().isBlank())
             throw new IllegalArgumentException(
                     "Registra el correo del doctor antes de crear su acceso");
         var rol = usuarios.buscarRolDoctor();
         if (rol == null) throw new IllegalStateException("No existe un rol DOCTOR activo");
-        var random = new java.security.SecureRandom();
         String alfabeto = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%*-_";
         StringBuilder clave = new StringBuilder("Aa7!");
         for (int i = 0; i < 16; i++)
-            clave.append(alfabeto.charAt(random.nextInt(alfabeto.length())));
+            clave.append(alfabeto.charAt(RANDOM.nextInt(alfabeto.length())));
         char[] caracteres = clave.toString().toCharArray();
         for (int i = caracteres.length - 1; i > 0; i--) {
-            int j = random.nextInt(i + 1);
+            int j = RANDOM.nextInt(i + 1);
             char temp = caracteres[i];
             caracteres[i] = caracteres[j];
             caracteres[j] = temp;
@@ -207,10 +207,11 @@ public class DoctorServiceImpl implements DoctorService {
         doctorActivoBloqueado(idDoctor);
         if (!repository.tieneEspecialidad(idDoctor))
             throw new IllegalArgumentException(
-                    "Asigna una especialidad antes de aprobar la documentaciÃ³n");
+                    "Asigna una especialidad antes de aprobar la documentación");
         if (!Boolean.TRUE.equals(revision.dniConforme())
                 || !Boolean.TRUE.equals(revision.tituloConforme()))
-            throw new IllegalArgumentException("Confirma la revisiÃ³n manual del DNI y del tÃ­tulo");
+            throw new IllegalArgumentException(
+                    "Confirma la revisión manual del DNI y del título");
         var archivos = documentos.listarDocumentos(idDoctor);
         for (String tipo : java.util.List.of("DNI", "TITULO")) {
             var ultimo =
@@ -225,7 +226,7 @@ public class DoctorServiceImpl implements DoctorService {
             if (!ultimo.idDocumento().equals(revisado)
                     || !java.util.Set.of("PENDIENTE", "VALIDADO").contains(ultimo.estado()))
                 throw new IllegalArgumentException(
-                        "Los documentos cambiaron o fueron rechazados. Revisa su Ãºltima versiÃ³n");
+                        "Los documentos cambiaron o fueron rechazados. Revisa su última versión");
         }
         repository.validarDocumentacion(actor, actor, idDoctor);
         auditoria.registrar(
@@ -233,9 +234,9 @@ public class DoctorServiceImpl implements DoctorService {
                 "DOCTOR",
                 idDoctor,
                 "VALIDAR_DOC",
-                "RevisiÃ³n manual conforme de DNI="
+                "Revisión manual conforme de DNI="
                         + revision.idDni()
-                        + " y tÃ­tulo="
+                        + " y título="
                         + revision.idTitulo());
         return OperacionResponseDTO.resultado("SP_VALIDAR_DOCUMENTACION", null);
     }
@@ -290,7 +291,7 @@ public class DoctorServiceImpl implements DoctorService {
         var doctor = repository.bloquearDoctor(id);
         if (doctor == null) throw new RecursoNoEncontradoException("Doctor no encontrado");
         if (!"ACTIVO".equals(doctor.estado()))
-            throw new IllegalArgumentException("El doctor estÃ¡ inactivo");
+            throw new IllegalArgumentException("El doctor está inactivo");
         return doctor;
     }
 
@@ -314,11 +315,21 @@ public class DoctorServiceImpl implements DoctorService {
                         d ->
                                 d.tipoDocumento().equals(seleccionado.tipoDocumento())
                                         && d.idDocumento() > idDocumento))
-            throw new IllegalArgumentException("Revisa la versiÃ³n vigente del documento");
+            throw new IllegalArgumentException("Revisa la versión vigente del documento");
         if (documentos.rechazar(idDoctor, idDocumento, actor) != 1)
             throw new RecursoNoEncontradoException("Documento no encontrado para este doctor");
         repository.rechazarDocumentacion(idDoctor);
         auditoria.registrar(actor, "DOCUMENTO_DOCTOR", idDocumento, "RECHAZAR", request.motivo());
         return OperacionResponseDTO.resultado("documento-rechazar", idDocumento);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public pe.edu.karely.dto.PaginaResponseDTO<DoctorResponseDTO> listarDoctoresPagina(
+            int pagina, int tamanio, String filtro, long actor) {
+        pe.edu.karely.dto.PaginaResponseDTO.validar(pagina, tamanio);
+        permisos.exigir(actor, "ADMINISTRADORA", "RECEPCIONISTA", "DOCTOR", "TESORERA");
+
+        return repository.listarDoctoresPagina(pagina, tamanio, filtro, actor, permisos.rol(actor));
     }
 }

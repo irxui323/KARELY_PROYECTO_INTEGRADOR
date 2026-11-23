@@ -1,7 +1,5 @@
 package pe.edu.karely.repository.doctores;
 
-import pe.edu.karely.repository.OracleJdbc;
-
 import jakarta.persistence.EntityManager;
 
 import org.springframework.stereotype.Repository;
@@ -13,12 +11,36 @@ import pe.edu.karely.entity.DoctorEspecialidad;
 import pe.edu.karely.entity.Especialidad;
 import pe.edu.karely.entity.Usuario;
 import pe.edu.karely.mapper.DoctorMapper;
+import pe.edu.karely.repository.OracleJdbc;
 
 import java.util.List;
 
 @Repository
 @Transactional
 public class DoctorRepository {
+    public pe.edu.karely.dto.PaginaResponseDTO<DoctorResponseDTO> listarDoctoresPagina(
+            int pagina, int tamanio, String filtro, long actor, String rol) {
+        String sql =
+                rol.equals("TESORERA")
+                        ? "SELECT ID_DOCTOR,NULL AS ID_USUARIO,NULL AS TIPO_DOCUMENTO,NULL AS"
+                              + " NUMERO_DOCUMENTO,NOMBRES,APELLIDOS,NULL AS TELEFONO,NULL AS"
+                              + " CORREO,NULL AS ESTADO_DOCUMENTACION,ESTADO FROM DOCTOR"
+                        : "SELECT"
+                              + " ID_DOCTOR,ID_USUARIO,TIPO_DOCUMENTO,NUMERO_DOCUMENTO,NOMBRES,APELLIDOS,TELEFONO,CORREO,ESTADO_DOCUMENTACION,ESTADO"
+                              + " FROM DOCTOR";
+        Object[] parametros = rol.equals("DOCTOR") ? new Object[] {actor} : new Object[] {};
+        if (rol.equals("DOCTOR")) sql += " WHERE ID_USUARIO=?";
+        return jdbc.pagina(
+                DoctorResponseDTO.class,
+                sql,
+                "ID_DOCTOR DESC",
+                List.of("NOMBRES", "APELLIDOS", "NUMERO_DOCUMENTO"),
+                pagina,
+                tamanio,
+                filtro,
+                parametros);
+    }
+
     public DoctorResponseDTO bloquearDoctor(long id) {
         Doctor registro =
                 entidades.find(
@@ -30,7 +52,7 @@ public class DoctorRepository {
         return entidades
                         .createQuery(
                                 "SELECT COUNT(e) FROM DoctorEspecialidad e WHERE"
-                                    + " e.doctor.idDoctor=:id",
+                                        + " e.doctor.idDoctor=:id",
                                 Long.class)
                         .setParameter("id", id)
                         .getSingleResult()
@@ -58,9 +80,9 @@ public class DoctorRepository {
         return jdbc.list(
                 DoctorResponseDTO.class,
                 "SELECT ID_DOCTOR, NULL AS ID_USUARIO, NULL AS TIPO_DOCUMENTO, NULL AS"
-                    + " NUMERO_DOCUMENTO, NOMBRES, APELLIDOS, NULL AS TELEFONO, NULL AS CORREO,"
-                    + " NULL AS ESTADO_DOCUMENTACION, ESTADO FROM DOCTOR ORDER BY"
-                    + " NOMBRES,APELLIDOS");
+                        + " NUMERO_DOCUMENTO, NOMBRES, APELLIDOS, NULL AS TELEFONO, NULL AS CORREO,"
+                        + " NULL AS ESTADO_DOCUMENTACION, ESTADO FROM DOCTOR ORDER BY"
+                        + " NOMBRES,APELLIDOS");
     }
 
     public List<DoctorResponseDTO> listarDoctoresGeneral() {
@@ -164,7 +186,7 @@ public class DoctorRepository {
         return entidades
                 .createQuery(
                         "DELETE FROM DoctorEspecialidad e WHERE e.doctor.idDoctor=:doctor AND"
-                            + " e.especialidad.idEspecialidad=:especialidad")
+                                + " e.especialidad.idEspecialidad=:especialidad")
                 .setParameter("doctor", idDoctor)
                 .setParameter("especialidad", idEspecialidad)
                 .executeUpdate();

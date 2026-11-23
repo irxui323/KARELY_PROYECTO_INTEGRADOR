@@ -40,6 +40,30 @@ public class ReciboHonorario {
     @JoinColumn(name = "ID_USUARIO_ENTREGA")
     private Usuario usuarioEntrega;
 
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "ARCHIVO_PDF")
+    private byte[] archivoPdf;
+
+    @Column(name = "CORREO_ENVIO", length = 150)
+    private String correoEnvio;
+
+    public byte[] getArchivoPdf() {
+        return archivoPdf;
+    }
+
+    public void setArchivoPdf(byte[] archivoPdf) {
+        this.archivoPdf = archivoPdf;
+    }
+
+    public String getCorreoEnvio() {
+        return correoEnvio;
+    }
+
+    public void setCorreoEnvio(String correoEnvio) {
+        this.correoEnvio = correoEnvio;
+    }
+
     public Long getIdRecibo() {
         return idRecibo;
     }

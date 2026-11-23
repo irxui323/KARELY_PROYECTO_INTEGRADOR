@@ -77,7 +77,7 @@ public class TokenRecuperacionRepository {
         auditoria.setTablaAfectada("USUARIO");
         auditoria.setIdRegistro(usuario.getIdUsuario());
         auditoria.setAccion("RESTABLECER");
-        auditoria.setDetalle("ContraseÃ±a restablecida mediante recuperaciÃ³n por correo");
+        auditoria.setDetalle("Contraseña restablecida mediante recuperación por correo");
         auditoria.setFechaOperacion(now);
         auditoria.setOrigen("USUARIO");
         em.persist(auditoria);

@@ -26,4 +26,13 @@ public class AuditoriaServiceImpl implements AuditoriaService {
         permisos.exigir(actor, "ADMINISTRADORA");
         return repository.listarAuditoria();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public pe.edu.karely.dto.PaginaResponseDTO<AuditoriaResponseDTO> listarAuditoriaPagina(
+            int pagina, int tamanio, String filtro, long actor) {
+        pe.edu.karely.dto.PaginaResponseDTO.validar(pagina, tamanio);
+        permisos.exigir(actor, "ADMINISTRADORA");
+        return repository.listarAuditoriaPagina(pagina, tamanio, filtro);
+    }
 }

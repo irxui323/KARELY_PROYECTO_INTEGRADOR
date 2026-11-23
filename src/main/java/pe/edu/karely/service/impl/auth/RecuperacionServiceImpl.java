@@ -78,7 +78,7 @@ public class RecuperacionServiceImpl implements RecuperacionService {
                 || uri.getQuery() != null
                 || !("https".equalsIgnoreCase(uri.getScheme())
                         || (local && "http".equalsIgnoreCase(uri.getScheme()))))
-            throw new IllegalArgumentException("URL de recuperaciÃ³n no confiable");
+            throw new IllegalArgumentException("URL de recuperación no confiable");
     }
 
     @Override
@@ -137,15 +137,15 @@ public class RecuperacionServiceImpl implements RecuperacionService {
                         });
                 if (ex instanceof org.springframework.mail.MailAuthenticationException)
                     LOG.warn(
-                            "El servidor SMTP rechazÃ³ la autenticaciÃ³n. Revisa la contraseÃ±a de"
-                                + " aplicaciÃ³n del remitente");
+                            "El servidor SMTP rechazó la autenticación. Revisa la contraseña de"
+                                + " aplicación del remitente");
                 else
                     LOG.warn(
-                            "No se pudo enviar un correo de recuperaciÃ³n. Comprueba conexiÃ³n y"
-                                + " configuraciÃ³n SMTP");
+                            "No se pudo enviar un correo de recuperación. Comprueba conexión y"
+                                + " configuración SMTP");
             }
         } catch (RuntimeException ex) {
-            LOG.warn("No se pudo procesar una solicitud de recuperaciÃ³n");
+            LOG.warn("No se pudo procesar una solicitud de recuperación");
         }
     }
 
@@ -159,17 +159,17 @@ public class RecuperacionServiceImpl implements RecuperacionService {
         String texto =
                 saludo
                         + "\n\n"
-                        + "Recibimos una solicitud para restablecer la contraseÃ±a de tu cuenta de"
+                        + "Recibimos una solicitud para restablecer la contraseña de tu cuenta de"
                         + " Karely.\n\n"
-                        + "Abre este enlace para elegir una nueva contraseÃ±a:\n"
+                        + "Abre este enlace para elegir una nueva contraseña:\n"
                         + enlace
                         + "\n\n"
                         + "El enlace vence en "
                         + expirationMinutes
                         + " minutos y solo se puede utilizar una vez.\n"
-                        + "Si no solicitaste este cambio, ignora este correo. Tu contraseÃ±a seguirÃ¡"
+                        + "Si no solicitaste este cambio, ignora este correo. Tu contraseña seguirá"
                         + " siendo la misma.\n\n"
-                        + "Karelyâ€™s Â· Centro Integral";
+                        + "Karely’s · Centro Integral";
         String html =
                 new ClassPathResource("mail/recuperacion.html")
                         .getContentAsString(StandardCharsets.UTF_8)
@@ -182,9 +182,9 @@ public class RecuperacionServiceImpl implements RecuperacionService {
                         message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "UTF-8");
         helper.setFrom(
                 new jakarta.mail.internet.InternetAddress(
-                        from, "Karelyâ€™s Centro Integral", "UTF-8"));
+                        from, "Karely’s Centro Integral", "UTF-8"));
         helper.setTo(delivery.correo());
-        helper.setSubject("Restablecer contraseÃ±a de Karely");
+        helper.setSubject("Restablecer contraseña de Karely");
         helper.setText(texto, html);
         helper.addInline("karely-logo", new ClassPathResource("mail/logo-karely.png"), "image/png");
         sender.send(message);
@@ -224,7 +224,7 @@ public class RecuperacionServiceImpl implements RecuperacionService {
                     repo.revocarSesiones(userId, now);
                     repo.registrarRestablecimiento(user, now);
                     return new MensajeResponseDTO(
-                            "ContraseÃ±a restablecida. Inicia sesiÃ³n con tu nueva contraseÃ±a");
+                            "Contraseña restablecida. Inicia sesión con tu nueva contraseña");
                 });
     }
 
@@ -258,7 +258,7 @@ public class RecuperacionServiceImpl implements RecuperacionService {
 
     private ResponseStatusException invalid() {
         return new ResponseStatusException(
-                HttpStatus.BAD_REQUEST, "El enlace o los datos de recuperaciÃ³n no son vÃ¡lidos");
+                HttpStatus.BAD_REQUEST, "El enlace o los datos de recuperación no son válidos");
     }
 
     private static String sha256(String value) {

@@ -92,10 +92,10 @@ public class AuthServiceImpl implements AuthService {
                 sesiones.cerrar(claims.sessionId(), actor);
             }
         }
-        return new MensajeResponseDTO("SesiÃ³n cerrada");
+        return new MensajeResponseDTO("Sesión cerrada");
     }
 
     private BadCredentialsException credencialesIncorrectas() {
-        return new BadCredentialsException("Credenciales invÃ¡lidas");
+        return new BadCredentialsException("Credenciales inválidas");
     }
 }

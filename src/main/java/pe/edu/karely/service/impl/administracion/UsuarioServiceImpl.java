@@ -18,6 +18,7 @@ import java.util.List;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
+    private static final java.security.SecureRandom RANDOM = new java.security.SecureRandom();
     private final UsuarioRepository repository;
     private final org.springframework.security.crypto.password.PasswordEncoder encoder;
     private final PermisosUsuario permisos;
@@ -74,19 +75,28 @@ public class UsuarioServiceImpl implements UsuarioService {
                                 () -> new IllegalArgumentException("Selecciona un rol activo"));
         if ("DOCTOR".equals(rol.nombre()))
             throw new IllegalArgumentException(
-                    "Crea el acceso mÃ©dico desde Doctores despuÃ©s de validar su documentaciÃ³n");
+                    "Crea el acceso médico desde Doctores después de validar su documentación");
         String password = i.password();
         if (password == null) {
             byte[] bytes = new byte[18];
-            new java.security.SecureRandom().nextBytes(bytes);
+            RANDOM.nextBytes(bytes);
             password = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
         }
         if (password.length() < 12) {
-            throw new IllegalArgumentException("ContraseÃ±a mÃ­nima: 12 caracteres");
+            throw new IllegalArgumentException("Contraseña mínima: 12 caracteres");
         }
         Long id =
                 repository.crearUsuario(
                         actor, i.idRol(), i.username(), i.correo(), encoder.encode(password));
         return new AccesoUsuarioResponseDTO(id, i.username(), i.correo(), password);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public pe.edu.karely.dto.PaginaResponseDTO<UsuarioResponseDTO> listarUsuariosPagina(
+            int pagina, int tamanio, String filtro, long actor) {
+        pe.edu.karely.dto.PaginaResponseDTO.validar(pagina, tamanio);
+        permisos.exigir(actor, "ADMINISTRADORA");
+        return repository.listarUsuariosPagina(pagina, tamanio, filtro);
     }
 }

@@ -25,7 +25,7 @@ public class PermisosUsuario {
 
     public void exigir(long actor, String... roles) {
         if (!Arrays.asList(roles).contains(rol(actor))) {
-            throw new AccessDeniedException("Rol sin permiso para esta operaciÃ³n");
+            throw new AccessDeniedException("Rol sin permiso para esta operación");
         }
     }
 }
