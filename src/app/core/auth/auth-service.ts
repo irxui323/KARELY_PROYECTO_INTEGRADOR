@@ -12,7 +12,9 @@ export class AuthService {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private timer?: ReturnType<typeof setTimeout>;
+  private avisoTimer?: ReturnType<typeof setTimeout>;
   session = signal<Session | null>(this.read());
+  porVencer = signal(false);
   constructor() {
     this.programarVencimiento();
     this.destroyRef.onDestroy(() => this.cancelarTemporizador());
@@ -64,18 +66,26 @@ export class AuthService {
   }
   private cancelarTemporizador() {
     if (this.timer !== undefined) clearTimeout(this.timer);
+    if (this.avisoTimer !== undefined) clearTimeout(this.avisoTimer);
     this.timer = undefined;
+    this.avisoTimer = undefined;
   }
   private programarVencimiento() {
     this.cancelarTemporizador();
+    this.porVencer.set(false);
     const session = this.session();
     if (!session) return;
+    const restante = Math.max(session.expiraEn - Date.now(), 0);
+    this.avisoTimer = setTimeout(
+      () => this.porVencer.set(true),
+      Math.max(restante - 60_000, 0),
+    );
     this.timer = setTimeout(
       () => {
         if (session.expiraEn <= Date.now()) this.clear(true);
         else this.programarVencimiento();
       },
-      Math.min(Math.max(session.expiraEn - Date.now(), 0), 2147483647),
+      Math.min(restante, 2147483647),
     );
   }
   estaAutenticado(): boolean {
@@ -122,6 +132,7 @@ export class AuthService {
     this.cancelarTemporizador();
     sessionStorage.removeItem("karely_session");
     this.session.set(null);
+    this.porVencer.set(false);
   }
   clear(expirada = false) {
     this.limpiarSesionLocal();

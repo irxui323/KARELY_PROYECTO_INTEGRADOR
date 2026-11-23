@@ -7,7 +7,7 @@ import {
 } from "@angular/forms";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
-import { errorText } from "../../../../core/utils/http-error";
+import { errorText, formErrorText } from "../../../../core/utils/http-error";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
 import { ControlDisabled } from "../../../../shared/directives/control-disabled";
 import { SiPermiso } from "../../../../shared/directives/si-permiso";
@@ -17,6 +17,7 @@ import {
   DoctorRequest,
 } from "../../models/doctores.model";
 import { DoctorService } from "../../services/doctores-service";
+import { CatalogoService } from "../../../catalogos/services/catalogos-service";
 
 @Component({
   standalone: true,
@@ -33,6 +34,7 @@ import { DoctorService } from "../../services/doctores-service";
 export class DoctorForm implements OnInit {
   private readonly changeDetector = inject(ChangeDetectorRef);
   guardando = false;
+  consultandoDni = false;
 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute, { optional: true });
@@ -40,6 +42,7 @@ export class DoctorForm implements OnInit {
     this.doctorForm = {};
   }
   private doctoresService = inject(DoctorService);
+  private catalogosService = inject(CatalogoService);
   error = "";
   exito = "";
   tipoDocumento = "DNI";
@@ -49,26 +52,27 @@ export class DoctorForm implements OnInit {
     }),
     tipoDocumento: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.pattern(/\S/), Validators.maxLength(12)],
     }),
     numeroDocumento: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.pattern(/\S/), Validators.maxLength(20)],
     }),
     nombres: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.pattern(/\S/), Validators.maxLength(100)],
     }),
     apellidos: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.pattern(/\S/), Validators.maxLength(100)],
     }),
     telefono: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
+      validators: [Validators.maxLength(20)],
     }),
     correo: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
-      validators: [Validators.email],
+      validators: [Validators.email, Validators.maxLength(150)],
     }),
     estado: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
@@ -152,7 +156,7 @@ export class DoctorForm implements OnInit {
       if (this.doctorFormGroup.invalid) {
         this.doctorFormGroup.markAllAsTouched();
         this.exito = "";
-        this.error = "Completa los campos obligatorios y revisa el correo.";
+        this.error = formErrorText(this.doctorFormGroup);
         return;
       }
       if (!this.registroDisponible) {
@@ -168,6 +172,25 @@ export class DoctorForm implements OnInit {
       if (!this.error) void this.router.navigateByUrl("/doctores");
     } finally {
       this.guardando = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+  async consultarDni() {
+    if (this.doctorForm.idDoctor || this.doctorForm.tipoDocumento !== "DNI") return;
+    const dni = (this.doctorForm.numeroDocumento || "").trim();
+    if (!/^\d{8}$/.test(dni)) return;
+    this.consultandoDni = true;
+    this.error = "";
+    try {
+      const persona = await firstValueFrom(this.catalogosService.consultarDni(dni));
+      this.doctorFormGroup.patchValue({
+        nombres: persona.nombres,
+        apellidos: `${persona.apellidoPaterno} ${persona.apellidoMaterno}`.trim(),
+      });
+    } catch (e) {
+      this.error = errorText(e);
+    } finally {
+      this.consultandoDni = false;
       this.changeDetector.markForCheck();
     }
   }

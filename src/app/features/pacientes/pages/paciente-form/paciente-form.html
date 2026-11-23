@@ -50,7 +50,9 @@
           [formControl]="formGroup.controls.numeroDocumento"
           [appControlDisabled]="!!form.idPaciente"
           placeholder="Número de identificación"
+          (blur)="consultarDni()"
       /></label>
+      @if(consultandoDni){<span class="k-field-hint">Consultando DNI...</span>}
       <label class="k-field"
         >Nombres<input
           [formControl]="formGroup.controls.nombres"

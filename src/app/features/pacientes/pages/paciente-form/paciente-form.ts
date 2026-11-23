@@ -7,11 +7,12 @@ import {
 } from "@angular/forms";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
-import { errorText } from "../../../../core/utils/http-error";
+import { errorText, formErrorText } from "../../../../core/utils/http-error";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
 import { ControlDisabled } from "../../../../shared/directives/control-disabled";
 import { Paciente, PacienteRequest } from "../../models/pacientes.model";
 import { PacienteService } from "../../services/pacientes-service";
+import { CatalogoService } from "../../../catalogos/services/catalogos-service";
 
 @Component({
   standalone: true,
@@ -26,46 +27,59 @@ export class PacienteForm implements OnInit {
     this.form = {};
   }
   private pacientesService = inject(PacienteService);
+  private catalogosService = inject(CatalogoService);
   private readonly changeDetector = inject(ChangeDetectorRef);
   buscar = "";
   error = "";
   exito = "";
   cargando = false;
+  consultandoDni = false;
   readonly formGroup = new FormGroup({
     idPaciente: new FormControl<number | undefined | null>(undefined, {
       nonNullable: true,
     }),
     tipoDocumento: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.pattern(/\S/), Validators.maxLength(12)],
     }),
     numeroDocumento: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.pattern(/\S/), Validators.maxLength(20)],
     }),
     nombres: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.pattern(/\S/), Validators.maxLength(100)],
     }),
     apellidos: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.pattern(/\S/), Validators.maxLength(100)],
     }),
     telefono: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
+      validators: [Validators.maxLength(20)],
     }),
     correo: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
-      validators: [Validators.email],
+      validators: [Validators.email, Validators.maxLength(150)],
     }),
     direccion: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
+      validators: [Validators.maxLength(250)],
     }),
     estado: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
     }),
     fechaNacimiento: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
+      validators: [(control) => {
+        if (!control.value) return null;
+        const parts = new Intl.DateTimeFormat("en-CA", {
+          timeZone: "America/Bogota", year: "numeric", month: "2-digit", day: "2-digit",
+        }).formatToParts(new Date());
+        const part = (type: string) => parts.find((p) => p.type === type)?.value;
+        const today = `${part("year")}-${part("month")}-${part("day")}`;
+        return control.value > today ? { fechaFutura: true } : null;
+      }],
     }),
   });
   get form(): PacienteRequest {
@@ -132,7 +146,7 @@ export class PacienteForm implements OnInit {
       if (this.formGroup.invalid) {
         this.formGroup.markAllAsTouched();
         this.exito = "";
-        this.error = "Completa los campos obligatorios y revisa el correo.";
+        this.error = formErrorText(this.formGroup);
         return;
       }
       if (!this.registroDisponible) {
@@ -156,6 +170,25 @@ export class PacienteForm implements OnInit {
         this.changeDetector.markForCheck();
       }
     } finally {
+      this.changeDetector.markForCheck();
+    }
+  }
+  async consultarDni() {
+    if (this.form.idPaciente || this.form.tipoDocumento !== "DNI") return;
+    const dni = (this.form.numeroDocumento || "").trim();
+    if (!/^\d{8}$/.test(dni)) return;
+    this.consultandoDni = true;
+    this.error = "";
+    try {
+      const persona = await firstValueFrom(this.catalogosService.consultarDni(dni));
+      this.formGroup.patchValue({
+        nombres: persona.nombres,
+        apellidos: `${persona.apellidoPaterno} ${persona.apellidoMaterno}`.trim(),
+      });
+    } catch (e) {
+      this.error = errorText(e);
+    } finally {
+      this.consultandoDni = false;
       this.changeDetector.markForCheck();
     }
   }
