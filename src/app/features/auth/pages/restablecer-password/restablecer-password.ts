@@ -78,7 +78,10 @@ export class RestablecerPassword implements OnDestroy {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.error =
-        "Usa al menos 12 caracteres, hasta 72 bytes UTF-8, y comprueba que ambas contraseñas coincidan.";
+        this.form.controls.password.hasError("maxBytes") ||
+        this.form.controls.password.hasError("maxlength")
+          ? "La contraseña es demasiado larga. Usa una más corta."
+          : "Usa al menos 12 caracteres y comprueba que ambas contraseñas coincidan.";
       return;
     }
     this.error = "";

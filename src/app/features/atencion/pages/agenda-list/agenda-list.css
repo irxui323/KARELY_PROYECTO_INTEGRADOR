@@ -268,11 +268,44 @@
   margin-bottom: 0;
 }
 
+.k-doctor .doctor-detalle-cabecera {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.k-doctor .doctor-detalle-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+}
+.k-doctor .doctor-detalle-grid div {
+  padding: 13px 14px;
+  border: 1px solid #d6e7ef;
+  border-radius: 9px;
+  background: #f8fcfe;
+}
+.k-doctor .doctor-detalle-grid dt {
+  margin-bottom: 5px;
+  color: #376277;
+  font-size: 13px;
+  font-weight: 800;
+}
+.k-doctor .doctor-detalle-grid dd {
+  margin: 0;
+  color: #173f56;
+  line-height: 1.45;
+}
+
 @media (max-width: 1180px) {
   .k-doctor .k-form {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .k-doctor .doctor-medicamento-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .k-doctor .doctor-detalle-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .k-doctor .doctor-tabs .k-tab {
@@ -299,6 +332,12 @@
   .k-doctor .doctor-consulta-select {
     grid-template-columns: minmax(0, 1fr);
     gap: 17px;
+  }
+  .k-doctor .doctor-detalle-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .k-doctor .doctor-detalle-cabecera {
+    flex-direction: column;
   }
   .k-doctor .k-toolbar {
     align-items: stretch;

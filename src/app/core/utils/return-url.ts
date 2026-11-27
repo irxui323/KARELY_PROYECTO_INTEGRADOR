@@ -12,7 +12,8 @@ export function returnUrlSeguro(value: unknown): string | null {
     return null;
   }
   if (
-    /^[\/]{2}|[\\\u0000-\u0020\u007f]/.test(decoded) ||
+    decoded.startsWith("//") ||
+    /[\\\u0000-\u0020\u007f]/.test(decoded) ||
     /^\/login(?:[/?#;]|$)/i.test(decoded)
   )
     return null;

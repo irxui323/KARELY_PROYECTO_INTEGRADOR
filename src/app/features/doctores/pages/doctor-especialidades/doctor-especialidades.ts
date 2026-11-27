@@ -8,6 +8,7 @@ import {
 import { firstValueFrom } from "rxjs";
 import { errorText } from "../../../../core/utils/http-error";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
+import { Paginador } from "../../../../shared/components/paginador/paginador";
 import { ControlDisabled } from "../../../../shared/directives/control-disabled";
 import { Especialidad } from "../../../catalogos/models/catalogos.model";
 import { CatalogoService } from "../../../catalogos/services/catalogos-service";
@@ -20,7 +21,7 @@ import { DoctorService } from "../../services/doctores-service";
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, FeatureNav, ControlDisabled],
+  imports: [ReactiveFormsModule, FeatureNav, ControlDisabled, Paginador],
   templateUrl: "./doctor-especialidades.html",
   styleUrl: "./doctor-especialidades.css",
 })

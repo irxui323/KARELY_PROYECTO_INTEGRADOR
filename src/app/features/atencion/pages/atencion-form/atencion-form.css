@@ -2,6 +2,29 @@
   display: contents;
 }
 
+.doctor-recibo-resumen {
+  padding: 18px 20px;
+  margin-bottom: 22px;
+  border: 1px solid #c7e3f0;
+  border-radius: 10px;
+  background: #f3faff;
+}
+.doctor-recibo-resumen p {
+  margin: 0;
+  line-height: 1.6;
+}
+.doctor-recibo-resumen p + p {
+  margin-top: 10px;
+}
+.doctor-recibo-form {
+  margin-bottom: 22px;
+}
+.doctor-recibo-nota {
+  margin: 22px 0 0;
+  line-height: 1.65;
+  color: #527087;
+}
+
 .k-doctor {
   color: #183951;
   font-size: 16px;

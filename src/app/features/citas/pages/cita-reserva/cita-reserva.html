@@ -1,17 +1,13 @@
 <div class="k-module k-citas">
-  <header class="k-module-header">
-    <div>
-      <span class="k-eyebrow">GESTIÓN CLÍNICA / AGENDA</span>
-      <h1 class="k-title">Citas médicas</h1>
-      <p class="k-subtitle">
-        Consulta la agenda, reserva turnos y gestiona pagos y reprogramaciones.
-      </p>
-    </div>
-    <div class="k-header-actions">
-      <button class="k-button k-button-secondary" (click)="cargar()">
-        ↻ Actualizar agenda
-      </button>
-    </div>
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="GESTIÓN CLÍNICA / AGENDA"
+    titulo="Citas médicas"
+    descripcion="Consulta la agenda, reserva turnos y gestiona pagos y reprogramaciones."
+    textoActualizar="↻ Actualizar agenda"
+    (actualizar)="cargar()"
+  >
   </header>
   <app-feature-nav feature="citas" />
   @if(error){
@@ -81,19 +77,21 @@
           }
         </select></label
       >
-      <label class="k-field"
-        >Fecha de la cita
+      <div class="k-field">
+        <span id="fecha-cita-etiqueta">Fecha de la cita</span>
         <button
           type="button"
           class="fecha-selector"
           [disabled]="guardando || !reserva.idEspecialidad"
           [attr.aria-expanded]="calendarioAbierto"
           aria-controls="calendario-cita"
+          aria-labelledby="fecha-cita-etiqueta fecha-cita-valor"
           (click)="abrirCalendario()"
         >
-          {{fechaMostrada}} <span aria-hidden="true">▦</span>
+          <span id="fecha-cita-valor">{{fechaMostrada}}</span>
+          <span aria-hidden="true">▦</span>
         </button>
-      </label>
+      </div>
       <label class="k-field"
         >Turno<select
           [formControl]="reservaGroup.controls.idFranja"

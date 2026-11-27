@@ -8,6 +8,7 @@ import {
 import { firstValueFrom } from "rxjs";
 import { errorText } from "../../../../core/utils/http-error";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
+import { ModuleHeader } from "../../../../shared/components/module-header/module-header";
 import {
   AdministracionAccion,
   AdministracionRequest,
@@ -16,7 +17,7 @@ import { AdministracionService } from "../../services/administracion-service";
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, FeatureNav],
+  imports: [ReactiveFormsModule, FeatureNav, ModuleHeader],
   templateUrl: "./catalogo-form.html",
   styleUrl: "./catalogo-form.css",
 })

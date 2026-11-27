@@ -9,6 +9,7 @@ import { RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { errorText } from "../../../../core/utils/http-error";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
+import { ModuleHeader } from "../../../../shared/components/module-header/module-header";
 import { SiPermiso } from "../../../../shared/directives/si-permiso";
 import { Doctor } from "../../../doctores/models/doctores.model";
 import { DoctorService } from "../../../doctores/services/doctores-service";
@@ -16,7 +17,7 @@ import { FinanzasService } from "../../services/finanzas-service";
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, FeatureNav, SiPermiso],
+  imports: [ReactiveFormsModule, RouterLink, FeatureNav, SiPermiso, ModuleHeader],
   templateUrl: "./liquidacion-form.html",
   styleUrl: "./liquidacion-form.css",
 })
@@ -50,6 +51,12 @@ export class LiquidacionForm implements OnInit {
       nonNullable: true,
       validators: Validators.required,
     }),
+  }, {
+    validators: (form) => {
+      const inicio = form.get("fechaInicio")?.value;
+      const fin = form.get("fechaFin")?.value;
+      return inicio && fin && fin < inicio ? { periodoInvalido: true } : null;
+    },
   });
 
   ngOnInit() {
@@ -73,6 +80,11 @@ export class LiquidacionForm implements OnInit {
     this.exito = "";
     const { idDoctor, monto, fechaInicio, fechaFin, metodoPago } =
       this.liqGroup.getRawValue();
+    if (this.liqGroup.hasError("periodoInvalido")) {
+      this.liqGroup.markAllAsTouched();
+      this.error = "La fecha de fin debe ser igual o posterior a la fecha de inicio.";
+      return;
+    }
     if (
       this.liqGroup.invalid ||
       idDoctor === null ||
@@ -100,7 +112,7 @@ export class LiquidacionForm implements OnInit {
           metodoPago,
         }),
       );
-      this.exito = resultado.mensaje;
+      this.exito = "Operación realizada correctamente";
       this.liqGroup.reset();
     } catch (error) {
       this.error = errorText(error);

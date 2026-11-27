@@ -1,3 +1,12 @@
 :host {
   display: contents;
 }
+
+.aviso-sesion {
+  padding: 12px 24px;
+  background: #fff6dc;
+  border-bottom: 1px solid #e8c86d;
+  color: #6d4b00;
+  font-weight: 600;
+  text-align: center;
+}

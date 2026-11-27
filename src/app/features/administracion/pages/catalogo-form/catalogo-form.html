@@ -1,13 +1,11 @@
 <div class="k-module k-admin">
-  <header class="k-module-header">
-    <div>
-      <span class="k-eyebrow">CONFIGURACIÓN / ADMINISTRACIÓN</span>
-      <h1 class="k-title">Administración</h1>
-      <p class="k-subtitle">
-        Gestiona usuarios, parámetros, catálogos, notificaciones y auditoría.
-      </p>
-    </div>
-  </header>
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="CONFIGURACIÓN / ADMINISTRACIÓN"
+    titulo="Administración"
+    descripcion="Gestiona usuarios, parámetros, catálogos, notificaciones y auditoría."
+  ></header>
   <app-feature-nav feature="administracion" />
   @if(error){
   <div class="k-error" role="alert">{{error}}</div>

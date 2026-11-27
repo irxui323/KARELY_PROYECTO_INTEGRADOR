@@ -14,3 +14,8 @@
     </button>
   </div>
 </header>
+@if (auth.porVencer()) {
+  <div class="aviso-sesion" role="alert">
+    Tu sesión vencerá en menos de un minuto. Guarda tu trabajo e inicia sesión nuevamente.
+  </div>
+}

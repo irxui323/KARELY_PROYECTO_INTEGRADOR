@@ -5,6 +5,7 @@ import { firstValueFrom } from "rxjs";
 import { AuthService } from "../../../../core/auth/auth-service";
 import { errorText } from "../../../../core/utils/http-error";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
+import { ModuleHeader } from "../../../../shared/components/module-header/module-header";
 import { ControlDisabled } from "../../../../shared/directives/control-disabled";
 import { Cita } from "../../../citas/models/citas.model";
 import { CitaService } from "../../../citas/services/citas-service";
@@ -14,12 +15,13 @@ import {
   Atencion,
   AtencionAccion,
   AtencionRequest,
+  Recibo,
 } from "../../models/atencion.model";
 import { AtencionService } from "../../services/atencion-service";
 type PestanaMedica = "citas" | "horarios" | "consultas";
 @Component({
   standalone: true,
-  imports: [ControlDisabled, ReactiveFormsModule, FeatureNav],
+  imports: [ControlDisabled, ReactiveFormsModule, FeatureNav, ModuleHeader],
   templateUrl: "./atencion-form.html",
   styleUrl: "./atencion-form.css",
 })
@@ -43,6 +45,9 @@ export class AtencionForm implements OnInit {
   citas: Cita[] = [];
   doctor: Doctor | undefined;
   atenciones: Atencion[] = [];
+  recibo: Recibo | null = null;
+  cargandoRecibo = false;
+  private reciboCarga = 0;
   readonly medicoGroup = new FormGroup({
     idCita: new FormControl<number | null | undefined>(undefined, {
       nonNullable: true,
@@ -78,9 +83,6 @@ export class AtencionForm implements OnInit {
       },
     ),
     indicaciones: new FormControl<string | undefined | null>(undefined, {
-      nonNullable: true,
-    }),
-    numeroRecibo: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
     }),
   });
@@ -127,11 +129,16 @@ export class AtencionForm implements OnInit {
     if (this.atencionActual?.estado === "CERRADA") return "Atención cerrada";
     return "Pendiente de inicio";
   }
-  async ngOnInit() {
+  ngOnInit(): void {
+    void this.cargarAtencionInicial();
+  }
+  private async cargarAtencionInicial() {
     try {
       const id = Number(this.route?.snapshot.queryParamMap.get("cita"));
       if (id > 0) this.medico = { idCita: id, medioEntrega: "EMAIL" };
       await this.cargar();
+    } catch (e) {
+      this.error = errorText(e);
     } finally {
       this.changeDetector.markForCheck();
     }
@@ -160,6 +167,7 @@ export class AtencionForm implements OnInit {
           (d) => Number(d.idUsuario) === this.auth.session()?.idUsuario,
         );
         this.restaurarReceta();
+        await this.cargarRecibo();
       } catch (e) {
         this.error = errorText(e);
       } finally {
@@ -183,6 +191,49 @@ export class AtencionForm implements OnInit {
     this.restaurarReceta();
     this.error = "";
     this.exito = "";
+    void this.cargarRecibo();
+  }
+
+  async cargarRecibo(): Promise<void> {
+    const version = ++this.reciboCarga;
+    const id = this.medico.idCita;
+    this.recibo = null;
+    this.cargandoRecibo = !!id;
+    if (!id) return;
+    try {
+      const recibo = await firstValueFrom(this.atencionService.recibo(id));
+      if (version === this.reciboCarga) this.recibo = recibo;
+    } catch (e) {
+      if (version === this.reciboCarga) this.error = errorText(e);
+    } finally {
+      if (version === this.reciboCarga) this.cargandoRecibo = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  async descargarRecibo(): Promise<void> {
+    const id = this.medico.idCita;
+    if (!id || !this.recibo || this.guardando) return;
+    const numero = this.recibo.numeroRecibo;
+    this.guardando = true;
+    this.error = "";
+    this.exito = "";
+    try {
+      const pdf = await firstValueFrom(
+        this.atencionService.descargarRecibo(id),
+      );
+      const url = URL.createObjectURL(pdf);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${numero}.pdf`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+    } catch (e) {
+      this.error = errorText(e);
+    } finally {
+      this.guardando = false;
+      this.changeDetector.markForCheck();
+    }
   }
   async accion(accion: AtencionAccion): Promise<void> {
     if (this.guardando) return;
@@ -223,7 +274,10 @@ export class AtencionForm implements OnInit {
           "recibo-entregar": "Entrega del recibo registrada.",
           "atencion-cerrar": "Atención cerrada correctamente.",
         };
-        this.exito = mensajes[accion] ?? "Operación realizada.";
+        this.exito =
+          accion === "recibo-emitir" || accion === "recibo-entregar"
+            ? respuesta.mensaje
+            : (mensajes[accion] ?? "Operación realizada.");
         await this.cargar();
         if (accion === "atencion-cerrar") {
           this.medico = { idCita: null, medioEntrega: "EMAIL" };

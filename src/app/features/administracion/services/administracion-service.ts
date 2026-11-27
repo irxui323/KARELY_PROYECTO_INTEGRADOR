@@ -1,3 +1,4 @@
+import { PaginaResponse } from "../../../core/models/pagina-response";
 import { HttpClient } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import { environment } from "../../../../environments/environment";
@@ -85,5 +86,26 @@ export class AdministracionService {
       username: data.username,
       correo: data.correo,
     });
+  }
+
+  usuariosPagina(pagina = 0, tamanio = 10, filtro = "") {
+    return this.http.get<PaginaResponse<Usuario>>(this.url + "/usuarios", {
+      params: { pagina, tamanio, filtro },
+    });
+  }
+
+  auditoriaPagina(pagina = 0, tamanio = 10, filtro = "") {
+    return this.http.get<PaginaResponse<Auditoria>>(this.url + "/auditoria", {
+      params: { pagina, tamanio, filtro },
+    });
+  }
+
+  notificacionesPagina(pagina = 0, tamanio = 10, filtro = "") {
+    return this.http.get<PaginaResponse<Notificacion>>(
+      this.url + "/notificaciones",
+      {
+        params: { pagina, tamanio, filtro },
+      },
+    );
   }
 }

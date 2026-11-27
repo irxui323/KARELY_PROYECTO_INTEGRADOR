@@ -7,8 +7,9 @@ import {
 } from "@angular/forms";
 import { RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
-import { errorText } from "../../../../core/utils/http-error";
+import { errorText, formErrorText } from "../../../../core/utils/http-error";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
+import { ModuleHeader } from "../../../../shared/components/module-header/module-header";
 import {
   AdministracionRequest,
   AccesoUsuario,
@@ -18,7 +19,7 @@ import { AdministracionService } from "../../services/administracion-service";
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, FeatureNav],
+  imports: [ReactiveFormsModule, RouterLink, FeatureNav, ModuleHeader],
   templateUrl: "./usuario-form.html",
   styleUrl: "./usuario-form.css",
 })
@@ -41,11 +42,11 @@ export class UsuarioForm implements OnInit {
     }),
     username: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.pattern(/\S/), Validators.maxLength(60)],
     }),
     correo: new FormControl<string | undefined | null>(undefined, {
       nonNullable: true,
-      validators: [Validators.required, Validators.email],
+      validators: [Validators.required, Validators.email, Validators.maxLength(150)],
     }),
   });
   get nuevo(): AdministracionRequest {
@@ -79,7 +80,7 @@ export class UsuarioForm implements OnInit {
       if (this.nuevoGroup.invalid) {
         this.nuevoGroup.markAllAsTouched();
         this.exito = "";
-        this.error = "Completa el rol, el usuario y un correo válido.";
+        this.error = formErrorText(this.nuevoGroup);
         return;
       }
       this.error = "";

@@ -26,13 +26,15 @@
         <h2>Directorio de doctores</h2>
         <p>Busca y gestiona los datos del personal médico.</p>
       </div>
-      <span class="k-count">{{filtrados().length}} resultados</span>
+      <span class="k-count">{{paginacion.totalElementos}} resultados</span>
     </div>
     <div class="k-toolbar">
       <label class="k-search"
         ><span>Buscar doctor</span
         ><input
           [(ngModel)]="buscar"
+          (ngModelChange)="paginar(0)"
+          maxlength="150"
           placeholder="DNI, nombres o apellidos"
           aria-label="Buscar doctor" /></label
       ><button
@@ -100,5 +102,14 @@
         </tbody>
       </table>
     </div>
+    <app-paginador
+      [pagina]="paginacion.pagina"
+      [tamanio]="paginacion.tamanio"
+      [totalElementos]="paginacion.totalElementos"
+      [totalPaginas]="paginacion.totalPaginas"
+      [cargando]="paginacion.cargando"
+      (cambioPagina)="paginar($event)"
+      (cambioTamanio)="paginar(0, $event)"
+    />
   </section>
 </div>

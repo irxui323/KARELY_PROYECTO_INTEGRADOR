@@ -1,3 +1,4 @@
+import { PaginaResponse } from "../../../core/models/pagina-response";
 import { HttpClient } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import { environment } from "../../../../environments/environment";
@@ -26,5 +27,23 @@ export class FinanzasService {
 
   pagar(data: FinanzasRequest) {
     return this.http.post<OperationResponse>(this.url + "/liquidaciones", data);
+  }
+
+  liquidacionesPagina(pagina = 0, tamanio = 10, filtro = "") {
+    return this.http.get<PaginaResponse<Liquidacion>>(
+      this.url + "/liquidaciones",
+      {
+        params: { pagina, tamanio, filtro },
+      },
+    );
+  }
+
+  ingresosPagina(pagina = 0, tamanio = 10, filtro = "") {
+    return this.http.get<PaginaResponse<Ingreso>>(
+      this.url + "/reportes/ingresos",
+      {
+        params: { pagina, tamanio, filtro },
+      },
+    );
   }
 }

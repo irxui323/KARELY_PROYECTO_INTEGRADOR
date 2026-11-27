@@ -1,3 +1,4 @@
+import { PaginaResponse } from "../../../core/models/pagina-response";
 import { HttpClient } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import { environment } from "../../../../environments/environment";
@@ -15,5 +16,11 @@ export class PacienteService {
     return idPaciente
       ? this.http.put<OperationResponse>(recurso + "/" + idPaciente, data)
       : this.http.post<OperationResponse>(recurso, data);
+  }
+
+  listarPagina(pagina = 0, tamanio = 10, filtro = "") {
+    return this.http.get<PaginaResponse<Paciente>>(this.url + "/pacientes", {
+      params: { pagina, tamanio, filtro },
+    });
   }
 }

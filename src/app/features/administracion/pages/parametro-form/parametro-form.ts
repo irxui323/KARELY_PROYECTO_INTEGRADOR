@@ -1,3 +1,4 @@
+import { Paginador } from "../../../../shared/components/paginador/paginador";
 import { ChangeDetectorRef, Component, inject, OnInit } from "@angular/core";
 import {
   FormControl,
@@ -8,6 +9,7 @@ import {
 import { firstValueFrom } from "rxjs";
 import { errorText } from "../../../../core/utils/http-error";
 import { FeatureNav } from "../../../../shared/components/feature-nav/feature-nav";
+import { ModuleHeader } from "../../../../shared/components/module-header/module-header";
 import {
   AdministracionAccion,
   AdministracionRequest,
@@ -17,7 +19,7 @@ import { AdministracionService } from "../../services/administracion-service";
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, FeatureNav],
+  imports: [Paginador,ReactiveFormsModule, FeatureNav, ModuleHeader],
   templateUrl: "./parametro-form.html",
   styleUrl: "./parametro-form.css",
 })
@@ -88,7 +90,7 @@ export class ParametroForm implements OnInit {
       this.changeDetector.markForCheck();
     }
   }
-  cambiarParametro() {
-    this.ejecutar("parametro-cambiar", this.config);
+  async cambiarParametro() {
+    await this.ejecutar("parametro-cambiar", this.config);
   }
 }

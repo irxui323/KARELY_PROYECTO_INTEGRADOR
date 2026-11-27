@@ -1,0 +1,52 @@
+<nav aria-label="Paginación del listado" [attr.aria-busy]="cargando()">
+  <span class="paginador-resumen"
+    >{{ desde() }}–{{ hasta() }} de {{ total() }} registros</span
+  >
+  <label
+    >Filas por página
+    <select
+      [value]="filas()"
+      (change)="cambiarTamanio($event)"
+      [disabled]="cargando()"
+    >
+      @for (cantidad of [10, 20, 50, 100]; track cantidad) {
+      <option [value]="cantidad">{{ cantidad }}</option>
+      }
+    </select>
+  </label>
+  <div class="paginador-acciones">
+    <button
+      type="button"
+      aria-label="Primera página"
+      [disabled]="cargando() || actual() === 0"
+      (click)="irA(0)"
+    >
+      «
+    </button>
+    <button
+      type="button"
+      [disabled]="cargando() || actual() === 0"
+      (click)="irA(actual() - 1)"
+    >
+      Anterior
+    </button>
+    <span aria-live="polite"
+      >Página {{ actual() + 1 }} de {{ paginas() || 1 }}</span
+    >
+    <button
+      type="button"
+      [disabled]="cargando() || actual() >= paginas() - 1"
+      (click)="irA(actual() + 1)"
+    >
+      Siguiente
+    </button>
+    <button
+      type="button"
+      aria-label="Última página"
+      [disabled]="cargando() || actual() >= paginas() - 1"
+      (click)="irA(paginas() - 1)"
+    >
+      »
+    </button>
+  </div>
+</nav>

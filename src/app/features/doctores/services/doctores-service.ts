@@ -1,3 +1,4 @@
+import { PaginaResponse } from "../../../core/models/pagina-response";
 import { HttpClient } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import { environment } from "../../../../environments/environment";
@@ -97,6 +98,21 @@ export class DoctorService {
     return this.http.post<OperationResponse>(
       this.url + "/doctores/" + id + "/documentos",
       form,
+    );
+  }
+
+  listarPagina(pagina = 0, tamanio = 10, filtro = "") {
+    return this.http.get<PaginaResponse<Doctor>>(this.url + "/doctores", {
+      params: { pagina, tamanio, filtro },
+    });
+  }
+
+  disponibilidadesPagina(pagina = 0, tamanio = 10, filtro = "") {
+    return this.http.get<PaginaResponse<Disponibilidad>>(
+      this.url + "/doctores/disponibilidades",
+      {
+        params: { pagina, tamanio, filtro },
+      },
     );
   }
 }

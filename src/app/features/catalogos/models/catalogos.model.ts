@@ -16,3 +16,10 @@ export interface Consultorio {
   ubicacion?: string;
   estado: string;
 }
+
+export interface ConsultaDni {
+  dni: string;
+  nombres: string;
+  apellidoPaterno: string;
+  apellidoMaterno: string;
+}

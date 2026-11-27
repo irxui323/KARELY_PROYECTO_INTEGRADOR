@@ -7,6 +7,40 @@ export interface Atencion {
   diagnostico?: string;
   observaciones?: string;
 }
+export interface Recibo {
+  idRecibo: number;
+  idCita: number;
+  numeroRecibo: string;
+  monto: number;
+  fechaEmision: string;
+  correo?: string | null;
+  fechaEntrega?: string | null;
+  medioEntrega?: string | null;
+}
+
+export interface MedicamentoDetalle {
+  medicamento: string;
+  dosis: string;
+  frecuencia: string;
+  duracion: string;
+  observaciones?: string | null;
+}
+
+export interface DetalleAtencion {
+  idCita: number;
+  paciente: string;
+  doctor: string;
+  especialidad: string;
+  fechaCita: string;
+  horaInicio: string;
+  estadoCita: string;
+  diagnostico?: string | null;
+  observaciones?: string | null;
+  indicacionesReceta?: string | null;
+  medicamentos: MedicamentoDetalle[];
+  numeroRecibo?: string | null;
+  medioEntrega?: string | null;
+}
 export interface AtencionRequest {
   idCita?: number | null;
   idReceta?: number | null;

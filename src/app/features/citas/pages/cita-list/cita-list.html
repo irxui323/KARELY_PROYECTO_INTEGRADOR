@@ -1,18 +1,13 @@
 <div class="k-module k-citas">
-  <header class="k-module-header">
-    <div>
-      <span class="k-eyebrow">GESTIÓN CLÍNICA / AGENDA</span>
-      <h1 class="k-title">Citas médicas</h1>
-      <p class="k-subtitle">
-        Consulta la agenda, reserva turnos y gestiona pagos y reprogramaciones.
-      </p>
-    </div>
-    <div class="k-header-actions">
-      <button class="k-button k-button-secondary" (click)="cargar()">
-        ↻ Actualizar agenda
-      </button>
-    </div>
-  </header>
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="GESTIÓN CLÍNICA / AGENDA"
+    titulo="Citas médicas"
+    descripcion="Consulta la agenda, reserva turnos y gestiona pagos y reprogramaciones."
+    textoActualizar="↻ Actualizar agenda"
+    (actualizar)="cargar()"
+  ></header>
   <app-feature-nav feature="citas" />
   @if(error){
   <div class="k-error" role="alert">{{error}}</div>
@@ -25,13 +20,15 @@
         <h2>Agenda de citas médicas</h2>
         <p>Consulta los turnos confirmados, estados e importes.</p>
       </div>
-      <span class="k-count">{{citasFiltradas().length}} citas</span>
+      <span class="k-count">{{paginacion.totalElementos}} citas</span>
     </div>
     <div class="k-toolbar">
       <label class="k-search"
         ><span>Buscar una cita</span
         ><input
           [(ngModel)]="buscar"
+          (ngModelChange)="paginar(0)"
+          maxlength="150"
           placeholder="Paciente, doctor o estado"
           aria-label="Buscar en agenda"
       /></label>
@@ -41,6 +38,15 @@
       >
         + Reservar cita</button
       >}
+    </div>
+    <div class="k-toolbar">
+      <label class="k-field"
+        >Ver citas<select [(ngModel)]="vista" (ngModelChange)="paginar(0)">
+          <option value="proximas">Próximas pendientes</option>
+          <option value="historial">Historial</option>
+          <option value="todas">Todas</option>
+        </select></label
+      >
     </div>
     <div class="k-table-wrap">
       <table class="k-table">
@@ -75,7 +81,13 @@
             </td>
             <td>S/ {{c.montoTotal}}</td>
             <td>
-              @if(auth.tienePermiso('CITAS_REPROGRAMAR') &&
+              @if(c.estadoCita==='ATENDIDA'){<button
+                class="k-button k-button-small k-button-secondary"
+                (click)="verDetalle(c)"
+                [disabled]="cargandoDetalle"
+              >
+                Ver detalle</button
+              >}@else if(auth.tienePermiso('CITAS_REPROGRAMAR') &&
               c.estadoCita==='PROGRAMADA'){<button
                 *siPermiso="'CITAS_REPROGRAMAR'"
                 class="k-button k-button-small k-button-secondary"
@@ -95,5 +107,40 @@
         </tbody>
       </table>
     </div>
+    <app-paginador
+      [pagina]="paginacion.pagina"
+      [tamanio]="paginacion.tamanio"
+      [totalElementos]="paginacion.totalElementos"
+      [totalPaginas]="paginacion.totalPaginas"
+      [cargando]="paginacion.cargando"
+      (cambioPagina)="paginar($event)"
+      (cambioTamanio)="paginar(0, $event)"
+    />
   </section>
+  @if(cargandoDetalle){
+  <div class="k-info" role="status">Cargando detalle de la atención…</div>
+  } @else if(detalle){
+  <section class="k-panel cita-detalle" aria-labelledby="titulo-detalle-cita">
+    <div class="k-section-heading cita-detalle-cabecera">
+      <div>
+        <h2 id="titulo-detalle-cita">Detalle de la cita #{{detalle.idCita}}</h2>
+        <p>{{detalle.paciente}} · {{detalle.especialidad}} · {{detalle.fechaCita}} {{detalle.horaInicio}}</p>
+      </div>
+      <button class="k-button k-button-secondary" type="button" (click)="cerrarDetalle()">Cerrar detalle</button>
+    </div>
+    <dl class="cita-detalle-grid">
+      <div><dt>Doctor</dt><dd>{{detalle.doctor}}</dd></div>
+      <div><dt>Diagnóstico</dt><dd>{{detalle.diagnostico || 'No registrado'}}</dd></div>
+      <div><dt>Observaciones</dt><dd>{{detalle.observaciones || 'Sin observaciones'}}</dd></div>
+      <div><dt>Indicaciones</dt><dd>{{detalle.indicacionesReceta || 'Sin indicaciones'}}</dd></div>
+      <div><dt>Recibo</dt><dd>{{detalle.numeroRecibo || 'No emitido'}}{{detalle.medioEntrega ? ' · ' + detalle.medioEntrega : ''}}</dd></div>
+    </dl>
+    <h3>Medicamentos prescritos</h3>
+    @if(detalle.medicamentos.length){
+    <div class="k-table-wrap"><table class="k-table"><thead><tr><th>Medicamento</th><th>Dosis</th><th>Frecuencia</th><th>Duración</th><th>Observaciones</th></tr></thead><tbody>
+      @for(m of detalle.medicamentos;track $index){<tr><td>{{m.medicamento}}</td><td>{{m.dosis}}</td><td>{{m.frecuencia}}</td><td>{{m.duracion}}</td><td>{{m.observaciones || '—'}}</td></tr>}
+    </tbody></table></div>
+    } @else {<p class="k-muted">No hay medicamentos registrados.</p>}
+  </section>
+  }
 </div>

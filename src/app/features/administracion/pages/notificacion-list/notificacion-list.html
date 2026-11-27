@@ -1,18 +1,13 @@
 <div class="k-module k-admin">
-  <header class="k-module-header">
-    <div>
-      <span class="k-eyebrow">CONFIGURACIÓN / ADMINISTRACIÓN</span>
-      <h1 class="k-title">Administración</h1>
-      <p class="k-subtitle">
-        Gestiona usuarios, parámetros, catálogos, notificaciones y auditoría.
-      </p>
-    </div>
-    <div class="k-header-actions">
-      <button class="k-button k-button-secondary" (click)="cargar()">
-        ↻ Actualizar información
-      </button>
-    </div>
-  </header>
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="CONFIGURACIÓN / ADMINISTRACIÓN"
+    titulo="Administración"
+    descripcion="Gestiona usuarios, parámetros, catálogos, notificaciones y auditoría."
+    textoActualizar="↻ Actualizar información"
+    (actualizar)="cargar()"
+  ></header>
   <app-feature-nav feature="administracion" />
   @if(error){
   <div class="k-error" role="alert">{{error}}</div>
@@ -27,8 +22,18 @@
       </div>
     </div>
     <div class="k-info">
-      El envío real requiere el servicio SMTP/API externo; esta tabla muestra el
-      estado registrado en Oracle.
+      Revisa si cada aviso está pendiente, enviado o requiere un nuevo intento.
+    </div>
+    <div class="k-toolbar">
+      <label class="k-search"
+        ><span>Buscar en el listado</span
+        ><input
+          type="search"
+          [(ngModel)]="buscar"
+          (ngModelChange)="paginar(0)"
+          maxlength="150"
+          placeholder="Buscar registros"
+      /></label>
     </div>
     <div class="k-table-wrap">
       <table class="k-table">
@@ -57,12 +62,21 @@
           }@empty{
           <tr>
             <td class="k-empty" colspan="5">
-              No hay notificaciones registradas.
+              No se encontraron notificaciones con los filtros actuales.
             </td>
           </tr>
           }
         </tbody>
       </table>
     </div>
+    <app-paginador
+      [pagina]="paginacion.pagina"
+      [tamanio]="paginacion.tamanio"
+      [totalElementos]="paginacion.totalElementos"
+      [totalPaginas]="paginacion.totalPaginas"
+      [cargando]="paginacion.cargando"
+      (cambioPagina)="paginar($event)"
+      (cambioTamanio)="paginar(0, $event)"
+    />
   </section>
 </div>
