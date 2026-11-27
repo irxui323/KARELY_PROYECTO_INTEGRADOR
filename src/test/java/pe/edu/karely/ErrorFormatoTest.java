@@ -13,6 +13,34 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ErrorFormatoTest {
     @Test
+    void dniDuplicadoDevuelveConflictoConMensajeDePaciente() {
+        var oracle = new java.sql.SQLIntegrityConstraintViolationException(
+                "ORA-00001: restricción única (KARELY_BD2.UQ_PACIENTE_DOCUMENTO) violada",
+                "23000", 1);
+        var exception = new org.springframework.dao.DataIntegrityViolationException(
+                "No se pudo insertar", new RuntimeException(oracle));
+
+        var response = new GlobalExceptionHandler().sql(exception);
+
+        assertEquals(409, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals("Ya existe un paciente registrado con ese DNI.", response.getBody().message());
+    }
+
+    @Test
+    void otroDuplicadoOracleNoSeConfundeConDniDePaciente() {
+        var oracle = new java.sql.SQLException(
+                "ORA-00001: restricción única (KARELY_BD2.UQ_OTRO_REGISTRO) violada", "23000", 1);
+        var response = new GlobalExceptionHandler().sql(
+                new org.springframework.dao.DataIntegrityViolationException("Insert", oracle));
+
+        assertEquals(409, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals("Ya existe un registro con esos datos. Revise los registros existentes.",
+                response.getBody().message());
+    }
+
+    @Test
     void devuelveFormatoCompletoYTodosLosCamposInvalidos() {
         var request = new MockHttpServletRequest("POST", "/api/v1/pacientes");
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));

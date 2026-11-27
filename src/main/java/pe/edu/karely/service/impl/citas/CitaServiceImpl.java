@@ -138,6 +138,8 @@ public class CitaServiceImpl implements CitaService {
     public OperacionResponseDTO reprogramarCita(
             long idCita, ReprogramarCitaRequestDTO i, long actor) {
         permisos.exigir(actor, "RECEPCIONISTA", "ADMINISTRADORA");
+        if (i.fechaNueva().isBefore(java.time.LocalDate.now(java.time.ZoneId.of("America/Bogota"))))
+            throw new IllegalArgumentException("La nueva fecha no puede ser anterior a hoy");
         repository.reprogramarCita(
                 actor,
                 actor,

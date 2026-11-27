@@ -44,13 +44,12 @@ public class LiquidacionServiceImpl implements LiquidacionService {
         permisos.exigir(actor, "TESORERA", "ADMINISTRADORA");
         if (i.fechaFin().isBefore(i.fechaInicio()))
             throw new IllegalArgumentException("Rango de fechas inválido");
+        Long correlativo = repository.siguienteCorrelativo();
+        if (correlativo == null) throw new IllegalStateException("No se pudo generar el correlativo");
         String referencia =
-                java.util
-                        .UUID
-                        .randomUUID()
-                        .toString()
-                        .replace("-", "")
-                        .toUpperCase(java.util.Locale.ROOT);
+                java.time.Year.now(java.time.ZoneId.of("America/Bogota"))
+                        + "-"
+                        + String.format(java.util.Locale.ROOT, "%06d", correlativo);
         String operacion = "OP-" + referencia;
         String boleta = "BOL-" + referencia;
         Long id =

@@ -31,6 +31,12 @@ public class AtencionMedicaController {
         return service.listarAtenciones((Long) auth.getPrincipal());
     }
 
+    @GetMapping("/{idCita}/detalle")
+    public pe.edu.karely.dto.atencion.DetalleAtencionResponseDTO detalle(
+            @PathVariable long idCita, Authentication auth) {
+        return service.consultarDetalle(idCita, (Long) auth.getPrincipal());
+    }
+
     @PostMapping("/iniciar")
     public OperacionResponseDTO iniciar(
             @Valid @RequestBody IniciarAtencionRequestDTO body, Authentication auth) {

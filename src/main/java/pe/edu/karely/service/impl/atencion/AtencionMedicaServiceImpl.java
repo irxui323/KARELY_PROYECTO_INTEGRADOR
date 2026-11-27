@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.edu.karely.dto.OperacionResponseDTO;
 import pe.edu.karely.dto.atencion.AtencionResponseDTO;
 import pe.edu.karely.dto.atencion.DiagnosticoRequestDTO;
+import pe.edu.karely.dto.atencion.DetalleAtencionResponseDTO;
 import pe.edu.karely.dto.atencion.EntregaReciboRequestDTO;
 import pe.edu.karely.dto.atencion.MedicamentoRequestDTO;
 import pe.edu.karely.dto.atencion.RecetaRequestDTO;
@@ -53,6 +54,17 @@ public class AtencionMedicaServiceImpl implements AtencionMedicaService {
         return rol.equals("DOCTOR")
                 ? repository.listarAtencionesDelMedico(actor)
                 : repository.listarAtencionesGeneral();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DetalleAtencionResponseDTO consultarDetalle(long idCita, long actor) {
+        String rol = permisos.rol(actor);
+        permisos.exigir(actor, "DOCTOR", "ADMINISTRADORA", "RECEPCIONISTA");
+        var detalle = repository.buscarDetalleCerrada(idCita, actor, rol);
+        if (detalle == null)
+            throw new RecursoNoEncontradoException("Atención atendida no encontrada o sin acceso");
+        return detalle;
     }
 
     @Override

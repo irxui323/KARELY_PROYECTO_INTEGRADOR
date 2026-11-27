@@ -49,6 +49,20 @@ public class LiquidacionRepository {
                 OracleJdbc.outNumber());
     }
 
+    public Long siguienteCorrelativo() {
+        var correlativo =
+                jdbc.one(
+                        Correlativo.class,
+                        "SELECT GREATEST(SQ_LIQUIDACION_REFERENCIA.NEXTVAL,"
+                            + " NVL((SELECT MAX(TO_NUMBER(REGEXP_SUBSTR(NUMERO_OPERACION,"
+                            + " '[0-9]{4,6}$'))) + 1 FROM LIQUIDACION"
+                            + " WHERE REGEXP_LIKE(NUMERO_OPERACION, '^OP-[0-9]{4}-[0-9]{4,6}$')), 1))"
+                            + " AS CORRELATIVO FROM DUAL");
+        return correlativo == null ? null : correlativo.correlativo();
+    }
+
+    public record Correlativo(Long correlativo) {}
+
     public SaldoDoctorResponseDTO saldoDoctor(long idDoctor, java.time.LocalDate fechaCorte) {
         return jdbc.one(
                 SaldoDoctorResponseDTO.class,

@@ -3,6 +3,8 @@ package pe.edu.karely.repository.atencion;
 import org.springframework.stereotype.Repository;
 
 import pe.edu.karely.dto.atencion.AtencionResponseDTO;
+import pe.edu.karely.dto.atencion.DetalleAtencionResponseDTO;
+import pe.edu.karely.dto.atencion.MedicamentoDetalleDTO;
 import pe.edu.karely.dto.atencion.ReciboResponseDTO;
 import pe.edu.karely.repository.OracleJdbc;
 
@@ -37,6 +39,67 @@ public class AtencionMedicaRepository {
                     + " R.ID_ATENCION=A.ID_ATENCION ORDER BY A.FECHA_INICIO DESC FETCH FIRST 150"
                     + " ROWS ONLY");
     }
+
+    public DetalleAtencionResponseDTO buscarDetalleCerrada(long idCita, long actor, String rol) {
+        var cabecera =
+                jdbc.one(
+                        DetalleAtencionCabecera.class,
+                        "SELECT C.ID_CITA, P.NOMBRES||' '||P.APELLIDOS AS PACIENTE,"
+                            + " D.NOMBRES||' '||D.APELLIDOS AS DOCTOR, E.NOMBRE AS ESPECIALIDAD,"
+                            + " C.FECHA_CITA, F.HORA_INICIO, C.ESTADO AS ESTADO_CITA,"
+                            + " A.DIAGNOSTICO, A.OBSERVACIONES, R.ID_RECETA, R.INDICACIONES AS INDICACIONES_RECETA,"
+                            + " RH.NUMERO_RECIBO, RH.MEDIO_ENTREGA"
+                            + " FROM ATENCION_MEDICA A JOIN CITA C ON C.ID_CITA=A.ID_CITA"
+                            + " JOIN PACIENTE P ON P.ID_PACIENTE=C.ID_PACIENTE"
+                            + " JOIN DOCTOR D ON D.ID_DOCTOR=C.ID_DOCTOR"
+                            + " JOIN ESPECIALIDAD E ON E.ID_ESPECIALIDAD=C.ID_ESPECIALIDAD"
+                            + " JOIN FRANJA_HORARIA F ON F.ID_FRANJA=C.ID_FRANJA"
+                            + " LEFT JOIN RECETA R ON R.ID_ATENCION=A.ID_ATENCION"
+                            + " LEFT JOIN RECIBO_HONORARIO RH ON RH.ID_CITA=C.ID_CITA"
+                            + " WHERE C.ID_CITA=? AND A.ESTADO='CERRADA' AND C.ESTADO='ATENDIDA'"
+                            + " AND (D.ID_USUARIO=? OR ? IN ('ADMINISTRADORA','RECEPCIONISTA'))",
+                        idCita,
+                        actor,
+                        rol);
+        if (cabecera == null) return null;
+        var medicamentos =
+                cabecera.idReceta() == null
+                        ? List.<MedicamentoDetalleDTO>of()
+                        : jdbc.list(
+                                MedicamentoDetalleDTO.class,
+                                "SELECT MEDICAMENTO,DOSIS,FRECUENCIA,DURACION,OBSERVACIONES"
+                                    + " FROM RECETA_DETALLE WHERE ID_RECETA=? ORDER BY ID_DETALLE",
+                                cabecera.idReceta());
+        return new DetalleAtencionResponseDTO(
+                cabecera.idCita(),
+                cabecera.paciente(),
+                cabecera.doctor(),
+                cabecera.especialidad(),
+                cabecera.fechaCita(),
+                cabecera.horaInicio(),
+                cabecera.estadoCita(),
+                cabecera.diagnostico(),
+                cabecera.observaciones(),
+                cabecera.indicacionesReceta(),
+                medicamentos,
+                cabecera.numeroRecibo(),
+                cabecera.medioEntrega());
+    }
+
+    private record DetalleAtencionCabecera(
+            Long idCita,
+            String paciente,
+            String doctor,
+            String especialidad,
+            java.time.LocalDate fechaCita,
+            String horaInicio,
+            String estadoCita,
+            String diagnostico,
+            String observaciones,
+            Long idReceta,
+            String indicacionesReceta,
+            String numeroRecibo,
+            String medioEntrega) {}
 
     public Long iniciarAtencion(long actor, long usuario, Long idCita) {
         return jdbc.callId("SP_INICIAR_ATENCION", actor, usuario, idCita, OracleJdbc.outNumber());

@@ -7,6 +7,7 @@ import pe.edu.karely.dto.OperacionResponseDTO;
 import pe.edu.karely.dto.doctor.DisponibilidadRequestDTO;
 import pe.edu.karely.dto.doctor.DisponibilidadResponseDTO;
 import pe.edu.karely.repository.doctores.DisponibilidadDoctorRepository;
+import pe.edu.karely.repository.doctores.DoctorRepository;
 import pe.edu.karely.security.PermisosUsuario;
 import pe.edu.karely.service.service.doctores.DisponibilidadService;
 
@@ -26,11 +27,15 @@ public class DisponibilidadServiceImpl implements DisponibilidadService {
 
     private final DisponibilidadDoctorRepository repository;
     private final PermisosUsuario permisos;
+    private final DoctorRepository doctores;
 
     public DisponibilidadServiceImpl(
-            DisponibilidadDoctorRepository repository, PermisosUsuario permisos) {
+            DisponibilidadDoctorRepository repository,
+            PermisosUsuario permisos,
+            DoctorRepository doctores) {
         this.repository = repository;
         this.permisos = permisos;
+        this.doctores = doctores;
     }
 
     @Override
@@ -54,6 +59,12 @@ public class DisponibilidadServiceImpl implements DisponibilidadService {
             throw new IllegalArgumentException("La fecha del horario no puede ser anterior a hoy");
         if (i.idEspecialidad() == null || i.idEspecialidad() <= 0)
             throw new IllegalArgumentException("Selecciona la especialidad de esta disponibilidad");
+        var doctor = doctores.bloquearDoctor(idDoctor);
+        if (doctor == null
+                || !"ACTIVO".equals(doctor.estado())
+                || !"COMPLETO".equals(doctor.estadoDocumentacion()))
+            throw new IllegalArgumentException(
+                    "Solo se puede registrar disponibilidad para un médico validado");
         return OperacionResponseDTO.resultado(
                 "SP_REGISTRAR_DISPONIBILIDAD",
                 repository.registrarHorario(

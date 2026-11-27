@@ -50,6 +50,7 @@ public class OracleJdbc {
                             "SP_REGISTRAR_RESULTADO_ENVIO",
                             "{call SP_REGISTRAR_RESULTADO_ENVIO(?,?,?,?,?)}"),
                     Map.entry("SP_REPROGRAMAR_CITA", "{call SP_REPROGRAMAR_CITA(?,?,?,?,?,?,?)}"),
+                    Map.entry("SP_TAREA_MANTENIMIENTO", "{call SP_TAREA_MANTENIMIENTO}"),
                     Map.entry("SP_TOMAR_NOTIFICACION", "{call SP_TOMAR_NOTIFICACION(?,?,?,?,?,?)}"),
                     Map.entry("SP_VALIDAR_DOCUMENTACION", "{call SP_VALIDAR_DOCUMENTACION(?,?)}"));
 

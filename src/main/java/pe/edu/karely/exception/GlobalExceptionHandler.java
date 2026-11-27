@@ -95,11 +95,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ErrorResponseDTO> sql(DataAccessException e) {
-        if (e instanceof DuplicateKeyException) {
-            return error(
-                    409, "Ya existe un registro con esos datos. Revise los registros existentes.");
-        }
         for (Throwable cause = e; cause != null; cause = cause.getCause()) {
+            if (cause instanceof SQLException sql && sql.getErrorCode() == 1) {
+                String message = sql.getMessage();
+                if (message != null
+                        && message.toUpperCase(java.util.Locale.ROOT).contains("UQ_PACIENTE_DOCUMENTO")) {
+                    return error(409, "Ya existe un paciente registrado con ese DNI.");
+                }
+                return error(
+                        409, "Ya existe un registro con esos datos. Revise los registros existentes.");
+            }
             if (cause instanceof SQLException sql
                     && sql.getErrorCode() >= 20000
                     && sql.getErrorCode() <= 20999) {
@@ -109,6 +114,10 @@ public class GlobalExceptionHandler {
                         400,
                         message.find() ? message.group(1).replaceFirst("^ORA-20\\d{3}:\\s*", "").strip() : "No se pudo completar la operación. Revisa los datos ingresados.");
             }
+        }
+        if (e instanceof DuplicateKeyException) {
+            return error(
+                    409, "Ya existe un registro con esos datos. Revise los registros existentes.");
         }
         LOG.error("Fallo interno de base de datos", e);
         return error(500, "No se pudo completar la operación. Inténtalo de nuevo en unos minutos.");

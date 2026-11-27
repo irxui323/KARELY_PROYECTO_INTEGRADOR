@@ -11,6 +11,8 @@ import pe.edu.karely.dto.atencion.ReciboRequestDTO;
 import java.util.List;
 
 public interface AtencionMedicaService {
+    pe.edu.karely.dto.atencion.DetalleAtencionResponseDTO consultarDetalle(long idCita, long actor);
+
     pe.edu.karely.dto.atencion.ReciboResponseDTO consultarRecibo(long idCita, long actor);
 
     byte[] descargarRecibo(long idCita, long actor);
