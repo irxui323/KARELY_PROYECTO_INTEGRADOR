@@ -2,6 +2,7 @@ package pe.edu.karely;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -10,15 +11,36 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import pe.edu.karely.controller.CitaController;
-import pe.edu.karely.repository.CitaRepository;
+import pe.edu.karely.controller.citas.CitaController;
+import pe.edu.karely.dto.cita.ReprogramarCitaRequestDTO;
+import pe.edu.karely.repository.citas.CitaRepository;
 import pe.edu.karely.security.PermisosUsuario;
-import pe.edu.karely.service.impl.CitaServiceImpl;
+import pe.edu.karely.service.impl.citas.CitaServiceImpl;
 
 import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
 
 class CitaFlujoTest {
+    @Test
+    void permiteReprogramarDesdeHoyYRechazaSoloFechasAnteriores() {
+        var repo = mock(CitaRepository.class);
+        var permisos = mock(PermisosUsuario.class);
+        var servicio = new CitaServiceImpl(repo, permisos);
+        var hoy = LocalDate.now(java.time.ZoneId.of("America/Bogota"));
+        var solicitud = new ReprogramarCitaRequestDTO(hoy, 3L, 2L, "Cambio solicitado", "S");
+
+        servicio.reprogramarCita(12L, solicitud, 7L);
+
+        verify(repo).reprogramarCita(7L, 7L, 12L, hoy, 3L, 2L, "Cambio solicitado", "S");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> servicio.reprogramarCita(
+                        12L,
+                        new ReprogramarCitaRequestDTO(hoy.minusDays(1), 3L, 2L, "Cambio solicitado", "S"),
+                        7L));
+    }
+
     @Test
     void confirmarCitaConservaLaRutaYDelegaUnaVezEnOracle() throws Exception {
         List<String> pasos = new ArrayList<>();

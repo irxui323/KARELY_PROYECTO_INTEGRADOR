@@ -7,12 +7,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import pe.edu.karely.controller.AuthController;
+import pe.edu.karely.controller.auth.AuthController;
 import pe.edu.karely.dto.auth.MensajeResponseDTO;
 import pe.edu.karely.dto.auth.RestablecerPasswordRequestDTO;
 import pe.edu.karely.exception.GlobalExceptionHandler;
-import pe.edu.karely.service.service.AuthService;
-import pe.edu.karely.service.service.RecuperacionService;
+import pe.edu.karely.service.service.auth.AuthService;
+import pe.edu.karely.service.service.auth.RecuperacionService;
 
 class RecuperacionHttpTest {
     @Test
@@ -22,7 +22,7 @@ class RecuperacionHttpTest {
                                 new AuthController(
                                         mock(AuthService.class),
                                         mock(
-                                                pe.edu.karely.service.service.RecuperacionService
+                                                pe.edu.karely.service.service.auth.RecuperacionService
                                                         .class)))
                         .build();
         mvc.perform(

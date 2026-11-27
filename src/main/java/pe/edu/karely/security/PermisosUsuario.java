@@ -3,7 +3,7 @@ package pe.edu.karely.security;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
-import pe.edu.karely.repository.UsuarioRepository;
+import pe.edu.karely.repository.administracion.UsuarioRepository;
 
 import java.util.Arrays;
 

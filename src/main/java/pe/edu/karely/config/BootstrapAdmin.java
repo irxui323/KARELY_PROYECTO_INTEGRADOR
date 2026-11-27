@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import pe.edu.karely.repository.UsuarioRepository;
+import pe.edu.karely.repository.administracion.UsuarioRepository;
 
 import java.util.Locale;
 

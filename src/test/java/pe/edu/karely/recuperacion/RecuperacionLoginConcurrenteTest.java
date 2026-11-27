@@ -14,15 +14,31 @@ import org.springframework.orm.jpa.*;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.web.server.ResponseStatusException;
 
 import pe.edu.karely.dto.auth.*;
 import pe.edu.karely.entity.*;
-import pe.edu.karely.repository.*;
+import pe.edu.karely.repository.administracion.*;
+import pe.edu.karely.repository.atencion.*;
+import pe.edu.karely.repository.auth.*;
+import pe.edu.karely.repository.catalogos.*;
+import pe.edu.karely.repository.citas.*;
+import pe.edu.karely.repository.doctores.*;
+import pe.edu.karely.repository.finanzas.*;
+import pe.edu.karely.repository.pacientes.*;
+import pe.edu.karely.repository.reportes.*;
 import pe.edu.karely.repository.OracleJdbc;
 import pe.edu.karely.security.JwtService;
-import pe.edu.karely.service.impl.*;
+import pe.edu.karely.service.impl.administracion.*;
+import pe.edu.karely.service.impl.atencion.*;
+import pe.edu.karely.service.impl.auth.*;
+import pe.edu.karely.service.impl.catalogos.*;
+import pe.edu.karely.service.impl.citas.*;
+import pe.edu.karely.service.impl.doctores.*;
+import pe.edu.karely.service.impl.finanzas.*;
+import pe.edu.karely.service.impl.pacientes.*;
+import pe.edu.karely.service.impl.reportes.*;
 
 import java.time.*;
 import java.util.*;
@@ -142,10 +158,7 @@ class RecuperacionLoginConcurrenteTest {
                 var failure =
                         assertThrows(
                                 ExecutionException.class, () -> login.get(15, TimeUnit.SECONDS));
-                assertInstanceOf(ResponseStatusException.class, failure.getCause());
-                assertEquals(
-                        401,
-                        ((ResponseStatusException) failure.getCause()).getStatusCode().value());
+                assertInstanceOf(BadCredentialsException.class, failure.getCause());
                 verify(sessions, never()).abrir(anyLong());
             } finally {
                 resetCommitted.countDown();

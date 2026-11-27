@@ -16,8 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import pe.edu.karely.dto.auth.*;
 import pe.edu.karely.entity.*;
-import pe.edu.karely.repository.TokenRecuperacionRepository;
-import pe.edu.karely.service.impl.RecuperacionServiceImpl;
+import pe.edu.karely.repository.auth.TokenRecuperacionRepository;
+import pe.edu.karely.service.impl.auth.RecuperacionServiceImpl;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

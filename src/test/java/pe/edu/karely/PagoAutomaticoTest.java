@@ -6,16 +6,16 @@ import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.Test;
 
 import pe.edu.karely.dto.finanzas.PagoDoctorRequestDTO;
-import pe.edu.karely.repository.LiquidacionRepository;
+import pe.edu.karely.repository.finanzas.LiquidacionRepository;
 import pe.edu.karely.security.PermisosUsuario;
-import pe.edu.karely.service.impl.LiquidacionServiceImpl;
+import pe.edu.karely.service.impl.finanzas.LiquidacionServiceImpl;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 class PagoAutomaticoTest {
     @Test
-    void generaReferenciasDiferentesEnElServidorSinPedirlasAlUsuario() {
+    void generaReferenciasCorrelativasLegiblesSinPedirlasAlUsuario() {
         var repo = mock(LiquidacionRepository.class);
         var service = new LiquidacionServiceImpl(repo, mock(PermisosUsuario.class));
         var fecha = LocalDate.now();
@@ -30,6 +30,7 @@ class PagoAutomaticoTest {
                         any(),
                         any()))
                 .thenReturn(20L);
+        when(repo.siguienteCorrelativo()).thenReturn(25L, 26L);
         var datos =
                 new PagoDoctorRequestDTO(1L, fecha, fecha, BigDecimal.TEN, "EFECTIVO", null, null);
         var resultado = service.pagarDoctor(datos, 7);
@@ -47,9 +48,10 @@ class PagoAutomaticoTest {
                         eq("EFECTIVO"),
                         op.capture(),
                         boleta.capture());
-        assertTrue(op.getAllValues().get(0).startsWith("OP-"));
-        assertTrue(boleta.getAllValues().get(0).startsWith("BOL-"));
-        assertNotEquals(op.getAllValues().get(0), op.getAllValues().get(1));
+        assertEquals("OP-2026-000025", op.getAllValues().get(0));
+        assertEquals("BOL-2026-000025", boleta.getAllValues().get(0));
+        assertEquals("OP-2026-000026", op.getAllValues().get(1));
+        assertEquals("BOL-2026-000026", boleta.getAllValues().get(1));
         assertTrue(resultado.mensaje().contains(boleta.getAllValues().get(0)));
     }
 }

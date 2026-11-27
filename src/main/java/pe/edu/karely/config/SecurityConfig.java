@@ -18,7 +18,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import pe.edu.karely.dto.ErrorResponseDTO;
-import pe.edu.karely.repository.SesionRepository;
+import pe.edu.karely.repository.auth.SesionRepository;
 import pe.edu.karely.security.AuthFilter;
 import pe.edu.karely.security.JwtService;
 
@@ -45,7 +45,7 @@ public class SecurityConfig {
                         .filter(origin -> !origin.isEmpty())
                         .toList());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-XSRF-TOKEN"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
@@ -55,7 +55,7 @@ public class SecurityConfig {
     SecurityFilterChain chain(
             HttpSecurity http, JwtService jwt, SesionRepository sesiones, ObjectMapper mapper)
             throws Exception {
-        http.csrf(csrf -> csrf.disable())
+        http.csrf(csrf -> csrf.spa())
                 .cors(cors -> {})
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -77,6 +77,7 @@ public class SecurityConfig {
                                 errors.authenticationEntryPoint(
                                                 (request, response, ex) ->
                                                         writeError(
+                                                                request,
                                                                 response,
                                                                 mapper,
                                                                 401,
@@ -84,6 +85,7 @@ public class SecurityConfig {
                                         .accessDeniedHandler(
                                                 (request, response, ex) ->
                                                         writeError(
+                                                                request,
                                                                 response,
                                                                 mapper,
                                                                 403,
@@ -94,11 +96,15 @@ public class SecurityConfig {
     }
 
     private void writeError(
+            jakarta.servlet.http.HttpServletRequest request,
             HttpServletResponse response, ObjectMapper mapper, int status, String detail)
             throws IOException {
         response.setStatus(status);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
-        mapper.writeValue(response.getOutputStream(), new ErrorResponseDTO(detail));
+        mapper.writeValue(response.getOutputStream(), new ErrorResponseDTO(
+                java.time.LocalDateTime.now(), status,
+                org.springframework.http.HttpStatus.valueOf(status).getReasonPhrase(),
+                detail, request.getRequestURI(), null));
     }
 }

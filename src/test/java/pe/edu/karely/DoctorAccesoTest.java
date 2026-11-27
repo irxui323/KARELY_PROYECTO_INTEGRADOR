@@ -1,5 +1,7 @@
 package pe.edu.karely;
 
+import pe.edu.karely.repository.OracleJdbc;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -9,9 +11,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import pe.edu.karely.dto.auth.IdRolDTO;
 import pe.edu.karely.dto.doctor.*;
-import pe.edu.karely.repository.*;
+import pe.edu.karely.repository.administracion.*;
+import pe.edu.karely.repository.atencion.*;
+import pe.edu.karely.repository.auth.*;
+import pe.edu.karely.repository.catalogos.*;
+import pe.edu.karely.repository.citas.*;
+import pe.edu.karely.repository.doctores.*;
+import pe.edu.karely.repository.finanzas.*;
+import pe.edu.karely.repository.pacientes.*;
+import pe.edu.karely.repository.reportes.*;
 import pe.edu.karely.security.PermisosUsuario;
-import pe.edu.karely.service.impl.DoctorServiceImpl;
+import pe.edu.karely.service.impl.doctores.DoctorServiceImpl;
 
 import java.util.List;
 
@@ -62,9 +72,9 @@ class DoctorAccesoTest {
         var acceso = service.crearAcceso(1, new CrearAccesoRequestDTO(" Ana "), 7);
         assertEquals("ana", acceso.username());
         assertEquals(20, acceso.passwordTemporal().length());
-        assertTrue(acceso.passwordTemporal().matches(".*[A-Z].*"));
-        assertTrue(acceso.passwordTemporal().matches(".*[a-z].*"));
-        assertTrue(acceso.passwordTemporal().matches(".*[0-9].*"));
+        assertTrue(acceso.passwordTemporal().chars().anyMatch(c -> c >= 'A' && c <= 'Z'));
+        assertTrue(acceso.passwordTemporal().chars().anyMatch(c -> c >= 'a' && c <= 'z'));
+        assertTrue(acceso.passwordTemporal().chars().anyMatch(c -> c >= '0' && c <= '9'));
         var hash = org.mockito.ArgumentCaptor.forClass(String.class);
         verify(usuarios)
                 .crearUsuario(eq(7L), eq(3L), eq("ana"), eq("ana@example.com"), hash.capture());

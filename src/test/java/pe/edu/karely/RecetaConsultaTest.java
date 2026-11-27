@@ -1,12 +1,22 @@
 package pe.edu.karely;
 
+import pe.edu.karely.repository.OracleJdbc;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-import pe.edu.karely.repository.*;
+import pe.edu.karely.repository.administracion.*;
+import pe.edu.karely.repository.atencion.*;
+import pe.edu.karely.repository.auth.*;
+import pe.edu.karely.repository.catalogos.*;
+import pe.edu.karely.repository.citas.*;
+import pe.edu.karely.repository.doctores.*;
+import pe.edu.karely.repository.finanzas.*;
+import pe.edu.karely.repository.pacientes.*;
+import pe.edu.karely.repository.reportes.*;
 
 class RecetaConsultaTest {
     @Test

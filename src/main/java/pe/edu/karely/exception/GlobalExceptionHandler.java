@@ -5,6 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -22,6 +25,9 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import pe.edu.karely.dto.ErrorResponseDTO;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @RestControllerAdvice
@@ -48,12 +54,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> invalidBody(MethodArgumentNotValidException e) {
-        var field = e.getBindingResult().getFieldError();
-        return error(
-                400,
-                field == null
-                        ? "Datos inválidos"
-                        : field.getField() + ": " + field.getDefaultMessage());
+        Map<String, String> validationErrors = new LinkedHashMap<>();
+        e.getBindingResult().getFieldErrors().forEach(
+                field -> validationErrors.put(field.getField(), field.getDefaultMessage()));
+        return error(400, "Existen errores de validación", validationErrors);
     }
 
     @ExceptionHandler({IllegalArgumentException.class, ReglaNegocioException.class})
@@ -91,11 +95,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ErrorResponseDTO> sql(DataAccessException e) {
-        if (e instanceof DuplicateKeyException) {
-            return error(
-                    409, "Ya existe un registro con esos datos. Revise los registros existentes.");
-        }
         for (Throwable cause = e; cause != null; cause = cause.getCause()) {
+            if (cause instanceof SQLException sql && sql.getErrorCode() == 1) {
+                String message = sql.getMessage();
+                if (message != null
+                        && message.toUpperCase(java.util.Locale.ROOT).contains("UQ_PACIENTE_DOCUMENTO")) {
+                    return error(409, "Ya existe un paciente registrado con ese DNI.");
+                }
+                return error(
+                        409, "Ya existe un registro con esos datos. Revise los registros existentes.");
+            }
             if (cause instanceof SQLException sql
                     && sql.getErrorCode() >= 20000
                     && sql.getErrorCode() <= 20999) {
@@ -103,20 +112,34 @@ public class GlobalExceptionHandler {
                         MENSAJE_ORACLE.matcher(sql.getMessage() == null ? "" : sql.getMessage());
                 return error(
                         400,
-                        message.find() ? message.group(1).strip() : "Regla de negocio no cumplida");
+                        message.find() ? message.group(1).replaceFirst("^ORA-20\\d{3}:\\s*", "").strip() : "No se pudo completar la operación. Revisa los datos ingresados.");
             }
         }
+        if (e instanceof DuplicateKeyException) {
+            return error(
+                    409, "Ya existe un registro con esos datos. Revise los registros existentes.");
+        }
         LOG.error("Fallo interno de base de datos", e);
-        return error(500, "Error en la operación. Consulte el registro del servidor.");
+        return error(500, "No se pudo completar la operación. Inténtalo de nuevo en unos minutos.");
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> other(Exception e) {
         LOG.error("Fallo del servidor", e);
-        return error(500, "Error interno del servidor");
+        return error(500, "No se pudo completar la operación. Inténtalo de nuevo en unos minutos.");
     }
 
     private ResponseEntity<ErrorResponseDTO> error(int status, String detail) {
-        return ResponseEntity.status(status).body(new ErrorResponseDTO(detail));
+        return error(status, detail, null);
+    }
+
+    private ResponseEntity<ErrorResponseDTO> error(
+            int status, String detail, Map<String, String> validationErrors) {
+        var attributes = RequestContextHolder.getRequestAttributes();
+        String path = attributes instanceof ServletRequestAttributes servlet
+                ? servlet.getRequest().getRequestURI() : null;
+        return ResponseEntity.status(status).body(new ErrorResponseDTO(
+                LocalDateTime.now(), status, HttpStatus.valueOf(status).getReasonPhrase(),
+                detail, path, validationErrors));
     }
 }

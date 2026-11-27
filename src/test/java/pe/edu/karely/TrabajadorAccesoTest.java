@@ -8,9 +8,9 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import pe.edu.karely.dto.administracion.*;
-import pe.edu.karely.repository.UsuarioRepository;
+import pe.edu.karely.repository.administracion.UsuarioRepository;
 import pe.edu.karely.security.PermisosUsuario;
-import pe.edu.karely.service.impl.UsuarioServiceImpl;
+import pe.edu.karely.service.impl.administracion.UsuarioServiceImpl;
 
 import java.util.List;
 
@@ -110,7 +110,7 @@ class TrabajadorAccesoTest {
                         repo, mock(PermisosUsuario.class), new BCryptPasswordEncoder());
         var mvc =
                 org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup(
-                                new pe.edu.karely.controller.UsuarioController(service))
+                                new pe.edu.karely.controller.administracion.UsuarioController(service))
                         .build();
         mvc.perform(
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post(
