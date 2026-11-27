@@ -279,6 +279,20 @@ test("recibo se emite sin numero manual y se descarga como PDF", async () => {
   assert.equal((await descarga).type, "application/pdf");
 });
 
+test("detalle de atención consulta la cita atendida seleccionada", async () => {
+  const service = runInInjectionContext(injector, () => new AtencionService());
+  const carga = firstValueFrom(service.detalle(18));
+  const request = http.expectOne("/api/v1/atenciones/18/detalle");
+  assert.equal(request.request.method, "GET");
+  request.flush({
+    idCita: 18,
+    paciente: "Lucía Herrera",
+    doctor: "Dra. Elena Rojas",
+    medicamentos: [],
+  });
+  assert.equal((await carga).idCita, 18);
+});
+
 test("editar paciente bloquea identificacion y nuevo paciente la habilita", () => {
   const fixture = mountComponent(PacientesComponent);
   try {

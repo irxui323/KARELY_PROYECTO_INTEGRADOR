@@ -137,6 +137,11 @@ export class DoctorHorarios implements OnInit {
               ),
             ),
           ]);
+        this.doctores = this.doctores.filter(
+          (doctor) =>
+            doctor.estado === "ACTIVO" &&
+            doctor.estadoDocumentacion === "COMPLETO",
+        );
       } catch (e) {
         this.error = errorText(e);
       }

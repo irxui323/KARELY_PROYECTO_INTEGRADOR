@@ -12,6 +12,8 @@ import { Cita } from "../../../citas/models/citas.model";
 import { CitaService } from "../../../citas/services/citas-service";
 import { Doctor } from "../../../doctores/models/doctores.model";
 import { DoctorService } from "../../../doctores/services/doctores-service";
+import { AtencionService } from "../../services/atencion-service";
+import { DetalleAtencion } from "../../models/atencion.model";
 type PestanaMedica = "citas" | "horarios" | "consultas";
 @Component({
   standalone: true,
@@ -29,12 +31,15 @@ export class AgendaList implements OnInit {
   constructor() {}
   private doctoresService = inject(DoctorService);
   private citasService = inject(CitaService);
+  private atencionService = inject(AtencionService);
   private auth = inject(AuthService);
   busqueda = "";
   error = "";
   exito = "";
   cargando = false;
   procesando = false;
+  cargandoDetalle = false;
+  detalle: DetalleAtencion | null = null;
   citas: Cita[] = [];
   doctor: Doctor | undefined;
   get esAdministradora(): boolean {
@@ -96,6 +101,22 @@ export class AgendaList implements OnInit {
     void this.router.navigate(["/doctor/consultas"], {
       queryParams: { cita: cita.idCita },
     });
+  }
+  async verDetalle(cita: Cita) {
+    this.error = "";
+    this.detalle = null;
+    this.cargandoDetalle = true;
+    try {
+      this.detalle = await firstValueFrom(this.atencionService.detalle(cita.idCita));
+    } catch (error) {
+      this.error = errorText(error);
+    } finally {
+      this.cargandoDetalle = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+  cerrarDetalle() {
+    this.detalle = null;
   }
   doctores: Doctor[] = [];
 

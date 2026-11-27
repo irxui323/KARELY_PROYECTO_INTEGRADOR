@@ -31,45 +31,6 @@ body {
   object-position: center;
 }
 
-.boton-regresar {
-  position: absolute;
-  top: 14px;
-  left: 18px;
-  z-index: 10;
-
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  background: #ffffff;
-  color: #111111;
-  text-decoration: none;
-
-  padding: 6px 13px 6px 7px;
-  border-radius: 20px;
-
-  font-size: 12px;
-  font-weight: 700;
-
-  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.25);
-}
-
-.circulo-flecha {
-  width: 23px;
-  height: 23px;
-  border-radius: 50%;
-
-  background: #000000;
-  color: #ffffff;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 15px;
-  font-weight: 700;
-}
-
 .separador-azul {
   width: 8px;
   height: 100vh;

@@ -81,7 +81,13 @@
             </td>
             <td>S/ {{c.montoTotal}}</td>
             <td>
-              @if(auth.tienePermiso('CITAS_REPROGRAMAR') &&
+              @if(c.estadoCita==='ATENDIDA'){<button
+                class="k-button k-button-small k-button-secondary"
+                (click)="verDetalle(c)"
+                [disabled]="cargandoDetalle"
+              >
+                Ver detalle</button
+              >}@else if(auth.tienePermiso('CITAS_REPROGRAMAR') &&
               c.estadoCita==='PROGRAMADA'){<button
                 *siPermiso="'CITAS_REPROGRAMAR'"
                 class="k-button k-button-small k-button-secondary"
@@ -111,4 +117,30 @@
       (cambioTamanio)="paginar(0, $event)"
     />
   </section>
+  @if(cargandoDetalle){
+  <div class="k-info" role="status">Cargando detalle de la atención…</div>
+  } @else if(detalle){
+  <section class="k-panel cita-detalle" aria-labelledby="titulo-detalle-cita">
+    <div class="k-section-heading cita-detalle-cabecera">
+      <div>
+        <h2 id="titulo-detalle-cita">Detalle de la cita #{{detalle.idCita}}</h2>
+        <p>{{detalle.paciente}} · {{detalle.especialidad}} · {{detalle.fechaCita}} {{detalle.horaInicio}}</p>
+      </div>
+      <button class="k-button k-button-secondary" type="button" (click)="cerrarDetalle()">Cerrar detalle</button>
+    </div>
+    <dl class="cita-detalle-grid">
+      <div><dt>Doctor</dt><dd>{{detalle.doctor}}</dd></div>
+      <div><dt>Diagnóstico</dt><dd>{{detalle.diagnostico || 'No registrado'}}</dd></div>
+      <div><dt>Observaciones</dt><dd>{{detalle.observaciones || 'Sin observaciones'}}</dd></div>
+      <div><dt>Indicaciones</dt><dd>{{detalle.indicacionesReceta || 'Sin indicaciones'}}</dd></div>
+      <div><dt>Recibo</dt><dd>{{detalle.numeroRecibo || 'No emitido'}}{{detalle.medioEntrega ? ' · ' + detalle.medioEntrega : ''}}</dd></div>
+    </dl>
+    <h3>Medicamentos prescritos</h3>
+    @if(detalle.medicamentos.length){
+    <div class="k-table-wrap"><table class="k-table"><thead><tr><th>Medicamento</th><th>Dosis</th><th>Frecuencia</th><th>Duración</th><th>Observaciones</th></tr></thead><tbody>
+      @for(m of detalle.medicamentos;track $index){<tr><td>{{m.medicamento}}</td><td>{{m.dosis}}</td><td>{{m.frecuencia}}</td><td>{{m.duracion}}</td><td>{{m.observaciones || '—'}}</td></tr>}
+    </tbody></table></div>
+    } @else {<p class="k-muted">No hay medicamentos registrados.</p>}
+  </section>
+  }
 </div>

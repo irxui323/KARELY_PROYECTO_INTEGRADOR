@@ -6,6 +6,7 @@ import {
   Atencion,
   AtencionAccion,
   AtencionRequest,
+  DetalleAtencion,
   Recibo,
 } from "../models/atencion.model";
 @Injectable({ providedIn: "root" })
@@ -18,6 +19,11 @@ export class AtencionService {
   recibo(idCita: number) {
     return this.http.get<Recibo | null>(
       `${this.url}/atenciones/${idCita}/recibo`,
+    );
+  }
+  detalle(idCita: number) {
+    return this.http.get<DetalleAtencion>(
+      `${this.url}/atenciones/${idCita}/detalle`,
     );
   }
   descargarRecibo(idCita: number) {

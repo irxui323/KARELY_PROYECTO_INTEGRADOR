@@ -11,6 +11,8 @@ import { ModuleHeader } from "../../../../shared/components/module-header/module
 import { SiPermiso } from "../../../../shared/directives/si-permiso";
 import { Cita } from "../../models/citas.model";
 import { CitaService } from "../../services/citas-service";
+import { AtencionService } from "../../../atencion/services/atencion-service";
+import { DetalleAtencion } from "../../../atencion/models/atencion.model";
 
 @Component({
   standalone: true,
@@ -34,11 +36,14 @@ export class CitaList implements OnInit {
   private readonly router = inject(Router);
   constructor() {}
   private citasService = inject(CitaService);
+  private atencionService = inject(AtencionService);
   auth = inject(AuthService);
   error = "";
   exito = "";
   buscar = "";
   citas: Cita[] = [];
+  detalle: DetalleAtencion | null = null;
+  cargandoDetalle = false;
   ngOnInit() {
     void this.cargar();
   }
@@ -65,6 +70,22 @@ export class CitaList implements OnInit {
   }
   seleccionarReprogramar(record: Cita) {
     void this.router.navigate(["/citas", record.idCita, "reprogramar"]);
+  }
+  async verDetalle(record: Cita) {
+    this.error = "";
+    this.detalle = null;
+    this.cargandoDetalle = true;
+    try {
+      this.detalle = await firstValueFrom(this.atencionService.detalle(record.idCita));
+    } catch (e) {
+      this.error = errorText(e);
+    } finally {
+      this.cargandoDetalle = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+  cerrarDetalle() {
+    this.detalle = null;
   }
 
   paginar(pagina: number, tamanio = this.paginacion.tamanio) {
