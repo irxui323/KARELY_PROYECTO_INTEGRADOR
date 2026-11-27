@@ -1,0 +1,38 @@
+﻿PROCEDIMIENTOS CORTOS PARA EXPOSICION - KARELY
+
+La plantilla exige 3 procedimientos por integrante y pide nombre, objetivo,
+referencia RF/RN y codigo. No especifica que todos deban realizar INSERT/UPDATE.
+Estos 15 procedimientos de consulta cubren ese apartado cuantitativo y formal.
+La evaluacion final de la dificultad corresponde a la docente.
+
+1. Abrir 00_INSTALAR_PROCEDIMIENTOS_EXPO.sql en SQL Developer.
+2. Elegir conexion KARELY_BD2 y ejecutar todo con F5.
+3. Debe mostrar 15 procedimientos VALID y ninguna fila en USER_ERRORS.
+4. Ejecutar 07_probar_consultas.sql con F5 para ver resultados y rechazos.
+   Debe existir al menos un paciente para el ejemplo por documento.
+   Los reportes pueden estar vacios si no existen datos para su filtro.
+
+El 00 contiene el codigo completo: no ejecutar tambien 01 a 05.
+Los archivos 01 a 05 permiten instalar por integrante en lugar del 00.
+06 repite solo las verificaciones.
+
+No se han ejecutado contra una instancia Oracle desde esta preparacion.
+La comprobacion de compilacion y de ejecucion la realizan 00, 06 y 07 en tu BD.
+
+No borran datos ni reemplazan los procedimientos de negocio existentes.
+No se cambia el backend, sus permisos, ni el Word entregable previo.
+Si se seleccionan para la entrega, usar estas fichas en la seccion de
+procedimientos del Word; funciones, triggers y demas requisitos siguen aparte.
+
+AUTHID CURRENT_USER significa privilegios del invocador. Son reportes internos
+para el propietario durante la exposicion; no se conceden permisos a PUBLIC
+ni a roles de la aplicacion. Filtrar por ID no autentica a un doctor.
+
+Un procedimiento de reporte sigue siendo un procedimiento almacenado:
+recibe parametros, valida y abre una consulta con SQL fijo. El cursor OUT
+devuelve varias filas. No es una funcion porque no retorna un valor con RETURN.
+No es un wrapper de otro SP ni una version recortada de una operacion clinica.
+
+No agregar COMMIT: los cuerpos solo consultan. CREATE OR REPLACE es DDL y
+Oracle confirma implicitamente las transacciones al instalar objetos; ejecutar
+en una hoja sin cambios de datos pendientes.

@@ -1,0 +1,79 @@
+<div class="k-module k-finanzas">
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="GESTIÓN ECONÓMICA / FINANZAS"
+    titulo="Área financiera"
+    descripcion="Controla liquidaciones, pagos a médicos e ingresos registrados de la gestora."
+    textoActualizar="↻ Actualizar registros"
+    (actualizar)="cargar()"
+  ></header>
+  <app-feature-nav feature="finanzas" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Ingresos de la gestora</h2>
+        <p>
+          Comisiones y movimientos registrados conforme a las reglas de negocio.
+        </p>
+      </div>
+    </div>
+    <div class="k-info">
+      Los importes mostrados son registros contables del sistema; no sustituyen
+      una conciliación bancaria.
+    </div>
+    <div class="k-toolbar">
+      <label class="k-search"
+        ><span>Buscar en el listado</span
+        ><input
+          type="search"
+          [(ngModel)]="buscar"
+          (ngModelChange)="paginar(0)"
+          maxlength="150"
+          placeholder="Buscar registros"
+      /></label>
+    </div>
+    <div class="k-table-wrap">
+      <table class="k-table">
+        <thead>
+          <tr>
+            <th>Fecha de la cita</th>
+            <th>Concepto</th>
+            <th>Monto (S/)</th>
+            <th>Cita</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(r of ingresos;track r.idCita){
+          <tr>
+            <td>{{r.fechaCita}}</td>
+            <td>{{r.concepto}}</td>
+            <td><strong>S/ {{r.montoIngreso}}</strong></td>
+            <td>#{{r.idCita}}</td>
+          </tr>
+          }@empty{
+          <tr>
+            <td class="k-empty" colspan="4">
+              No se encontraron ingresos con los filtros actuales.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <app-paginador
+      [pagina]="paginacion.pagina"
+      [tamanio]="paginacion.tamanio"
+      [totalElementos]="paginacion.totalElementos"
+      [totalPaginas]="paginacion.totalPaginas"
+      [cargando]="paginacion.cargando"
+      (cambioPagina)="paginar($event)"
+      (cambioTamanio)="paginar(0, $event)"
+    />
+  </section>
+</div>

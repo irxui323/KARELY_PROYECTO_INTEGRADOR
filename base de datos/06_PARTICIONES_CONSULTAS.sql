@@ -1,0 +1,23 @@
+﻿-- ==========================================================================
+-- KARELY - SESION 8 / PARTICIONES EN TODAS LAS TABLAS
+-- DDL de particiones incluido en 01_TABLAS_KARELY.sql.
+-- AUDITORIA y SESION_USUARIO: RANGE/INTERVAL POR TIMESTAMP.
+-- Las otras 22: HASH sobre su identificador primario.
+-- ==========================================================================
+
+SELECT TABLE_NAME, PARTITIONED, TABLESPACE_NAME
+FROM USER_TABLES
+ORDER BY TABLE_NAME;
+
+SELECT TABLE_NAME, PARTITION_NAME, PARTITION_POSITION, INTERVAL
+FROM USER_TAB_PARTITIONS
+ORDER BY TABLE_NAME, PARTITION_POSITION;
+
+SELECT COUNT(*) AS TOTAL_TABLAS_PARTICIONADAS
+FROM USER_TABLES
+WHERE PARTITIONED = 'YES';
+
+SELECT COUNT(DISTINCT TABLE_NAME) AS TOTAL_TABLAS_CON_PARTICIONES
+FROM USER_TAB_PARTITIONS;
+
+-- No DROP/ALTER PARTITION en la creacion: operaciones de mantenimiento solo en la clase S8.

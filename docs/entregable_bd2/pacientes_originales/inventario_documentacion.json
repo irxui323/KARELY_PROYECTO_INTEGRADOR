@@ -1,0 +1,134 @@
+{
+  "template_sha256": "f8e301e2f4e35b2144b9faf65f04aae0e9d26a0e3524e7d7bab1b8897477fe41",
+  "prior_content_reference": "C:\\Users\\jomac\\Downloads\\diccionario02_zplihxzzjnfp (1).docx",
+  "prior_sha256": "f3fd833ccf97fe82929a5adb62d03da953bfac0dabf54b73657625eb867f29e7",
+  "tables": 25,
+  "relations": 45,
+  "selected": {
+    "DOCTORES": {
+      "PROCEDURE": [
+        "SP_EXP_ESPECIALIDADES_DOC",
+        "SP_EXP_DOCUMENTOS_DOC",
+        "SP_EXP_HORARIOS_DOC"
+      ],
+      "FUNCTION": [
+        "FN_DOCUMENTACION_COMPLETA",
+        "FN_TOTAL_ESPECIALIDADES"
+      ],
+      "TRIGGER": [
+        "TR_DOCUMENTO_REVALIDACION",
+        "TR_DOCTOR_ESTADO_VALIDADO"
+      ],
+      "VIEW": [
+        "V_S_DOCTOR_ENMASCARADO",
+        "V_S_DOCUMENTACION_DOCTOR",
+        "V_S_HORARIOS_DOCTOR"
+      ]
+    },
+    "CITAS": {
+      "PROCEDURE": [
+        "SP_EXP_AGENDA_DIA",
+        "SP_EXP_RESUMEN_CITAS",
+        "SP_EXP_CAMBIO_CITA"
+      ],
+      "FUNCTION": [
+        "FN_INICIO_TURNO",
+        "FN_ESTADO_CITA"
+      ],
+      "TRIGGER": [
+        "TR_AUD_CITA_ESTADO",
+        "TR_AUD_REPROGRAMACION"
+      ],
+      "VIEW": [
+        "V_M_CITAS_ESPECIALIDAD",
+        "V_M_CITAS_CONSULTORIO",
+        "V_S_CITA_ENMASCARADA"
+      ]
+    },
+    "PACIENTES": {
+      "PROCEDURE": [
+        "SP_INICIAR_ATENCION",
+        "SP_REGISTRAR_DIAGNOSTICO",
+        "SP_CREAR_RECETA"
+      ],
+      "FUNCTION": [
+        "FN_EDAD_PACIENTE",
+        "FN_TOTAL_ATENCIONES_PACIENTE"
+      ],
+      "TRIGGER": [
+        "TR_AUD_PACIENTE_DATOS",
+        "TR_AUD_ATENCION_ESTADO"
+      ],
+      "VIEW": [
+        "V_S_PACIENTE_ENMASCARADO",
+        "V_S_HISTORIAL_PACIENTE",
+        "V_S_RECETAS_PACIENTE"
+      ]
+    },
+    "FINANZAS": {
+      "PROCEDURE": [
+        "SP_EXP_COBROS_PERIODO",
+        "SP_EXP_PAGOS_DOCTOR",
+        "SP_EXP_INGRESOS_GESTORA"
+      ],
+      "FUNCTION": [
+        "FN_MONTO_DOCTOR",
+        "FN_SALDO_DOCTOR"
+      ],
+      "TRIGGER": [
+        "TR_AUD_PAGO_CITA",
+        "TR_AUD_LIQUIDACION"
+      ],
+      "VIEW": [
+        "VW_PAGOS_CITA",
+        "VW_INGRESOS_GESTORA",
+        "VW_SALDOS_LIQUIDACIONES"
+      ]
+    },
+    "RECEPCION_SEGURIDAD": {
+      "PROCEDURE": [
+        "SP_EXP_ASISTENCIAS_DIA",
+        "SP_EXP_USUARIOS_ESTADO",
+        "SP_EXP_SESIONES_USUARIO"
+      ],
+      "FUNCTION": [
+        "FN_ROL_USUARIO",
+        "FN_SESIONES_ACTIVAS_USUARIO"
+      ],
+      "TRIGGER": [
+        "TR_AUD_USUARIO_DATOS",
+        "TR_AUD_SESION_ESTADO"
+      ],
+      "VIEW": [
+        "V_S_USUARIO_ENMASCARADO",
+        "V_S_RECEPCION_ASISTENCIA",
+        "V_S_SEGURIDAD_SESIONES"
+      ]
+    }
+  },
+  "source_paths": [
+    "base de datos/01_TABLAS_KARELY.sql",
+    "base de datos/02_COMENTARIOS_INDICES.sql",
+    "base de datos/03_TRIGGERS.sql",
+    "base de datos/04_FUNCIONES_PROCEDIMIENTOS.sql",
+    "base de datos/05_VISTAS_REPORTES.sql",
+    "db/migraciones/2026-11-22-recuperacion-password.sql",
+    "db/migraciones/2026-11-22-disponibilidad-especialidad.sql",
+    "db/migraciones/2026-11-22-administradora-acceso-total.sql",
+    "db/migraciones/2026-11-23-recibo-pdf.sql",
+    "db/migraciones/2026-11-23-cancelacion-citas-vencidas.sql",
+    "db/migraciones/2026-11-23-numeracion-liquidaciones.sql",
+    "db/migraciones/2026-11-23-complemento-entregable-bd2.sql",
+    "db/modulos/01_doctores.sql",
+    "db/modulos/02_citas.sql",
+    "db/modulos/03_pacientes.sql",
+    "db/modulos/04_finanzas.sql",
+    "db/modulos/05_recepcion_seguridad.sql",
+    "db/seguridad/02_KARELY_PRIVILEGIOS.sql",
+    "db/seguridad/07_KARELY_REAPLICAR_GRANTS.sql",
+    "db/exposicion/SOLO_PROCEDIMIENTOS.sql"
+  ],
+  "output": "C:\\UNIVERSIDAD\\LP2\\SEMANA11\\karely_moderno\\docs\\entregable_bd2\\pacientes_originales\\Entregable_BD2_Karely.docx",
+  "requirements": 36,
+  "business_rules": 27
+}

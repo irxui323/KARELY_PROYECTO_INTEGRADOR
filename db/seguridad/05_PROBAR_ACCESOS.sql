@@ -1,0 +1,61 @@
+-- Ejecutar una vez conectado a CADA cuenta Oracle nueva, NO a KARELY_BD2/SYSTEM.
+-- No requiere contrasenas en el script. Todas las pruebas son de solo lectura.
+SET SERVEROUTPUT ON
+SET DEFINE OFF
+WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK
+SELECT SYS_CONTEXT('USERENV','SESSION_USER') AS USUARIO_ORACLE FROM DUAL;
+SELECT * FROM SESSION_ROLES;
+DECLARE
+ v_usuario VARCHAR2(128):=SYS_CONTEXT('USERENV','SESSION_USER');
+ v_n NUMBER;
+ v_cursor SYS_REFCURSOR;
+ v_nombre VARCHAR2(128);
+ v_tipo VARCHAR2(30);
+ v_estado VARCHAR2(20);
+ PROCEDURE denegado(p_sql VARCHAR2) IS
+ BEGIN
+  BEGIN
+   EXECUTE IMMEDIATE p_sql INTO v_n;
+  EXCEPTION WHEN OTHERS THEN
+   IF SQLCODE IN (-942,-1031) THEN
+    DBMS_OUTPUT.PUT_LINE('CORRECTO: acceso directo denegado.'); RETURN;
+   ELSE RAISE; END IF;
+  END;
+  RAISE_APPLICATION_ERROR(-20990,'FALLO: acceso directo inesperadamente permitido.');
+ END;
+BEGIN
+ IF v_usuario IN ('SYSTEM','SYS','KARELY_BD2') THEN
+  RAISE_APPLICATION_ERROR(-20991,'Probar desde una cuenta nueva, no desde el propietario.');
+ END IF;
+ denegado('SELECT COUNT(*) FROM KARELY_BD2.USUARIO WHERE 1=0');
+ IF v_usuario='dr.marcos.salas' THEN
+  EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM KARELY_BD2.V_S_ORA_MIS_CITAS' INTO v_n;
+  DBMS_OUTPUT.PUT_LINE('CORRECTO: lectura de citas propias: '||v_n);
+  denegado('SELECT COUNT(*) FROM KARELY_BD2.VW_SALDOS_LIQUIDACIONES WHERE 1=0');
+ ELSIF v_usuario='recepcion.centro' THEN
+  EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM KARELY_BD2.V_S_RECEPCION_ASISTENCIA' INTO v_n;
+  DBMS_OUTPUT.PUT_LINE('CORRECTO: lectura de recepcion.');
+  denegado('SELECT COUNT(*) FROM KARELY_BD2.ATENCION_MEDICA WHERE 1=0');
+ ELSIF v_usuario='tesoreria.centro' THEN
+  EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM KARELY_BD2.VW_SALDOS_LIQUIDACIONES' INTO v_n;
+  DBMS_OUTPUT.PUT_LINE('CORRECTO: lectura financiera.');
+  denegado('SELECT COUNT(*) FROM KARELY_BD2.ATENCION_MEDICA WHERE 1=0');
+ ELSIF v_usuario='auditor.karely' THEN
+  EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM KARELY_BD2.V_S_ORA_AUDITORIA' INTO v_n;
+  DBMS_OUTPUT.PUT_LINE('CORRECTO: lectura de auditoria.');
+  denegado('SELECT COUNT(*) FROM KARELY_BD2.PACIENTE WHERE 1=0');
+ ELSIF v_usuario='desarrollo.karely' THEN
+  EXECUTE IMMEDIATE 'BEGIN KARELY_BD2.SP_ORA_CONSULTAR_ESTRUCTURA(:resultado); END;' USING OUT v_cursor;
+  FETCH v_cursor INTO v_nombre,v_tipo,v_estado;
+  CLOSE v_cursor;
+  DBMS_OUTPUT.PUT_LINE('CORRECTO: lectura de estructura.');
+  denegado('SELECT COUNT(*) FROM KARELY_BD2.PACIENTE WHERE 1=0');
+ ELSIF v_usuario='admin01' THEN
+  EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM KARELY_BD2.VW_AGENDA_CITAS' INTO v_n;
+  DBMS_OUTPUT.PUT_LINE('CORRECTO: lectura administrativa.');
+ ELSE
+  RAISE_APPLICATION_ERROR(-20992,'Cuenta no prevista en estas pruebas.');
+ END IF;
+END;
+/
+

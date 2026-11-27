@@ -1,0 +1,115 @@
+<div class="k-module k-doctores">
+  <header class="k-module-header">
+    <div>
+      <span class="k-eyebrow">GESTIÓN CLÍNICA / PERSONAL MÉDICO</span>
+      <h1 class="k-title">Doctores</h1>
+      <p class="k-subtitle">
+        Administra médicos, especialidades, documentos y disponibilidad de
+        atención.
+      </p>
+    </div>
+    <div class="k-header-actions">
+      <button class="k-button k-button-secondary" (click)="cargar()">
+        ↻ Actualizar datos
+      </button>
+    </div>
+  </header>
+  <app-feature-nav feature="doctores" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Directorio de doctores</h2>
+        <p>Busca y gestiona los datos del personal médico.</p>
+      </div>
+      <span class="k-count">{{paginacion.totalElementos}} resultados</span>
+    </div>
+    <div class="k-toolbar">
+      <label class="k-search"
+        ><span>Buscar doctor</span
+        ><input
+          [(ngModel)]="buscar"
+          (ngModelChange)="paginar(0)"
+          maxlength="150"
+          placeholder="DNI, nombres o apellidos"
+          aria-label="Buscar doctor" /></label
+      ><button
+        *siPermiso="'DOCTORES_ESCRIBIR'"
+        class="k-button"
+        (click)="nuevo()"
+      >
+        + Nuevo doctor
+      </button>
+    </div>
+    <div class="k-table-wrap">
+      <table class="k-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Documento</th>
+            <th>Doctor</th>
+            <th>Documentación</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(d of filtrados();track d.idDoctor){
+          <tr>
+            <td>{{d.idDoctor}}</td>
+            <td>{{d.numeroDocumento}}</td>
+            <td><strong>{{d.nombres}} {{d.apellidos}}</strong></td>
+            <td>
+              <span
+                class="k-status"
+                [class.is-active]="d.estadoDocumentacion==='COMPLETO'"
+                >{{d.estadoDocumentacion}}</span
+              >
+            </td>
+            <td>
+              <span class="k-status" [class.is-active]="d.estado==='ACTIVO'"
+                >{{d.estado}}</span
+              >
+            </td>
+            <td class="k-row-actions">
+              <button
+                *siPermiso="'DOCTORES_ESCRIBIR'"
+                class="k-button k-button-small k-button-secondary"
+                (click)="editar(d)"
+              >
+                Editar</button
+              ><button
+                *siPermiso="'DOCUMENTOS_ADMINISTRAR'"
+                class="k-button k-button-small k-button-secondary"
+                (click)="verDocumentos(d)"
+              >
+                Documentos
+              </button>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td class="k-empty" colspan="6">
+              Todavía no hay doctores registrados o no coinciden con la
+              búsqueda.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <app-paginador
+      [pagina]="paginacion.pagina"
+      [tamanio]="paginacion.tamanio"
+      [totalElementos]="paginacion.totalElementos"
+      [totalPaginas]="paginacion.totalPaginas"
+      [cargando]="paginacion.cargando"
+      (cambioPagina)="paginar($event)"
+      (cambioTamanio)="paginar(0, $event)"
+    />
+  </section>
+</div>

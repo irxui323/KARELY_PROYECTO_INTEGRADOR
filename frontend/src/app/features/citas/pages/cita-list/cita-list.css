@@ -1,0 +1,9 @@
+:host { display: contents; }
+
+.cita-detalle-cabecera { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+.cita-detalle-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0; }
+.cita-detalle-grid div { padding: 13px 14px; border: 1px solid #d6e7ef; border-radius: 9px; background: #f8fcfe; }
+.cita-detalle-grid dt { margin-bottom: 5px; color: #376277; font-size: 13px; font-weight: 800; }
+.cita-detalle-grid dd { margin: 0; color: #173f56; line-height: 1.45; }
+.cita-detalle h3 { margin: 24px 0 14px; color: #074e79; }
+@media (max-width: 760px) { .cita-detalle-grid { grid-template-columns: 1fr; } .cita-detalle-cabecera { flex-direction: column; } }

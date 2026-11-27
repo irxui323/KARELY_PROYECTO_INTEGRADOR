@@ -1,0 +1,79 @@
+<div class="k-module k-admin">
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="CONFIGURACIÓN / ADMINISTRACIÓN"
+    titulo="Administración"
+    descripcion="Gestiona usuarios, parámetros, catálogos, notificaciones y auditoría."
+    textoActualizar="↻ Actualizar información"
+    (actualizar)="cargar()"
+  ></header>
+  <app-feature-nav feature="administracion" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  } @if (acceso) {
+  <section class="k-panel" aria-label="Credenciales del trabajador">
+    <h2>Cuenta creada</h2>
+    <p>
+      Guarda estos datos antes de salir. La contraseña no se mostrará en el
+      listado.
+    </p>
+    <dl>
+      <dt>Usuario</dt>
+      <dd>{{ acceso.username }}</dd>
+      <dt>Correo</dt>
+      <dd>{{ acceso.correo }}</dd>
+      <dt>Contraseña inicial</dt>
+      <dd><code>{{ acceso.password }}</code></dd>
+    </dl>
+    <a class="k-button" routerLink="/admin">Volver a usuarios</a>
+  </section>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Registrar trabajador</h2>
+        <p>Completa los datos de acceso y asigna el rol correspondiente.</p>
+      </div>
+    </div>
+    <div class="k-form">
+      <label class="k-field"
+        >Nombre de usuario<input
+          [formControl]="nuevoGroup.controls.username"
+          placeholder="Ej. recepcionista1"
+          autocomplete="off"
+      /></label>
+      <label class="k-field"
+        >Correo electrónico<input
+          type="email"
+          [formControl]="nuevoGroup.controls.correo"
+          placeholder="usuario@ejemplo.com"
+      /></label>
+      <label class="k-field"
+        >Rol<select [formControl]="nuevoGroup.controls.idRol">
+          <option [ngValue]="null">Selecciona un rol</option>
+          @for(r of roles;track r.idRol){
+          <option [ngValue]="r.idRol">{{r.nombre}}</option>
+          }
+        </select></label
+      >
+      <p class="k-info">
+        El sistema generará una contraseña segura. Las cuentas de doctores se
+        crean desde Doctores, después de aprobar su documentación.
+      </p>
+    </div>
+    <div class="k-actions">
+      <button
+        class="k-button"
+        [disabled]="guardando || nuevoGroup.invalid"
+        (click)="crearUsuario()"
+      >
+        Registrar usuario</button
+      ><button class="k-button k-button-secondary" routerLink="/admin">
+        Cancelar
+      </button>
+    </div>
+  </section>
+</div>

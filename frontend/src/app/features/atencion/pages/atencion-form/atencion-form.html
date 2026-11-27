@@ -1,0 +1,280 @@
+<div class="k-module k-doctor">
+  <header
+    appModuleHeader
+    class="k-module-header"
+    [contexto]="esAdministradora ? 'KARELY / ADMINISTRACIÓN' : 'KARELY / PORTAL DEL MÉDICO'"
+    [titulo]="esAdministradora ? 'Agenda y atención médica' : 'Panel Médico'"
+    [descripcion]="esAdministradora ? 'Consulta las citas de todos los médicos y gestiona las atenciones.' : 'Consulta tus citas, administra tu disponibilidad y registra atenciones médicas.'"
+    [textoActualizar]="cargando ? 'Actualizando…' : '↻ Actualizar datos'"
+    [actualizacionDeshabilitada]="cargando || procesando"
+    (actualizar)="cargar()"
+  >
+    <p moduleHeaderDetail class="doctor-identidad">
+      Médico: <strong>{{ nombreDoctor }}</strong>
+    </p>
+  </header>
+
+  <app-feature-nav feature="atencion" />
+
+  @if (error) {
+  <div class="k-error" role="alert">{{ error }}</div>
+  } @if (exito) {
+  <div class="k-success" role="status">{{ exito }}</div>
+  } @if (!doctor && !esAdministradora) {
+  <div class="k-info" role="status">
+    Esta cuenta todavía no está vinculada con un registro médico. Solicita a
+    Administración que vincule el usuario con su ID_DOCTOR.
+  </div>
+  }
+  <section
+    class="k-panel k-panel-highlight"
+    aria-labelledby="titulo-seleccionar-cita"
+  >
+    <div class="k-section-heading">
+      <div>
+        <h2 id="titulo-seleccionar-cita">1. Seleccionar una consulta</h2>
+        <p>
+          Solo se puede atender una cita con asistencia registrada por
+          recepción.
+        </p>
+      </div>
+      <span class="k-count">{{ citasEnAtencion.length }} por atender</span>
+    </div>
+    <div class="k-form doctor-consulta-select">
+      <label class="k-field"
+        >Cita habilitada
+        <select
+          [formControl]="medicoGroup.controls.idCita"
+          (change)="limpiarDetalleConsulta()"
+          [appControlDisabled]="procesando || guardando"
+        >
+          <option [ngValue]="null">Selecciona una cita en atención</option>
+          @for (c of citasEnAtencion; track c.idCita) {
+          <option [ngValue]="c.idCita">
+            #{{ c.idCita }} — {{ c.nombrePaciente }} {{ esAdministradora ? "— "
+            + c.nombreDoctor : "" }} ({{ fechaLegible(c.fechaCita) }})
+          </option>
+          }
+        </select>
+      </label>
+      <div class="doctor-estado-consulta">
+        <span class="doctor-label">Estado de la atención</span>
+        <strong>{{ estadoAtencionActual }}</strong>
+      </div>
+    </div>
+    <div class="k-actions">
+      <button
+        type="button"
+        class="k-button"
+        (click)="accion('atencion-iniciar')"
+        [disabled]="guardando || (!citaListaParaAtender || !!atencionActual || procesando)"
+      >
+        Iniciar atención médica
+      </button>
+    </div>
+  </section>
+
+  @if (!medico.idCita) {
+  <div class="k-info">
+    Selecciona una cita en atención para habilitar diagnóstico, receta y recibo
+    de honorarios.
+  </div>
+  }
+
+  <section class="k-panel" aria-labelledby="titulo-diagnostico">
+    <div class="k-section-heading">
+      <div>
+        <h2 id="titulo-diagnostico">2. Información clínica</h2>
+        <p>Registra diagnóstico y observaciones del paciente.</p>
+      </div>
+    </div>
+    <div class="k-form doctor-clinica-form">
+      <label class="k-field"
+        >Diagnóstico
+        <textarea
+          rows="5"
+          [formControl]="medicoGroup.controls.diagnostico"
+          [appControlDisabled]="!atencionAbierta || procesando"
+          placeholder="Escribe el diagnóstico..."
+        ></textarea>
+      </label>
+      <label class="k-field"
+        >Observaciones
+        <textarea
+          rows="5"
+          [formControl]="medicoGroup.controls.observaciones"
+          [appControlDisabled]="!atencionAbierta || procesando"
+          placeholder="Observaciones complementarias..."
+        ></textarea>
+      </label>
+    </div>
+    <div class="k-actions">
+      <button
+        type="button"
+        class="k-button"
+        (click)="accion('diagnostico-registrar')"
+        [disabled]="guardando || (!atencionAbierta || !medico.diagnostico?.trim() || procesando)"
+      >
+        Guardar diagnóstico
+      </button>
+    </div>
+  </section>
+
+  <section class="k-panel" aria-labelledby="titulo-receta">
+    <div class="k-section-heading">
+      <div>
+        <h2 id="titulo-receta">3. Receta médica</h2>
+        <p>Primero crea la receta y luego añade los medicamentos indicados.</p>
+      </div>
+    </div>
+    <div class="k-form doctor-receta-form">
+      <label class="k-field k-field-wide"
+        >Indicaciones generales
+        <textarea
+          rows="3"
+          [formControl]="medicoGroup.controls.indicaciones"
+          [appControlDisabled]="!atencionAbierta || procesando"
+          placeholder="Indicaciones para el paciente..."
+        ></textarea>
+      </label>
+    </div>
+    <p class="doctor-help">
+      {{ medico.idReceta ? 'La receta de esta consulta está registrada. Puedes
+      agregar los medicamentos.' : 'La receta se vincula automáticamente a esta
+      consulta al crearla.' }}
+    </p>
+    <div class="k-actions">
+      <button
+        type="button"
+        class="k-button"
+        (click)="accion('receta-crear')"
+        [disabled]="guardando || (!atencionAbierta || !medico.indicaciones?.trim() || !!medico.idReceta || procesando)"
+      >
+        Crear receta
+      </button>
+    </div>
+    <h3 class="doctor-subtitulo">Agregar medicamento</h3>
+    <div class="k-form doctor-medicamento-form">
+      <label class="k-field"
+        >Medicamento<input
+          [formControl]="medicoGroup.controls.medicamento"
+          [appControlDisabled]="!atencionAbierta || procesando"
+      /></label>
+      <label class="k-field"
+        >Dosis<input
+          [formControl]="medicoGroup.controls.dosis"
+          [appControlDisabled]="!atencionAbierta || procesando"
+      /></label>
+      <label class="k-field"
+        >Frecuencia<input
+          [formControl]="medicoGroup.controls.frecuencia"
+          [appControlDisabled]="!atencionAbierta || procesando"
+      /></label>
+      <label class="k-field"
+        >Duración<input
+          [formControl]="medicoGroup.controls.duracion"
+          [appControlDisabled]="!atencionAbierta || procesando"
+      /></label>
+      <label class="k-field"
+        >Observaciones del medicamento (opcional)<input
+          [formControl]="medicoGroup.controls.observacionesMedicamento"
+          [appControlDisabled]="!atencionAbierta || procesando"
+      /></label>
+    </div>
+    <div class="k-actions">
+      <button
+        type="button"
+        class="k-button k-button-secondary"
+        (click)="accion('medicamento-agregar')"
+        [disabled]="guardando || (!atencionAbierta || !medico.idReceta || !medico.medicamento?.trim() || !medico.dosis?.trim() || !medico.frecuencia?.trim() || !medico.duracion?.trim() || procesando)"
+      >
+        + Agregar medicamento a la receta
+      </button>
+    </div>
+  </section>
+
+  <section class="k-panel" aria-labelledby="titulo-recibo">
+    <div class="k-section-heading">
+      <div>
+        <h2 id="titulo-recibo">4. Recibo y cierre</h2>
+        <p>
+          Emite y registra la entrega del recibo antes de cerrar la consulta.
+        </p>
+      </div>
+    </div>
+    <div class="doctor-recibo-resumen" aria-live="polite">
+      @if (cargandoRecibo) {
+      <p>Consultando recibo...</p>
+      } @else if (recibo) {
+      <p>
+        <strong>{{ recibo.numeroRecibo }}</strong> · Total pagado: S/ {{
+        recibo.monto }}
+      </p>
+      <p>
+        {{ recibo.fechaEntrega ? 'Entrega registrada: ' + recibo.medioEntrega :
+        'Pendiente de entrega' }}
+      </p>
+      } @else {
+      <p>
+        Al emitir, el sistema asignará el número y guardará el PDF
+        automáticamente.
+      </p>
+      }
+    </div>
+    <div class="k-form doctor-recibo-form">
+      <label class="k-field"
+        >Medio de entrega
+        <select
+          [formControl]="medicoGroup.controls.medioEntrega"
+          [appControlDisabled]="!atencionAbierta || procesando"
+        >
+          <option value="EMAIL">Correo electrónico</option>
+          <option value="PRESENCIAL">Entrega impresa</option>
+        </select>
+      </label>
+    </div>
+    <div class="k-actions">
+      <button
+        type="button"
+        class="k-button k-button-secondary"
+        (click)="accion('recibo-emitir')"
+        [disabled]="guardando || !atencionAbierta || !!recibo || cargandoRecibo || procesando"
+      >
+        Emitir recibo
+      </button>
+      <button
+        type="button"
+        class="k-button k-button-secondary"
+        (click)="descargarRecibo()"
+        [disabled]="guardando || !recibo || cargandoRecibo"
+      >
+        Descargar PDF
+      </button>
+      <button
+        type="button"
+        class="k-button k-button-secondary"
+        (click)="accion('recibo-entregar')"
+        [disabled]="guardando || !atencionAbierta || !recibo || !!recibo.fechaEntrega || cargandoRecibo || procesando"
+      >
+        {{ medico.medioEntrega === 'EMAIL' ? 'Enviar PDF por correo' :
+        'Confirmar entrega impresa' }}
+      </button>
+      <button
+        type="button"
+        class="k-button doctor-cerrar"
+        (click)="accion('atencion-cerrar')"
+        [disabled]="guardando || !atencionAbierta || !recibo?.fechaEntrega || cargandoRecibo || procesando"
+      >
+        Cerrar atención
+      </button>
+    </div>
+    <p class="doctor-recibo-nota">
+      El correo incluye el PDF y se envía al paciente registrado. Para entrega
+      impresa, descarga el documento y confirma cuando lo hayas entregado.
+    </p>
+    <div class="k-info doctor-advertencia">
+      Para cerrar la atención, registra un diagnóstico, una receta con
+      medicamentos y confirma la entrega del recibo.
+    </div>
+  </section>
+</div>

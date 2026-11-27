@@ -1,0 +1,132 @@
+<div class="k-module k-admin">
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="CONFIGURACIÓN / ADMINISTRACIÓN"
+    titulo="Administración"
+    descripcion="Gestiona usuarios, parámetros, catálogos, notificaciones y auditoría."
+    textoActualizar="↻ Actualizar información"
+    (actualizar)="cargar()"
+  ></header>
+  <app-feature-nav feature="administracion" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Usuarios registrados</h2>
+        <p>Consulta el estado de los usuarios y administra sus permisos.</p>
+      </div>
+      <button class="k-button" routerLink="/admin/usuarios/nuevo">
+        + Registrar usuario
+      </button>
+    </div>
+    <div class="k-toolbar">
+      <label class="k-search"
+        ><span>Buscar en el listado</span
+        ><input
+          type="search"
+          [(ngModel)]="buscar"
+          (ngModelChange)="paginar(0)"
+          maxlength="150"
+          placeholder="Buscar registros"
+      /></label>
+    </div>
+    <div class="k-table-wrap">
+      <table class="k-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Correo</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(u of usuarios;track u.idUsuario){
+          <tr>
+            <td>{{u.idUsuario}}</td>
+            <td><strong>{{u.username}}</strong></td>
+            <td>{{u.correo}}</td>
+            <td>{{u.rol}}</td>
+            <td>
+              <span class="k-status" [class.is-active]="u.estado==='ACTIVO'"
+                >{{u.estado}}</span
+              >
+            </td>
+            <td>
+              <button
+                class="k-button k-button-small k-button-secondary"
+                (click)="elegirUsuario(u)"
+              >
+                Administrar
+              </button>
+            </td>
+          </tr>
+          } @empty{
+          <tr>
+            <td colspan="6" class="k-empty">No se encontraron usuarios.</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <app-paginador
+      [pagina]="paginacion.pagina"
+      [tamanio]="paginacion.tamanio"
+      [totalElementos]="paginacion.totalElementos"
+      [totalPaginas]="paginacion.totalPaginas"
+      [cargando]="paginacion.cargando"
+      (cambioPagina)="paginar($event)"
+      (cambioTamanio)="paginar(0, $event)"
+    />
+  </section>
+  @if(seleccionado){
+  <section class="k-panel k-panel-highlight">
+    <div class="k-section-heading">
+      <div>
+        <h2>Administrar: {{seleccionado.username}}</h2>
+        <p>Modifica el rol y el estado del usuario seleccionado.</p>
+      </div>
+      <button
+        class="k-button k-button-secondary k-button-small"
+        (click)="seleccionado=null"
+      >
+        Cerrar
+      </button>
+    </div>
+    <div class="k-form">
+      <label class="k-field"
+        >Nuevo rol<select [(ngModel)]="cambioRol">
+          <option [ngValue]="null">Selecciona un rol</option>
+          @for(r of roles;track r.idRol){
+          <option [ngValue]="r.idRol">{{r.nombre}}</option>
+          }
+        </select></label
+      ><label class="k-field"
+        >Estado<select [(ngModel)]="cambioEstado">
+          <option>ACTIVO</option>
+          <option>INACTIVO</option>
+          <option>BLOQUEADO</option>
+        </select></label
+      >
+    </div>
+    <div class="k-actions">
+      <button
+        class="k-button"
+        (click)="actualizarRol()"
+        [disabled]="!cambioRol"
+      >
+        Cambiar rol</button
+      ><button class="k-button k-button-secondary" (click)="actualizarEstado()">
+        Cambiar estado
+      </button>
+    </div>
+  </section>
+  }
+</div>

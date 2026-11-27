@@ -1,0 +1,58 @@
+<section
+  class="calendario"
+  aria-label="Calendario de turnos disponibles"
+  [attr.aria-busy]="cargando"
+>
+  <header>
+    <button
+      type="button"
+      aria-label="Mes anterior"
+      [disabled]="mes<=minima.slice(0,7) || cargando"
+      (click)="cambiarMes(-1)"
+    >
+      ‹
+    </button>
+    <strong aria-live="polite">{{titulo}}</strong>
+    <button
+      type="button"
+      aria-label="Mes siguiente"
+      [disabled]="cargando"
+      (click)="cambiarMes(1)"
+    >
+      ›
+    </button>
+  </header>
+  @if(cargando){
+  <p class="mensaje" role="status">Consultando disponibilidad…</p>
+  } @if(error){
+  <p class="mensaje" role="alert">{{error}}</p>
+  }
+  <div class="semana" aria-hidden="true">
+    @for(dia of semana;track $index){<span>{{dia}}</span>}
+  </div>
+  <div class="dias">
+    @for(fecha of celdas;track $index){ @if(fecha){
+    <button
+      type="button"
+      class="dia"
+      [class]="'dia '+estado(fecha)"
+      [class.seleccionado]="fecha===seleccionada"
+      [class.pasado]="fecha<minima"
+      [disabled]="bloqueado(fecha)"
+      [attr.aria-label]="etiqueta(fecha)"
+      [attr.aria-pressed]="fecha===seleccionada"
+      [title]="etiqueta(fecha)"
+      (click)="elegir(fecha)"
+    >
+      <span>{{+fecha.slice(-2)}}</span
+      ><small>{{ fecha < minima ? '—' : (cantidades[fecha] || 0) }}</small>
+    </button>
+    }@else{<span class="hueco" aria-hidden="true"></span>} }
+  </div>
+  <div class="leyenda">
+    <span><i class="verde"></i>4 o más</span
+    ><span><i class="amarillo"></i>1–3 turnos</span
+    ><span><i class="gris"></i>Sin turnos</span>
+  </div>
+  <p class="nota">Cada día muestra el número de turnos libres.</p>
+</section>

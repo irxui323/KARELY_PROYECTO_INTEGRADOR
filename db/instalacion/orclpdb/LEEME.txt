@@ -1,0 +1,60 @@
+﻿INSTALACION NUEVA KARELY EN ORCLPDB
+
+Abrir cada SQL en SQL Developer. Ejecutar cada archivo COMPLETO con F5.
+No pegar el contenido mezclando conexiones. No ejecutar sobre datos existentes.
+Los 5 archivos son independientes de rutas externas; no utilizan @ ni @@.
+
+ORDEN OBLIGATORIO
+01_SYSTEM_CREAR_USUARIO.sql                    SYSTEM / ORCLPDB
+02_KARELY_ESQUEMA_MIGRACIONES_DATOS.sql         KARELY_BD2 / ORCLPDB
+03_SYSTEM_ROLES_USUARIOS.sql                   SYSTEM / ORCLPDB
+04_KARELY_PRIVILEGIOS.sql                      KARELY_BD2 / ORCLPDB
+05_SYSTEM_REDACT_VERIFICAR.sql                 SYSTEM / ORCLPDB
+
+CONEXIONES SQL DEVELOPER
+Host: localhost. Puerto: 1521. Nombre de servicio: ORCLPDB. Rol: predeterminado.
+En 01 eliges la clave Oracle de KARELY_BD2. Crear su conexion antes del paso 02.
+En 03 eliges las claves de las otras seis cuentas ORACLE; son independientes
+de las cuentas web. Los nombres Oracle se crean en minusculas entre comillas.
+
+RUTAS DEL PASO 01
+C:\Users\Administrator\Downloads\oradata\ORCL\ORCLPDB\TBS_KARELY_BD2_01.DBF
+C:\Users\Administrator\Downloads\oradata\ORCL\ORCLPDB\TMP_KARELY_BD2_01.DBF
+Son las rutas confirmadas en tu captura. La carpeta debe seguir existiendo.
+No se usa REUSE ni se sobrescriben archivos existentes. No crea KARELY_BD2_DESA.
+
+CONTENIDO
+25 tablas, indices, restricciones, comentarios, parametros, procedimientos,
+funciones, triggers, vistas y migraciones actuales. Incluye recuperacion,
+especialidad de disponibilidad, administracion autorizada, PDF de recibos,
+cancelacion de vencidas, secuencia de liquidaciones y objetos del entregable.
+Pacientes conserva SP_INICIAR_ATENCION, SP_REGISTRAR_DIAGNOSTICO y SP_CREAR_RECETA.
+Doctores, Citas, Finanzas y Recepcion/seguridad incorporan sus 12 SP_EXP_ cortos.
+Tambien se crean 6 roles Oracle, 6 cuentas de acceso y 5 politicas DBMS_REDACT.
+
+DATOS DE PRESENTACION INCLUIDOS EN 02
+6 doctores con archivos ficticios, 8 pacientes, disponibilidad, citas, receta,
+recibo y una liquidacion. No equivale a restaurar los datos que borraste.
+Las fechas dependen de SYSDATE de Oracle. No se envian correos desde los scripts.
+Las direcciones de correo de ejemplo no garantizan recuperacion real.
+
+CUENTAS WEB - CLAVE INICIAL COMUN: KarelyTest2026!
+Administradora: admin01
+Recepcion: recepcion.centro
+Tesoreria: tesoreria.centro
+Doctores: dra.elena.rojas, dr.marcos.salas, dra.valeria.torres,
+          dr.daniel.castro, dra.sofia.mendoza, dr.renato.paredes
+Cambiar las claves al terminar la presentacion. La clave web NO es la de 01.
+
+BACKEND EN ESTA PDB
+cd C:\UNIVERSIDAD\LP2\SEMANA11\karely_moderno\backend
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\iniciar-backend.ps1 -Servicio ORCLPDB
+Introducir la clave ORACLE elegida en 01. Agregar -CorreoGmail si deseas
+configurar SMTP; el inicio solicitara sus credenciales por separado.
+
+VERIFICACION
+El paso 05 debe terminar indicando 25 tablas, cero objetos invalidos y cinco
+politicas activas. Cada etapa se detiene ante errores SQL; no seguir al archivo
+siguiente si aparece ORA-. Los CREATE de Oracle producen commits implicitos.
+La preparacion del paquete se verifico de forma estatica; no se ejecuto contra
+tu instancia Oracle. La comprobacion real ocurre al ejecutar estos archivos.

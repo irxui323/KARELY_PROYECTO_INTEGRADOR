@@ -1,0 +1,184 @@
+<div class="k-module k-doctor">
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="KARELY / PORTAL DEL MÉDICO"
+    titulo="Panel Médico"
+    descripcion="Consulta tus citas, administra tu disponibilidad y registra atenciones médicas."
+    [textoActualizar]="cargando ? 'Actualizando…' : '↻ Actualizar datos'"
+    [actualizacionDeshabilitada]="cargando || procesando"
+    (actualizar)="cargar()"
+  >
+    <p moduleHeaderDetail class="doctor-identidad">
+      Médico: <strong>{{ nombreDoctor }}</strong>
+    </p>
+  </header>
+
+  <app-feature-nav feature="atencion" />
+
+  @if (error) {
+  <div class="k-error" role="alert">{{ error }}</div>
+  } @if (exito) {
+  <div class="k-success" role="status">{{ exito }}</div>
+  } @if (!doctor) {
+  <div class="k-info" role="status">
+    Esta cuenta todavía no está vinculada con un registro médico. Solicita a
+    Administración que vincule el usuario con su ID_DOCTOR.
+  </div>
+  }
+  <section
+    class="k-panel k-panel-highlight"
+    aria-labelledby="titulo-nuevo-horario"
+  >
+    <div class="k-section-heading">
+      <div>
+        <h2 id="titulo-nuevo-horario">Registrar disponibilidad</h2>
+        <p>Selecciona una fecha y una franja horaria sin cruces.</p>
+      </div>
+      <span
+        class="k-status"
+        [class.is-active]="doctor?.estadoDocumentacion === 'COMPLETO'"
+      >
+        Documentación: {{ doctor?.estadoDocumentacion || 'No vinculada' }}
+      </span>
+    </div>
+
+    @if (doctor && doctor.estadoDocumentacion !== 'COMPLETO') {
+    <div class="k-info">
+      Para registrar horarios debes tener DNI y título validados por
+      Administración.
+    </div>
+    }
+
+    <div class="k-form">
+      <label class="k-field"
+        >Médico asociado
+        <input [value]="nombreDoctor" disabled />
+      </label>
+      <label class="k-field"
+        >Fecha del turno
+        <input
+          type="date"
+          [min]="fechaMinima"
+          [formControl]="horarioGroup.controls.fecha"
+          [appControlDisabled]="!puedeRegistrarHorario || procesando"
+        />
+        @if(horarioGroup.controls.fecha.touched &&
+        horarioGroup.controls.fecha.hasError('fechaPasada')){
+        <small role="alert">La fecha no puede ser anterior a hoy.</small>
+        }
+      </label>
+      <label class="k-field"
+        >Especialidad del turno
+        <select
+          [formControl]="horarioGroup.controls.idEspecialidad"
+          [appControlDisabled]="!puedeRegistrarHorario || procesando"
+        >
+          <option [ngValue]="null">Selecciona tu especialidad</option>
+          @for(e of especialidades;track e.idEspecialidad){
+          <option [ngValue]="e.idEspecialidad">{{e.nombre}}</option>
+          }
+        </select>
+      </label>
+      <label class="k-field"
+        >Franja horaria
+        <select
+          [formControl]="horarioGroup.controls.idFranja"
+          [appControlDisabled]="!puedeRegistrarHorario || procesando"
+        >
+          <option [ngValue]="null">Selecciona un horario</option>
+          @for (f of franjas; track f.idFranja) {
+          <option [ngValue]="f.idFranja">
+            {{ f.horaInicio }} – {{ f.horaFin }}
+          </option>
+          }
+        </select>
+      </label>
+    </div>
+    <div class="k-actions">
+      <button
+        type="button"
+        class="k-button"
+        (click)="guardarHorario()"
+        [disabled]="guardando || (!puedeRegistrarHorario || !horario.idEspecialidad || !horario.fecha || !horario.idFranja || procesando)"
+      >
+        {{ procesando ? 'Guardando…' : '+ Guardar disponibilidad' }}
+      </button>
+    </div>
+  </section>
+
+  <section class="k-panel" aria-labelledby="titulo-horarios-registrados">
+    <div class="k-section-heading">
+      <div>
+        <h2 id="titulo-horarios-registrados">Horarios registrados</h2>
+        <p>Disponibilidad asociada a tu cuenta médica.</p>
+      </div>
+      <span class="k-count">{{ disponibles.length }} horarios</span>
+    </div>
+    <div class="k-toolbar">
+      <label class="k-search"
+        ><span>Buscar horarios</span
+        ><input
+          type="search"
+          [(ngModel)]="buscar"
+          (ngModelChange)="paginar(0)"
+          maxlength="150"
+          placeholder="Especialidad o estado"
+      /></label>
+    </div>
+    <div class="k-table-wrap">
+      <table class="k-table">
+        <thead>
+          <tr>
+            <th scope="col">Fecha</th>
+            <th scope="col">Especialidad</th>
+            <th scope="col">Desde</th>
+            <th scope="col">Hasta</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (h of disponibles; track h.idDisponibilidad) {
+          <tr>
+            <td>{{ fechaLegible(h.fechaTurno) }}</td>
+            <td>{{h.nombreEspecialidad || 'Pendiente de asignar'}}</td>
+            <td>{{ h.horaInicio }}</td>
+            <td>{{ h.horaFin }}</td>
+            <td>
+              <span class="k-status" [class.is-active]="h.estado === 'ACTIVO'"
+                >{{ h.estado }}</span
+              >
+            </td>
+            <td>
+              @if(!h.idEspecialidad && h.fechaTurno>=fechaMinima){<button
+                type="button"
+                class="k-button k-button-small k-button-secondary"
+                [disabled]="guardando"
+                (click)="prepararClasificacion(h)"
+              >
+                Asignar especialidad</button
+              >}
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="6" class="k-empty">
+              Todavía no tienes horarios registrados para el período consultado.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <app-paginador
+      [pagina]="paginacion.pagina"
+      [tamanio]="paginacion.tamanio"
+      [totalElementos]="paginacion.totalElementos"
+      [totalPaginas]="paginacion.totalPaginas"
+      [cargando]="paginacion.cargando"
+      (cambioPagina)="paginar($event)"
+      (cambioTamanio)="paginar(0,$event)"
+    />
+  </section>
+</div>

@@ -1,0 +1,75 @@
+<div class="k-module k-admin">
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="CONFIGURACIÓN / ADMINISTRACIÓN"
+    titulo="Administración"
+    descripcion="Gestiona usuarios, parámetros, catálogos, notificaciones y auditoría."
+    textoActualizar="↻ Actualizar información"
+    (actualizar)="cargar()"
+  ></header>
+  <app-feature-nav feature="administracion" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Registro de auditoría</h2>
+        <p>Consulta el historial de acciones relevantes en el sistema.</p>
+      </div>
+    </div>
+    <div class="k-toolbar">
+      <label class="k-search"
+        ><span>Buscar en el listado</span
+        ><input
+          type="search"
+          [(ngModel)]="buscar"
+          (ngModelChange)="paginar(0)"
+          maxlength="150"
+          placeholder="Buscar registros"
+      /></label>
+    </div>
+    <div class="k-table-wrap">
+      <table class="k-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Usuario</th>
+            <th>Tabla</th>
+            <th>Acción</th>
+            <th>Detalle</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(a of auditoria;track a.idAuditoria){
+          <tr>
+            <td>{{a.fechaOperacion}}</td>
+            <td>{{a.idUsuario}}</td>
+            <td>{{a.tablaAfectada}}</td>
+            <td>{{a.accion}}</td>
+            <td>{{a.detalle}}</td>
+          </tr>
+          }@empty{
+          <tr>
+            <td class="k-empty" colspan="5">
+              No hay registros de auditoría para mostrar.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <app-paginador
+      [pagina]="paginacion.pagina"
+      [tamanio]="paginacion.tamanio"
+      [totalElementos]="paginacion.totalElementos"
+      [totalPaginas]="paginacion.totalPaginas"
+      [cargando]="paginacion.cargando"
+      (cambioPagina)="paginar($event)"
+      (cambioTamanio)="paginar(0, $event)"
+    />
+  </section>
+</div>

@@ -1,0 +1,101 @@
+<div class="k-module k-pacientes">
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="GESTIÓN CLÍNICA / PACIENTES"
+    titulo="Pacientes"
+    descripcion="Registra pacientes, consulta sus datos y confirma su llegada a las citas."
+    textoActualizar="↻ Actualizar datos"
+    (actualizar)="cargar()"
+  ></header>
+  <app-feature-nav feature="pacientes" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  } @if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Pacientes registrados</h2>
+        <p>Consulta y actualiza la información de los pacientes del centro.</p>
+      </div>
+      <span class="k-count">{{paginacion.totalElementos}} resultados</span>
+    </div>
+    <div class="k-toolbar">
+      <label class="k-search"
+        ><span>Buscar paciente</span
+        ><input
+          [(ngModel)]="buscar"
+          (ngModelChange)="paginar(0)"
+          maxlength="150"
+          placeholder="DNI, nombres o apellidos"
+          aria-label="Buscar paciente por nombre o DNI"
+      /></label>
+      <button
+        *siPermiso="'PACIENTES_ESCRIBIR'"
+        type="button"
+        class="k-button"
+        (click)="nuevo()"
+      >
+        + Nuevo paciente
+      </button>
+    </div>
+    <div class="k-table-wrap">
+      <table class="k-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Documento</th>
+            <th>Paciente</th>
+            <th>Teléfono</th>
+            <th>Correo</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(p of filtrados();track p.idPaciente){
+          <tr>
+            <td>{{p.idPaciente}}</td>
+            <td>{{p.numeroDocumento}}</td>
+            <td><strong>{{p.nombres}} {{p.apellidos}}</strong></td>
+            <td>{{p.telefono || '—'}}</td>
+            <td>{{p.correo || '—'}}</td>
+            <td>
+              <span class="k-status" [class.is-active]="p.estado==='ACTIVO'"
+                >{{p.estado}}</span
+              >
+            </td>
+            <td>
+              <button
+                *siPermiso="'PACIENTES_ESCRIBIR'"
+                type="button"
+                class="k-button k-button-small k-button-secondary"
+                (click)="editar(p)"
+              >
+                Editar
+              </button>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td class="k-empty" colspan="7">
+              No hay pacientes que coincidan con la búsqueda.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <app-paginador
+      [pagina]="paginacion.pagina"
+      [tamanio]="paginacion.tamanio"
+      [totalElementos]="paginacion.totalElementos"
+      [totalPaginas]="paginacion.totalPaginas"
+      [cargando]="paginacion.cargando"
+      (cambioPagina)="paginar($event)"
+      (cambioTamanio)="paginar(0, $event)"
+    />
+  </section>
+</div>

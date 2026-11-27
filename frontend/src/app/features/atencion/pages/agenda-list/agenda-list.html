@@ -1,0 +1,191 @@
+<div class="k-module k-doctor">
+  <header
+    appModuleHeader
+    class="k-module-header"
+    [contexto]="esAdministradora ? 'KARELY / ADMINISTRACIÓN' : 'KARELY / PORTAL DEL MÉDICO'"
+    [titulo]="esAdministradora ? 'Agenda y atención médica' : 'Panel Médico'"
+    [descripcion]="esAdministradora ? 'Consulta las citas de todos los médicos y gestiona las atenciones.' : 'Consulta tus citas, administra tu disponibilidad y registra atenciones médicas.'"
+    [textoActualizar]="cargando ? 'Actualizando…' : '↻ Actualizar datos'"
+    [actualizacionDeshabilitada]="cargando || procesando"
+    (actualizar)="cargar()"
+  >
+    <p moduleHeaderDetail class="doctor-identidad">
+      Médico: <strong>{{ nombreDoctor }}</strong>
+    </p>
+    <span moduleHeaderAction class="k-count"
+      >{{paginacion.totalElementos}} citas asignadas</span
+    >
+  </header>
+
+  <app-feature-nav feature="atencion" />
+
+  @if (error) {
+  <div class="k-error" role="alert">{{ error }}</div>
+  } @if (exito) {
+  <div class="k-success" role="status">{{ exito }}</div>
+  } @if (!doctor && !esAdministradora) {
+  <div class="k-info" role="status">
+    Esta cuenta todavía no está vinculada con un registro médico. Solicita a
+    Administración que vincule el usuario con su ID_DOCTOR.
+  </div>
+  }
+  <section class="k-panel" aria-labelledby="titulo-mis-citas">
+    <div class="k-section-heading">
+      <div>
+        <h2 id="titulo-mis-citas">
+          {{ esAdministradora ? "Todas las citas" : "Mis citas asignadas" }}
+        </h2>
+        <p>Consulta el horario, el paciente y el estado de cada cita.</p>
+      </div>
+      <span class="k-count">{{paginacion.totalElementos}} registros</span>
+    </div>
+
+    <div class="k-toolbar">
+      <label class="k-search">
+        <span
+          >{{ esAdministradora ? "Buscar citas" : "Buscar en mis citas" }}</span
+        >
+        <input
+          type="search"
+          [(ngModel)]="busqueda"
+          (ngModelChange)="paginar(0)"
+          maxlength="150"
+          placeholder="Paciente, fecha, estado o ID"
+        />
+      </label>
+      <button
+        type="button"
+        class="k-button k-button-secondary"
+        (click)="cargar()"
+        [disabled]="cargando"
+      >
+        Actualizar listado
+      </button>
+    </div>
+
+    <div class="k-toolbar">
+      <label class="k-field"
+        >Ver citas<select [(ngModel)]="vista" (ngModelChange)="paginar(0)">
+          <option value="proximas">Próximas pendientes</option>
+          <option value="historial">Historial</option>
+          <option value="todas">Todas</option>
+        </select></label
+      >
+    </div>
+    <div class="k-table-wrap">
+      <table class="k-table">
+        <thead>
+          <tr>
+            <th scope="col">Cita</th>
+            <th scope="col">Fecha</th>
+            <th scope="col">Hora</th>
+            @if (esAdministradora) {
+            <th scope="col">Doctor</th>
+            }
+            <th scope="col">Paciente</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of citasFiltradas; track c.idCita) {
+          <tr>
+            <td><strong>#{{ c.idCita }}</strong></td>
+            <td>{{ fechaLegible(c.fechaCita) }}</td>
+            <td>{{ c.horaInicio || '—' }}</td>
+            @if (esAdministradora) {
+            <td>{{ c.nombreDoctor }}</td>
+            }
+            <td>{{ c.nombrePaciente || '—' }}</td>
+            <td>
+              <span
+                class="k-status"
+                [class.is-active]="c.estadoCita === 'ATENDIDA'"
+                >{{ estadoLegible(c.estadoCita) }}</span
+              >
+            </td>
+            <td class="k-row-actions">
+              @if (c.estadoCita === 'EN_ATENCION') {
+              <button
+                type="button"
+                class="k-button k-button-small"
+                (click)="seleccionar(c)"
+              >
+                Ir a consulta
+              </button>
+              } @else if (c.estadoCita === 'ATENDIDA') {
+              <button
+                type="button"
+                class="k-button k-button-secondary k-button-small"
+                (click)="verDetalle(c)"
+                [disabled]="cargandoDetalle"
+              >
+                Ver detalle
+              </button>
+              } @else {
+              <span class="k-muted">Sin acción disponible</span>
+              }
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td [attr.colspan]="esAdministradora ? 7 : 6" class="k-empty">
+              Aún no hay citas asignadas o la búsqueda no encontró resultados.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <app-paginador
+      [pagina]="paginacion.pagina"
+      [tamanio]="paginacion.tamanio"
+      [totalElementos]="paginacion.totalElementos"
+      [totalPaginas]="paginacion.totalPaginas"
+      [cargando]="paginacion.cargando"
+      (cambioPagina)="paginar($event)"
+      (cambioTamanio)="paginar(0, $event)"
+    />
+    <p class="doctor-help">
+      Una cita pasa a «En atención» cuando recepción registra la asistencia del
+      paciente. Solo entonces puede iniciarse la consulta.
+    </p>
+  </section>
+
+  @if (cargandoDetalle) {
+  <div class="k-info" role="status">Cargando detalle de la atención…</div>
+  } @else if (detalle) {
+  <section class="k-panel doctor-detalle" aria-labelledby="titulo-detalle-atencion">
+    <div class="k-section-heading doctor-detalle-cabecera">
+      <div>
+        <h2 id="titulo-detalle-atencion">Detalle de la cita #{{ detalle.idCita }}</h2>
+        <p>{{ detalle.paciente }} · {{ detalle.especialidad }} · {{ fechaLegible(detalle.fechaCita) }} {{ detalle.horaInicio }}</p>
+      </div>
+      <button type="button" class="k-button k-button-secondary" (click)="cerrarDetalle()">Cerrar detalle</button>
+    </div>
+    <dl class="doctor-detalle-grid">
+      <div><dt>Doctor</dt><dd>{{ detalle.doctor }}</dd></div>
+      <div><dt>Estado</dt><dd>{{ estadoLegible(detalle.estadoCita) }}</dd></div>
+      <div><dt>Diagnóstico</dt><dd>{{ detalle.diagnostico || 'No registrado' }}</dd></div>
+      <div><dt>Observaciones</dt><dd>{{ detalle.observaciones || 'Sin observaciones' }}</dd></div>
+      <div><dt>Indicaciones</dt><dd>{{ detalle.indicacionesReceta || 'Sin indicaciones' }}</dd></div>
+      <div><dt>Recibo</dt><dd>{{ detalle.numeroRecibo || 'No emitido' }}{{ detalle.medioEntrega ? ' · ' + detalle.medioEntrega : '' }}</dd></div>
+    </dl>
+    <h3 class="doctor-subtitulo">Medicamentos prescritos</h3>
+    @if (detalle.medicamentos.length) {
+    <div class="k-table-wrap">
+      <table class="k-table doctor-detalle-medicamentos">
+        <thead><tr><th>Medicamento</th><th>Dosis</th><th>Frecuencia</th><th>Duración</th><th>Observaciones</th></tr></thead>
+        <tbody>
+          @for (m of detalle.medicamentos; track $index) {
+          <tr><td>{{ m.medicamento }}</td><td>{{ m.dosis }}</td><td>{{ m.frecuencia }}</td><td>{{ m.duracion }}</td><td>{{ m.observaciones || '—' }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    } @else {
+    <p class="doctor-help">No hay medicamentos registrados en esta receta.</p>
+    }
+  </section>
+  }
+</div>

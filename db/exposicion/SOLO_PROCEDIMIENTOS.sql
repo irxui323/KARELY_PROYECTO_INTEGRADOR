@@ -1,0 +1,298 @@
+-- Ejecutar como KARELY_BD2 con F5 en SQL Developer.
+-- Solo crea los 15 procedimientos de consulta para la exposicion.
+-- Conserva los procedimientos que utiliza el backend.
+
+-- DOCTORES / Mariano
+-- Especialidades de un doctor
+CREATE OR REPLACE PROCEDURE SP_EXP_ESPECIALIDADES_DOC(
+    p_id NUMBER,
+    p_resultado OUT SYS_REFCURSOR
+) AUTHID CURRENT_USER IS
+BEGIN
+    IF p_id IS NULL OR p_id <= 0 OR p_id <> TRUNC(p_id) THEN
+        RAISE_APPLICATION_ERROR(-20880, 'Parametros de consulta invalidos.');
+    END IF;
+    OPEN p_resultado FOR
+    SELECT E.NOMBRE, E.PRECIO_CONSULTA, E.ESTADO
+    FROM DOCTOR_ESPECIALIDAD DE
+    JOIN ESPECIALIDAD E ON E.ID_ESPECIALIDAD = DE.ID_ESPECIALIDAD
+    WHERE DE.ID_DOCTOR = p_id
+    ORDER BY E.NOMBRE;
+END;
+/
+
+-- DOCTORES / Mariano
+-- Revisión documental del doctor
+CREATE OR REPLACE PROCEDURE SP_EXP_DOCUMENTOS_DOC(
+    p_id NUMBER,
+    p_resultado OUT SYS_REFCURSOR
+) AUTHID CURRENT_USER IS
+BEGIN
+    IF p_id IS NULL OR p_id <= 0 OR p_id <> TRUNC(p_id) THEN
+        RAISE_APPLICATION_ERROR(-20880, 'Parametros de consulta invalidos.');
+    END IF;
+    OPEN p_resultado FOR
+    SELECT TIPO_DOCUMENTO, ESTADO, FECHA_VALIDACION
+    FROM DOCUMENTO_DOCTOR
+    WHERE ID_DOCTOR = p_id
+    ORDER BY TIPO_DOCUMENTO, ID_DOCUMENTO;
+END;
+/
+
+-- DOCTORES / Mariano
+-- Horarios de un doctor
+CREATE OR REPLACE PROCEDURE SP_EXP_HORARIOS_DOC(
+    p_id NUMBER,
+    p_resultado OUT SYS_REFCURSOR
+) AUTHID CURRENT_USER IS
+BEGIN
+    IF p_id IS NULL OR p_id <= 0 OR p_id <> TRUNC(p_id) THEN
+        RAISE_APPLICATION_ERROR(-20880, 'Parametros de consulta invalidos.');
+    END IF;
+    OPEN p_resultado FOR
+    SELECT DD.FECHA_TURNO, F.HORA_INICIO, F.HORA_FIN, DD.ESTADO
+    FROM DISPONIBILIDAD_DOCTOR DD
+    JOIN FRANJA_HORARIA F ON F.ID_FRANJA = DD.ID_FRANJA
+    WHERE DD.ID_DOCTOR = p_id
+    ORDER BY DD.FECHA_TURNO, F.HORA_INICIO;
+END;
+/
+
+-- CITAS / Sebas
+-- Agenda de citas por día
+CREATE OR REPLACE PROCEDURE SP_EXP_AGENDA_DIA(
+    p_fecha DATE,
+    p_resultado OUT SYS_REFCURSOR
+) AUTHID CURRENT_USER IS
+BEGIN
+    IF p_fecha IS NULL THEN
+        RAISE_APPLICATION_ERROR(-20880, 'Parametros de consulta invalidos.');
+    END IF;
+    OPEN p_resultado FOR
+    SELECT C.ID_CITA, P.NOMBRES, P.APELLIDOS, C.ESTADO,
+           F.HORA_INICIO, C.MONTO_TOTAL
+    FROM CITA C
+    JOIN PACIENTE P ON P.ID_PACIENTE = C.ID_PACIENTE
+    JOIN FRANJA_HORARIA F ON F.ID_FRANJA = C.ID_FRANJA
+    WHERE C.FECHA_CITA = TRUNC(p_fecha)
+    ORDER BY F.HORA_INICIO, C.ID_CITA;
+END;
+/
+
+-- CITAS / Sebas
+-- Cantidad de citas por estado
+CREATE OR REPLACE PROCEDURE SP_EXP_RESUMEN_CITAS(
+    p_desde DATE, p_hasta DATE,
+    p_resultado OUT SYS_REFCURSOR
+) AUTHID CURRENT_USER IS
+BEGIN
+    IF p_desde IS NULL OR p_hasta IS NULL OR TRUNC(p_hasta) < TRUNC(p_desde) THEN
+        RAISE_APPLICATION_ERROR(-20880, 'Parametros de consulta invalidos.');
+    END IF;
+    OPEN p_resultado FOR
+    SELECT ESTADO, COUNT(*) AS TOTAL_CITAS
+    FROM CITA
+    WHERE FECHA_CITA >= TRUNC(p_desde)
+      AND FECHA_CITA < TRUNC(p_hasta) + 1
+    GROUP BY ESTADO
+    ORDER BY ESTADO;
+END;
+/
+
+-- CITAS / Sebas
+-- Consultar la reprogramación de una cita
+CREATE OR REPLACE PROCEDURE SP_EXP_CAMBIO_CITA(
+    p_id NUMBER,
+    p_resultado OUT SYS_REFCURSOR
+) AUTHID CURRENT_USER IS
+BEGIN
+    IF p_id IS NULL OR p_id <= 0 OR p_id <> TRUNC(p_id) THEN
+        RAISE_APPLICATION_ERROR(-20880, 'Parametros de consulta invalidos.');
+    END IF;
+    OPEN p_resultado FOR
+    SELECT ID_CITA, FECHA_ORIGINAL, FECHA_NUEVA, MOTIVO,
+           ACEPTACION_PACIENTE, FECHA_REGISTRO
+    FROM REPROGRAMACION_CITA
+    WHERE ID_CITA = p_id;
+END;
+/
+
+-- PACIENTES / Eleazar
+-- Buscar paciente por documento
+CREATE OR REPLACE PROCEDURE SP_EXP_BUSCAR_PACIENTE(
+    p_tipo VARCHAR2, p_documento VARCHAR2,
+    p_resultado OUT SYS_REFCURSOR
+) AUTHID CURRENT_USER IS
+BEGIN
+    IF TRIM(p_tipo) IS NULL OR TRIM(p_documento) IS NULL THEN
+        RAISE_APPLICATION_ERROR(-20880, 'Parametros de consulta invalidos.');
+    END IF;
+    OPEN p_resultado FOR
+    SELECT ID_PACIENTE, NOMBRES, APELLIDOS, ESTADO
+    FROM PACIENTE
+    WHERE TIPO_DOCUMENTO = UPPER(TRIM(p_tipo))
+      AND NUMERO_DOCUMENTO = TRIM(p_documento);
+END;
+/
+
+-- PACIENTES / Eleazar
+-- Historial de atenciones del paciente
+CREATE OR REPLACE PROCEDURE SP_EXP_HISTORIAL_PAC(
+    p_id NUMBER,
+    p_resultado OUT SYS_REFCURSOR
+) AUTHID CURRENT_USER IS
+BEGIN
+    IF p_id IS NULL OR p_id <= 0 OR p_id <> TRUNC(p_id) THEN
+        RAISE_APPLICATION_ERROR(-20880, 'Parametros de consulta invalidos.');
+    END IF;
+    OPEN p_resultado FOR
+    SELECT C.ID_CITA, C.FECHA_CITA, A.ID_ATENCION,
+           A.ESTADO, A.FECHA_INICIO, A.FECHA_CIERRE
+    FROM CITA C
+    JOIN ATENCION_MEDICA A ON A.ID_CITA = C.ID_CITA
+    WHERE C.ID_PACIENTE = p_id
+    ORDER BY C.FECHA_CITA DESC, C.ID_CITA DESC;
+END;
+/
+
+-- PACIENTES / Eleazar
+-- Medicamentos de una receta
+CREATE OR REPLACE PROCEDURE SP_EXP_DETALLE_RECETA(
+    p_id NUMBER,
+    p_resultado OUT SYS_REFCURSOR
+) AUTHID CURRENT_USER IS
+BEGIN
+    IF p_id IS NULL OR p_id <= 0 OR p_id <> TRUNC(p_id) THEN
+        RAISE_APPLICATION_ERROR(-20880, 'Parametros de consulta invalidos.');
+    END IF;
+    OPEN p_resultado FOR
+    SELECT MEDICAMENTO, DOSIS, FRECUENCIA, DURACION,
+           OBSERVACIONES
+    FROM RECETA_DETALLE
+    WHERE ID_RECETA = p_id
+    ORDER BY ID_DETALLE;
+END;
+/
+
+-- FINANZAS / Carlos
+-- Cobros aprobados por método
+CREATE OR REPLACE PROCEDURE SP_EXP_COBROS_PERIODO(
+    p_desde DATE, p_hasta DATE,
+    p_resultado OUT SYS_REFCURSOR
+) AUTHID CURRENT_USER IS
+BEGIN
+    IF p_desde IS NULL OR p_hasta IS NULL OR TRUNC(p_hasta) < TRUNC(p_desde) THEN
+        RAISE_APPLICATION_ERROR(-20880, 'Parametros de consulta invalidos.');
+    END IF;
+    OPEN p_resultado FOR
+    SELECT METODO_PAGO, COUNT(*) AS TOTAL_PAGOS,
+           SUM(MONTO) AS TOTAL_COBRADO
+    FROM PAGO_CITA
+    WHERE ESTADO = 'APROBADO'
+      AND FECHA_PAGO >= CAST(TRUNC(p_desde) AS TIMESTAMP)
+      AND FECHA_PAGO < CAST(TRUNC(p_hasta) + 1 AS TIMESTAMP)
+    GROUP BY METODO_PAGO
+    ORDER BY METODO_PAGO;
+END;
+/
+
+-- FINANZAS / Carlos
+-- Pagos realizados al doctor
+CREATE OR REPLACE PROCEDURE SP_EXP_PAGOS_DOCTOR(
+    p_id NUMBER,
+    p_resultado OUT SYS_REFCURSOR
+) AUTHID CURRENT_USER IS
+BEGIN
+    IF p_id IS NULL OR p_id <= 0 OR p_id <> TRUNC(p_id) THEN
+        RAISE_APPLICATION_ERROR(-20880, 'Parametros de consulta invalidos.');
+    END IF;
+    OPEN p_resultado FOR
+    SELECT ID_LIQUIDACION, PERIODO_INICIO, PERIODO_FIN,
+           MONTO, METODO_PAGO, FECHA_PAGO
+    FROM LIQUIDACION
+    WHERE ID_DOCTOR = p_id
+    ORDER BY FECHA_PAGO DESC, ID_LIQUIDACION DESC;
+END;
+/
+
+-- FINANZAS / Carlos
+-- Ingresos de la gestora por concepto
+CREATE OR REPLACE PROCEDURE SP_EXP_INGRESOS_GESTORA(
+    p_desde DATE, p_hasta DATE,
+    p_resultado OUT SYS_REFCURSOR
+) AUTHID CURRENT_USER IS
+BEGIN
+    IF p_desde IS NULL OR p_hasta IS NULL OR TRUNC(p_hasta) < TRUNC(p_desde) THEN
+        RAISE_APPLICATION_ERROR(-20880, 'Parametros de consulta invalidos.');
+    END IF;
+    OPEN p_resultado FOR
+    SELECT CONCEPTO, COUNT(*) AS TOTAL_MOVIMIENTOS,
+           SUM(MONTO_INGRESO) AS TOTAL_INGRESO
+    FROM VW_INGRESOS_GESTORA
+    WHERE FECHA_CITA >= TRUNC(p_desde)
+      AND FECHA_CITA < TRUNC(p_hasta) + 1
+    GROUP BY CONCEPTO
+    ORDER BY CONCEPTO;
+END;
+/
+
+-- RECEPCION_SEGURIDAD / Andrés
+-- Control de llegadas del día
+CREATE OR REPLACE PROCEDURE SP_EXP_ASISTENCIAS_DIA(
+    p_fecha DATE,
+    p_resultado OUT SYS_REFCURSOR
+) AUTHID CURRENT_USER IS
+BEGIN
+    IF p_fecha IS NULL THEN
+        RAISE_APPLICATION_ERROR(-20880, 'Parametros de consulta invalidos.');
+    END IF;
+    OPEN p_resultado FOR
+    SELECT C.ID_CITA, P.NOMBRES, P.APELLIDOS, C.ESTADO,
+           CASE WHEN A.ID_ASISTENCIA IS NULL
+                THEN 'SIN REGISTRO' ELSE 'PRESENTE' END AS LLEGADA
+    FROM CITA C
+    JOIN PACIENTE P ON P.ID_PACIENTE = C.ID_PACIENTE
+    LEFT JOIN ASISTENCIA A ON A.ID_CITA = C.ID_CITA
+    WHERE C.FECHA_CITA = TRUNC(p_fecha)
+    ORDER BY C.ID_CITA;
+END;
+/
+
+-- RECEPCION_SEGURIDAD / Andrés
+-- Usuarios por estado y rol
+CREATE OR REPLACE PROCEDURE SP_EXP_USUARIOS_ESTADO(
+    p_estado VARCHAR2,
+    p_resultado OUT SYS_REFCURSOR
+) AUTHID CURRENT_USER IS
+BEGIN
+    IF TRIM(p_estado) IS NULL OR UPPER(TRIM(p_estado)) NOT IN ('ACTIVO','INACTIVO','BLOQUEADO') THEN
+        RAISE_APPLICATION_ERROR(-20880, 'Parametros de consulta invalidos.');
+    END IF;
+    OPEN p_resultado FOR
+    SELECT U.USERNAME, R.NOMBRE AS ROL, U.ESTADO
+    FROM USUARIO U
+    JOIN ROL R ON R.ID_ROL = U.ID_ROL
+    WHERE U.ESTADO = UPPER(TRIM(p_estado))
+    ORDER BY R.NOMBRE, U.USERNAME;
+END;
+/
+
+-- RECEPCION_SEGURIDAD / Andrés
+-- Historial de sesiones de un usuario
+CREATE OR REPLACE PROCEDURE SP_EXP_SESIONES_USUARIO(
+    p_id NUMBER,
+    p_resultado OUT SYS_REFCURSOR
+) AUTHID CURRENT_USER IS
+BEGIN
+    IF p_id IS NULL OR p_id <= 0 OR p_id <> TRUNC(p_id) THEN
+        RAISE_APPLICATION_ERROR(-20880, 'Parametros de consulta invalidos.');
+    END IF;
+    OPEN p_resultado FOR
+    SELECT ID_SESION, FECHA_INICIO, ULTIMA_ACTIVIDAD,
+           FECHA_FIN, ESTADO
+    FROM SESION_USUARIO
+    WHERE ID_USUARIO = p_id
+    ORDER BY FECHA_INICIO DESC, ID_SESION DESC;
+END;
+/
+

@@ -1,0 +1,81 @@
+<div class="k-module k-admin">
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="CONFIGURACIÓN / ADMINISTRACIÓN"
+    titulo="Administración"
+    descripcion="Gestiona usuarios, parámetros, catálogos, notificaciones y auditoría."
+    textoActualizar="↻ Actualizar información"
+    (actualizar)="cargar()"
+  ></header>
+  <app-feature-nav feature="administracion" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Parámetros configurables</h2>
+        <p>Consulta los valores activos que utiliza el sistema.</p>
+      </div>
+    </div>
+    <div class="k-table-wrap">
+      <table class="k-table">
+        <thead>
+          <tr>
+            <th>Parámetro</th>
+            <th>Valor</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(p of tabla.contenido();track p.idParametro){
+          <tr>
+            <td><strong>{{p.nombre}}</strong></td>
+            <td>{{p.valor}}</td>
+            <td>{{p.descripcion}}</td>
+          </tr>
+          }@empty{
+          <tr>
+            <td class="k-empty" colspan="3">No hay parámetros registrados.</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <app-paginador #tabla [registros]="parametros" />
+  </section>
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Actualizar parámetro</h2>
+        <p>El cambio queda registrado en el historial del sistema.</p>
+      </div>
+    </div>
+    <div class="k-form">
+      <label class="k-field"
+        >Parámetro<select [formControl]="configGroup.controls.nombre">
+          <option value="">Selecciona un parámetro</option>
+          @for(p of parametros;track p.idParametro){
+          <option [value]="p.nombre">{{p.nombre}}</option>
+          }
+        </select></label
+      ><label class="k-field"
+        >Nuevo valor<input
+          [formControl]="configGroup.controls.valor"
+          placeholder="Introduce el nuevo valor"
+      /></label>
+    </div>
+    <div class="k-actions">
+      <button
+        class="k-button"
+        [disabled]="guardando || !config.nombre || !config.valor"
+        (click)="cambiarParametro()"
+      >
+        Actualizar parámetro
+      </button>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,104 @@
+<div class="k-module k-pacientes">
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="GESTIÓN CLÍNICA / PACIENTES"
+    titulo="Pacientes"
+    descripcion="Registra pacientes, consulta sus datos y confirma su llegada a las citas."
+    textoActualizar="↻ Actualizar datos"
+    (actualizar)="cargar()"
+  ></header>
+  <app-feature-nav feature="pacientes" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  } @if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Admisión de pacientes</h2>
+        <p>
+          Confirma la llegada de pacientes con citas programadas o
+          reprogramadas.
+        </p>
+      </div>
+    </div>
+    <div class="k-info">
+      La asistencia se registra durante los 30 minutos previos al inicio del
+      turno. El servidor comprueba ese límite.
+    </div>
+    <div class="k-toolbar">
+      <label class="k-search"
+        ><span>Buscar en el listado</span
+        ><input
+          type="search"
+          [(ngModel)]="buscar"
+          (ngModelChange)="paginar(0)"
+          maxlength="150"
+          placeholder="Buscar registros"
+      /></label>
+    </div>
+    <div class="k-toolbar">
+      <label class="k-field"
+        >Ver citas<select [(ngModel)]="vista" (ngModelChange)="paginar(0)">
+          <option value="proximas">Próximas pendientes</option>
+          <option value="historial">Historial</option>
+          <option value="todas">Todas</option>
+        </select></label
+      >
+    </div>
+    <div class="k-table-wrap">
+      <table class="k-table">
+        <thead>
+          <tr>
+            <th>Cita</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Paciente</th>
+            <th>Doctor</th>
+            <th>Estado</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(c of citas;track
+          c.idCita){@if(c.estadoCita==='PROGRAMADA'||c.estadoCita==='REPROGRAMADA'){
+          <tr>
+            <td>#{{c.idCita}}</td>
+            <td>{{c.fechaCita}}</td>
+            <td>{{c.horaInicio}}</td>
+            <td>{{c.nombrePaciente}}</td>
+            <td>{{c.nombreDoctor}}</td>
+            <td><span class="k-status">{{c.estadoCita}}</span></td>
+            <td>
+              <button
+                [disabled]="guardando"
+                *siPermiso="'ASISTENCIA_REGISTRAR'"
+                type="button"
+                class="k-button k-button-small"
+                (click)="admitir(c)"
+              >
+                Registrar llegada
+              </button>
+            </td>
+          </tr>
+          }} @empty {
+          <tr>
+            <td class="k-empty" colspan="7">No hay citas para mostrar.</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <app-paginador
+      [pagina]="paginacion.pagina"
+      [tamanio]="paginacion.tamanio"
+      [totalElementos]="paginacion.totalElementos"
+      [totalPaginas]="paginacion.totalPaginas"
+      [cargando]="paginacion.cargando"
+      (cambioPagina)="paginar($event)"
+      (cambioTamanio)="paginar(0, $event)"
+    />
+  </section>
+</div>

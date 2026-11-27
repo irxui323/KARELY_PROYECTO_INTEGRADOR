@@ -1,0 +1,69 @@
+<main class="contenedor-login">
+  <section class="zona-imagen">
+    <img
+      src="/img/FONDO LOGIN.png"
+      alt="Consultorio médico"
+      class="imagen-consultorio"
+    />
+  </section>
+  <div class="separador-azul"></div>
+  <section class="zona-formulario">
+    <div class="contenido-formulario">
+      <img
+        src="/img/LOGO GRANDE.png"
+        alt="Logo Karely's"
+        class="logo-karelys"
+      />
+      <h1>INICIAR SESIÓN</h1>
+      <p class="texto-ayuda">
+        Ingrese sus credenciales para acceder al sistema
+      </p>
+      @if(aviso){
+      <p class="mensaje-error" role="status">{{aviso}}</p>
+      }
+      <form
+        class="formulario-login"
+        [formGroup]="loginForm"
+        (ngSubmit)="login()"
+      >
+        <label for="login-usuario" class="etiqueta-accesible">Usuario</label>
+        <input
+          id="login-usuario"
+          name="username"
+          formControlName="username"
+          placeholder="Ingrese su usuario"
+          required
+          autocomplete="username"
+        />
+        <div class="caja-contrasena">
+          <label for="login-contrasena" class="etiqueta-accesible">Contraseña</label>
+          <input
+            id="login-contrasena"
+            [type]="mostrar?'text':'password'"
+            name="password"
+            formControlName="password"
+            placeholder="Contraseña"
+            required
+            autocomplete="current-password"
+          /><button
+            type="button"
+            class="boton-ojo"
+            [attr.aria-label]="mostrar ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            (click)="mostrar=!mostrar"
+          >
+            ◉
+          </button>
+        </div>
+        @if(error){
+        <p class="mensaje-error" role="alert">{{error}}</p>
+        }
+        <button class="boton-ingresar" type="submit" [disabled]="loading">
+          {{loading?'Ingresando...':'Iniciar Sesión'}}
+        </button>
+      </form>
+      <a class="enlace-recuperacion" routerLink="/recuperar-password"
+        >Olvidé mi contraseña</a
+      >
+    </div>
+  </section>
+</main>

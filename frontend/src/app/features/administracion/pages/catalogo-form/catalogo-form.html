@@ -1,0 +1,101 @@
+<div class="k-module k-admin">
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="CONFIGURACIÓN / ADMINISTRACIÓN"
+    titulo="Administración"
+    descripcion="Gestiona usuarios, parámetros, catálogos, notificaciones y auditoría."
+  ></header>
+  <app-feature-nav feature="administracion" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <div class="k-info">
+    Configura los catálogos antes de registrar horarios o crear pre-reservas de
+    citas.
+  </div>
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Especialidades médicas</h2>
+        <p>Agrega una nueva especialidad y define su precio de consulta.</p>
+      </div>
+    </div>
+    <div class="k-form">
+      <label class="k-field"
+        >Nombre de especialidad<input
+          [formControl]="espGroup.controls.nombre"
+          placeholder="Ej. Medicina general" /></label
+      ><label class="k-field"
+        >Precio de consulta (S/)<input
+          type="number"
+          min="0"
+          [formControl]="espGroup.controls.precioConsulta"
+      /></label>
+    </div>
+    <div class="k-actions">
+      <button
+        class="k-button"
+        [disabled]="guardando || (!esp.nombre || esp.precioConsulta==null)"
+        (click)="ejecutar('especialidad-crear',esp)"
+      >
+        Crear especialidad
+      </button>
+    </div>
+  </section>
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Consultorios</h2>
+        <p>Registra los espacios donde se realizan las consultas médicas.</p>
+      </div>
+    </div>
+    <div class="k-form">
+      <label class="k-field"
+        >Nombre del consultorio<input
+          [formControl]="consGroup.controls.nombre" /></label
+      ><label class="k-field"
+        >Ubicación<input [formControl]="consGroup.controls.ubicacion"
+      /></label>
+    </div>
+    <div class="k-actions">
+      <button
+        class="k-button"
+        [disabled]="guardando || (!cons.nombre)"
+        (click)="ejecutar('consultorio-crear',cons)"
+      >
+        Crear consultorio
+      </button>
+    </div>
+  </section>
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Franjas horarias</h2>
+        <p>Define la hora de inicio y fin de un turno médico.</p>
+      </div>
+    </div>
+    <div class="k-form">
+      <label class="k-field"
+        >Hora de inicio<input
+          type="time"
+          [formControl]="franjaGroup.controls.horaInicio" /></label
+      ><label class="k-field"
+        >Hora de fin<input
+          type="time"
+          [formControl]="franjaGroup.controls.horaFin"
+      /></label>
+    </div>
+    <div class="k-actions">
+      <button
+        class="k-button"
+        [disabled]="guardando || (!franja.horaInicio || !franja.horaFin)"
+        (click)="ejecutar('franja-crear',franja)"
+      >
+        Crear franja horaria
+      </button>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,82 @@
+<div class="k-module k-finanzas">
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="GESTIÓN ECONÓMICA / FINANZAS"
+    titulo="Área financiera"
+    descripcion="Controla liquidaciones, pagos a médicos e ingresos registrados de la gestora."
+    textoActualizar="↻ Actualizar registros"
+    (actualizar)="cargar()"
+  >
+  </header>
+  <app-feature-nav feature="finanzas" />
+  @if(error || liqGroup.hasError('periodoInvalido')){
+  <div class="k-error" role="alert">{{liqGroup.hasError('periodoInvalido') ? 'La fecha de fin debe ser igual o posterior a la fecha de inicio.' : error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Registrar pago a médico</h2>
+        <p>Selecciona el médico y el periodo al que corresponde el pago.</p>
+      </div>
+    </div>
+    <form [formGroup]="liqGroup" (ngSubmit)="registrarPago()">
+      <fieldset class="k-form" [disabled]="guardando">
+        <label class="k-field">
+          Doctor
+          <select formControlName="idDoctor">
+            <option [ngValue]="null">Selecciona un médico</option>
+            @for (doctor of doctores; track doctor.idDoctor) {
+            <option [ngValue]="doctor.idDoctor">
+              {{doctor.nombres}} {{doctor.apellidos}}
+            </option>
+            }
+          </select>
+        </label>
+        <label class="k-field">
+          Fecha de inicio
+          <input type="date" formControlName="fechaInicio" [max]="liqGroup.controls.fechaFin.value || ''" />
+        </label>
+        <label class="k-field">
+          Fecha de fin
+          <input type="date" formControlName="fechaFin" [min]="liqGroup.controls.fechaInicio.value || ''" />
+        </label>
+        <label class="k-field">
+          Monto a pagar (S/)
+          <input type="number" min="0.01" step="0.01" formControlName="monto" />
+        </label>
+        <label class="k-field">
+          Método de pago
+          <select formControlName="metodoPago">
+            <option value="TRANSFERENCIA">Transferencia</option>
+            <option value="EFECTIVO">Efectivo</option>
+          </select>
+        </label>
+      </fieldset>
+      <p class="k-info">
+        El número de operación interno y el número de boleta se generan
+        automáticamente al registrar el pago. Podrás consultarlos en
+        Liquidaciones.
+      </p>
+      <div class="k-actions">
+        <button
+          *siPermiso="'PAGOS_REGISTRAR'"
+          type="submit"
+          class="k-button"
+          [disabled]="guardando || liqGroup.invalid"
+        >
+          Registrar pago
+        </button>
+        <button
+          type="button"
+          class="k-button k-button-secondary"
+          routerLink="/finanzas"
+        >
+          Volver a liquidaciones
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

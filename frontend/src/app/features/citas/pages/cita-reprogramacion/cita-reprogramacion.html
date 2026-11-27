@@ -1,0 +1,123 @@
+<div class="k-module k-citas">
+  <header
+    appModuleHeader
+    class="k-module-header"
+    contexto="GESTIÓN CLÍNICA / AGENDA"
+    titulo="Citas médicas"
+    descripcion="Consulta la agenda, reserva turnos y gestiona pagos y reprogramaciones."
+    textoActualizar="↻ Actualizar agenda"
+    (actualizar)="cargar()"
+  >
+  </header>
+  <app-feature-nav feature="citas" />
+  @if(error){
+  <div class="k-error" role="alert">{{error}}</div>
+  }@if(exito){
+  <div class="k-success" role="status">{{exito}}</div>
+  }
+  <section class="k-panel">
+    <div class="k-section-heading">
+      <div>
+        <h2>Reprogramar una cita</h2>
+        <p>
+          Selecciona un turno disponible desde la fecha actual. El paciente debe
+          aceptar el cambio.
+        </p>
+      </div>
+    </div>
+    <div class="k-info">
+      Solo se permite una reprogramación por cita y no se registra un segundo
+      cobro.
+    </div>
+    <div class="k-form">
+      <label class="k-field k-field-wide"
+        >Cita original<select
+          [formControl]="reproGroup.controls.idCita"
+          (change)="cambiarCita()"
+          [appControlDisabled]="guardando"
+        >
+          <option [ngValue]="null">Selecciona una cita programada</option>
+          @for(c of citasProgramadas;track c.idCita){
+          <option [ngValue]="c.idCita">
+            #{{c.idCita}} — {{c.nombrePaciente}} — {{c.fechaCita}}
+          </option>
+          }
+        </select></label
+      >
+      <label class="k-field"
+        >Nuevo consultorio<select
+          [formControl]="reproGroup.controls.idConsultorioNuevo"
+          (change)="cambiarConsultorio()"
+          [appControlDisabled]="guardando"
+        >
+          <option [ngValue]="null">Selecciona un consultorio</option>
+          @for(c of consultorios;track c.idConsultorio){
+          <option [ngValue]="c.idConsultorio">{{c.nombre}}</option>
+          }
+        </select></label
+      >
+      <div class="k-field k-field-wide">
+        <span
+          >Nueva fecha · {{citaOriginal?.nombreDoctor}} ·
+          {{citaOriginal?.especialidad}}</span
+        >
+        <app-calendario-disponibilidad
+          [mes]="mes"
+          [minima]="fechaMinima"
+          [seleccionada]="repro.fechaNueva || ''"
+          [cantidades]="cantidades"
+          [cargando]="cargandoMes || guardando"
+          [error]="errorCalendario"
+          (mesChange)="cargarMes($event)"
+          (fechaChange)="elegirFecha($event)"
+        />
+        <small
+          >Selecciona un consultorio para ver las fechas con turnos libres del
+          doctor y la especialidad de la cita original.</small
+        >
+      </div>
+      <label class="k-field"
+        >Nuevo turno<select
+          [formControl]="reproGroup.controls.idFranjaNueva"
+          [appControlDisabled]="guardando || consultando || !repro.fechaNueva || !turnos.length"
+        >
+          <option [ngValue]="null">Selecciona un horario</option>
+          @for(f of turnos;track f.idFranja){
+          <option [ngValue]="f.idFranja">
+            {{f.horaInicio}} – {{f.horaFin}}
+          </option>
+          }
+        </select></label
+      >
+      <label class="k-field"
+        >Motivo de reprogramación<input
+          [formControl]="reproGroup.controls.motivo"
+          placeholder="Motivo informado por el paciente"
+      /></label>
+      <label class="k-field"
+        >Aceptación del paciente<select
+          [formControl]="reproGroup.controls.aceptacionPaciente"
+        >
+          <option value="N">Pendiente</option>
+          <option value="S">Sí, aceptada</option>
+        </select></label
+      >
+    </div>
+    @if(repro.fechaNueva) {
+    <p class="k-info">
+      Fecha seleccionada: {{repro.fechaNueva}} · {{consultando ? "Consultando
+      turnos…" : turnos.length + " turnos disponibles"}}. La disponibilidad se
+      vuelve a comprobar al guardar.
+    </p>
+    }
+    <div class="k-actions">
+      <button
+        class="k-button"
+        [disabled]="guardando || consultando || cargandoMes || reproGroup.invalid || !turnoValido"
+        (click)="reprogramar()"
+      >
+        Guardar reprogramación
+      </button>
+    </div>
+  </section>
+</div>
